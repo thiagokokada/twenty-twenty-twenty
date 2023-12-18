@@ -39,8 +39,15 @@ func main() {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 
-	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
+	_, err = notifier.CreateNotification(
+		"Starting 20-20-20",
+		fmt.Sprintf("You will see a notification every %d minutes(s)", flags.frequencyInMin),
+	)
+	if err != nil {
+		log.Fatalf("Error while sending test notification: %v\n", err)
+	}
 
+	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
 	go func() {
 		for {
