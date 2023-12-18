@@ -24,15 +24,6 @@ Needs Go 1.18+.
 
 ```
 $ go generate
-# or
-$ make
-```
-
-Also in macOS, it needs to be built with `gogio`:
-
-```
-$ go install gioui.org/cmd/gogio@0.4.0
-$ make TwentyTwentyTwenty.app
 ```
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
