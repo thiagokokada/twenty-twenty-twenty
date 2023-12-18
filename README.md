@@ -2,7 +2,7 @@
 
 20-20-20 is a program that alerts every 20 minutes to look something at 20 feet
 away for 20 seconds, written in Golang. This is done to reduce eye fadigue [1].
-While controversial[2][3], it is a simple rule to remember and can help long
+While controversial [2], it is a simple rule to remember and can help long
 screen usage sessions.
 
 
@@ -36,5 +36,4 @@ $ make TwentyTwentyTwenty.app
 ```
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
-[2]: https://pubmed.ncbi.nlm.nih.gov/36473088/
-[3]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule?c4src=article:infinite-scroll
+[2]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule
