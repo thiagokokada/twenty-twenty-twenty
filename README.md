@@ -23,7 +23,7 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 Needs Go 1.18+.
 
 ```
-$ go build
+$ go generate
 # or
 $ make
 ```

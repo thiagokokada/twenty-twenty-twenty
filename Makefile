@@ -8,7 +8,7 @@ TwentyTwentyTwenty.app: bin/twenty-twenty-twenty
 	codesign -s - $@/*.app
 
 bin/twenty-twenty-twenty: eye.png *.go go.mod go.sum
-	go build -o $@
+	go generate
 
 clean:
 	rm -rf bin TwentyTwentyTwenty.app
