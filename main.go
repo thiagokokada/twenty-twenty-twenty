@@ -1,14 +1,13 @@
 package main
 
 import (
-	_ "embed"
 	"flag"
 	"fmt"
 	"log"
-	"os"
 	"time"
 
-	"github.com/gen2brain/beeep"
+	"gioui.org/app"
+	"gioui.org/x/notify"
 )
 
 type flags struct {
@@ -16,65 +15,58 @@ type flags struct {
 	frequencyInMin uint64
 }
 
-//go:embed eye-solid.svg
-var iconBytes []byte
-
-func loadIcon() *os.File {
-	icon, err := os.CreateTemp("", "twenty-twenty-twenty-icon-")
-	if err != nil {
-		log.Fatalf("Error while creating temporary file: %v", err)
-	}
-	icon.Write(iconBytes)
-	return icon
-}
-
 func parseFlags() flags {
 	durationInSec := flag.Uint(
 		"duration",
 		20,
-		"how long to show the notification in seconds (does not work in macOS)",
+		"how long each pause should be in seconds",
 	)
 	frequencyInMin := flag.Uint64(
 		"frequency",
 		20,
-		"how often to show the notification in minutes",
+		"how often the pause should be in minutes",
 	)
 	flag.Parse()
 
 	return flags{durationInSec: *durationInSec, frequencyInMin: *frequencyInMin}
 }
 
-func initBeeep(durationInSec uint) {
-	const MS_IN_SEC = 1000
-
-	err := beeep.Beep(beeep.DefaultFreq, int(durationInSec)*MS_IN_SEC)
-	if err != nil {
-		log.Fatalf("Error during beeep init: %v\n", err)
-	}
-}
-
 func main() {
-	icon := loadIcon()
-	defer icon.Close()
-	defer os.Remove(icon.Name())
-
 	flags := parseFlags()
-	initBeeep(flags.durationInSec)
+
+	notifier, err := notify.NewNotifier()
+	if err != nil {
+		log.Fatalf("Error while creating a notifier: %v\n", err)
+	}
+
+	_, err = notifier.CreateNotification(
+		"Starting 20-20-20",
+		fmt.Sprintf("You will see a notification every %d minutes(s)", flags.frequencyInMin),
+	)
+	if err != nil {
+		log.Fatalf("Error while sending test notification: %v\n", err)
+	}
 
 	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
-
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
-
-	for {
-		<-ticker.C
-		log.Println("Sending notification...")
-		err := beeep.Alert(
-			"Time to rest your eyes",
-			fmt.Sprintf("Look at 20 feet (~6 meters) away for %d seconds", flags.durationInSec),
-			icon.Name(),
-		)
-		if err != nil {
-			log.Fatalf("Error during beeep alert: %v\n", err)
+	go func() {
+		for {
+			<-ticker.C
+			log.Println("Sending notification...")
+			go func() {
+				notification, err := notifier.CreateNotification(
+					"Time to rest your eyes",
+					fmt.Sprintf("Look at 20 feet (~6 meters) away for %d seconds", flags.durationInSec),
+				)
+				if err != nil {
+					log.Printf("Error while sending notification: %v\n", err)
+					return
+				}
+				time.Sleep(time.Duration(flags.durationInSec) * time.Second)
+				notification.Cancel()
+			}()
 		}
-	}
+	}()
+
+	app.Main()
 }

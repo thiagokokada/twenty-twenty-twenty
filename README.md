@@ -11,10 +11,10 @@ screen usage sessions.
 ```
 $ ./twenty-twenty-twenty -help
 Usage of ./twenty-twenty-twenty:
-  -duration int
-    	how long to show the notification in seconds (does not work in macOS) (default 20)
-  -frequency int
-    	how often to show the notification in minutes (default 20)
+  -duration uint
+    	how long each pause should be in seconds (default 20)
+  -frequency uint
+    	how often the pause should be in minutes (default 20)
 $ ./twenty-twenty-twenty # the defaults are recommended
 ```
 
@@ -24,18 +24,16 @@ Needs Go 1.18+.
 
 ```
 $ go build
+# or
+$ make
 ```
 
-## License
+Also in macOS, it needs to be built with `gogio`:
 
-The code itself is licensed in the MIT license.
-
-[beeep](https://github.com/gen2brain/beeep) is the only third-party
-dependency, and it is licensed in [BSD
-2-clause](https://github.com/gen2brain/beeep/blob/master/LICENSE).
-
-The eye icon is from Font Awesome and is licensed in [CC-BY
-4.0](https://creativecommons.org/licenses/by/4.0/).
+```
+$ go install gioui.org/cmd/gogio@0.4.0
+$ make TwentyTwentyTwenty.app
+```
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
 [2]: https://pubmed.ncbi.nlm.nih.gov/36473088/
