@@ -35,13 +35,12 @@ func parseFlags() flags {
 func main() {
 	flags := parseFlags()
 
-	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
-	tickerNotification := time.NewTicker(time.Duration(flags.durationInSec) * time.Second)
-
 	notifier, err := notify.NewNotifier()
 	if err != nil {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
+
+	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
 
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
 	go func() {
@@ -57,7 +56,7 @@ func main() {
 					log.Printf("Error while sending notification: %v\n", err)
 					return
 				}
-				<-tickerNotification.C
+				time.Sleep(time.Duration(flags.durationInSec) * time.Second)
 				notification.Cancel()
 			}()
 		}
