@@ -12,8 +12,8 @@ import (
 )
 
 type flags struct {
-	durationInSec  int
-	frequencyInMin int64
+	durationInSec  uint
+	frequencyInMin uint64
 }
 
 //go:embed eye-solid.svg
@@ -29,12 +29,12 @@ func loadIcon() *os.File {
 }
 
 func parseFlags() flags {
-	durationInSec := flag.Int(
+	durationInSec := flag.Uint(
 		"duration",
 		20,
 		"how long to show the notification in seconds (does not work in macOS)",
 	)
-	frequencyInMin := flag.Int64(
+	frequencyInMin := flag.Uint64(
 		"frequency",
 		20,
 		"how often to show the notification in minutes",
@@ -44,10 +44,10 @@ func parseFlags() flags {
 	return flags{durationInSec: *durationInSec, frequencyInMin: *frequencyInMin}
 }
 
-func initBeeep(durationInSec int) {
+func initBeeep(durationInSec uint) {
 	const MS_IN_SEC = 1000
 
-	err := beeep.Beep(beeep.DefaultFreq, durationInSec*MS_IN_SEC)
+	err := beeep.Beep(beeep.DefaultFreq, int(durationInSec)*MS_IN_SEC)
 	if err != nil {
 		log.Fatalf("Error during beeep init: %v\n", err)
 	}
