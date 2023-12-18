@@ -11,10 +11,10 @@ screen usage sessions.
 ```
 $ ./twenty-twenty-twenty -help
 Usage of ./twenty-twenty-twenty:
-  -duration int
-    	how long to show the notification in seconds (does not work in macOS) (default 20)
-  -frequency int
-    	how often to show the notification in minutes (default 20)
+  -duration uint
+    	how long each pause should be in seconds (default 20)
+  -frequency uint
+    	how often the pause should be in minutes (default 20)
 $ ./twenty-twenty-twenty # the defaults are recommended
 ```
 
@@ -24,6 +24,15 @@ Needs Go 1.18+.
 
 ```
 $ go build
+# or
+$ make
+```
+
+Also in macOS, it needs to be built with `gogio`:
+
+```
+$ go install gioui.org/cmd/gogio@0.4.0
+$ make TwentyTwentyTwenty.app
 ```
 
 ## License
