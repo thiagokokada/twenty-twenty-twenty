@@ -35,17 +35,6 @@ $ go install gioui.org/cmd/gogio@0.4.0
 $ make TwentyTwentyTwenty.app
 ```
 
-## License
-
-The code itself is licensed in the MIT license.
-
-[beeep](https://github.com/gen2brain/beeep) is the only third-party
-dependency, and it is licensed in [BSD
-2-clause](https://github.com/gen2brain/beeep/blob/master/LICENSE).
-
-The eye icon is from Font Awesome and is licensed in [CC-BY
-4.0](https://creativecommons.org/licenses/by/4.0/).
-
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
 [2]: https://pubmed.ncbi.nlm.nih.gov/36473088/
 [3]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule?c4src=article:infinite-scroll
