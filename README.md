@@ -9,6 +9,16 @@ screen usage sessions.
 
 ## How to use
 
+In macOS just run `TwentyTwentyTwenty_<arch>.app`.
+
+> [!TIP]
+> Configure the notification type in "System Settings" -> "Notifications" ->
+> "TwentyTwentyTwenty" to use "Alerts". This will result in the notification to
+> stay until the end of the duration period instead of disappearing in a few
+> seconds.
+
+In Linux/other OS:
+
 ```
 $ ./twenty-twenty-twenty -help
 Usage of ./twenty-twenty-twenty:
