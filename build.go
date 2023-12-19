@@ -1,5 +1,5 @@
-//go:build !linux && !darwin
-// +build !linux,!darwin
+//go:build !darwin
+// +build !darwin
 
 //go:generate go build -o bin/twenty-twenty-twenty
 
