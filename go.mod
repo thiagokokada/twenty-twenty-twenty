@@ -4,11 +4,11 @@ go 1.18
 
 require (
 	gioui.org v0.4.0
+	gioui.org/cmd v0.0.0-20231212005604-607a9e37c5fd
 	gioui.org/x v0.4.0
 )
 
 require (
-	gioui.org/cmd v0.0.0-20231212005604-607a9e37c5fd // indirect
 	gioui.org/cpu v0.0.0-20210817075930-8d6a761490d2 // indirect
 	gioui.org/shader v1.0.8 // indirect
 	git.sr.ht/~jackmordaunt/go-toast v1.0.0 // indirect

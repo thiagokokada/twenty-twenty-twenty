@@ -23,6 +23,7 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 Needs Go 1.18+.
 
 ```
+$ go generate tools.go # install necessary command-line tools
 $ go generate
 ```
 
