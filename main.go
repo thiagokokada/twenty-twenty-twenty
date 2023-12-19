@@ -31,6 +31,14 @@ func parseFlags() flags {
 	return flags{durationInSec: *durationInSec, frequencyInMin: *frequencyInMin}
 }
 
+func cancelNotificationAfter(notification notify.Notification, after time.Duration) {
+	time.Sleep(after)
+	err := notification.Cancel()
+	if err != nil {
+		fmt.Printf("Error while cancelling notification: %v\n", err)
+	}
+}
+
 func main() {
 	flags := parseFlags()
 
@@ -39,13 +47,14 @@ func main() {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 
-	_, err = notifier.CreateNotification(
+	notification, err := notifier.CreateNotification(
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %d minutes(s)", flags.frequencyInMin),
 	)
 	if err != nil {
 		log.Fatalf("Error while sending test notification: %v\n", err)
 	}
+	go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
 
 	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
@@ -62,8 +71,7 @@ func main() {
 					log.Printf("Error while sending notification: %v\n", err)
 					return
 				}
-				time.Sleep(time.Duration(flags.durationInSec) * time.Second)
-				notification.Cancel()
+				go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
 			}()
 		}
 	}()
