@@ -11,6 +11,12 @@ screen usage sessions.
 
 In macOS just run `TwentyTwentyTwenty_<arch>.app`.
 
+> [!WARNING]
+> The releases available for macOS are signed with the adhoc certificate. They
+> work in my build machine, but I am not sure if they work if downloaded from
+> internet to another macOS machine. Of course, you can always build the code
+> yourself and it should work.
+
 > [!TIP]
 > Configure the notification type in "System Settings" -> "Notifications" ->
 > "TwentyTwentyTwenty" to use "Alerts". This will result in the notification to
@@ -19,7 +25,7 @@ In macOS just run `TwentyTwentyTwenty_<arch>.app`.
 
 In Linux/other OS:
 
-```
+```console
 $ ./twenty-twenty-twenty -help
 Usage of ./twenty-twenty-twenty:
   -duration uint
@@ -33,9 +39,16 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 
 Needs Go 1.18+.
 
-```
+```console
 $ go generate tools.go # install necessary command-line tools
 $ go generate
+```
+
+For macOS releases, you will also need to install Xcode Command-line Tools to
+sign the application:
+
+```console
+$ xcode-select --install
 ```
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
