@@ -9,6 +9,6 @@ package main
 
 import "gioui.org/app"
 
-func mainLoop() {
+func loop() {
 	app.Main()
 }

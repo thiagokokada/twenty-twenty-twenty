@@ -6,6 +6,6 @@
 
 package main
 
-func mainLoop() {
+func loop() {
 	select {}
 }

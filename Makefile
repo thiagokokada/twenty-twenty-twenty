@@ -7,7 +7,7 @@ bin/twenty-twenty-twenty-%: *.go go.mod go.sum
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) go build -o $@
 
 TwentyTwentyTwenty.app: eye.png *.go go.mod go.sum
-	CGO_ENABLED=1 go generate mainLoop_darwin.go
+	CGO_ENABLED=1 go generate loop_darwin.go
 
 clean:
 	rm -rf bin TwentyTwentyTwenty.app

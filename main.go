@@ -83,5 +83,5 @@ func main() {
 		}
 	}()
 
-	mainLoop()
+	loop()
 }
