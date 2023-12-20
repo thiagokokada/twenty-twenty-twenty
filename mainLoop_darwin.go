@@ -6,3 +6,9 @@
 //go:generate sh -c "codesign -s - TwentyTwentyTwenty.app/*"
 
 package main
+
+import "gioui.org/app"
+
+func mainLoop() {
+	app.Main()
+}

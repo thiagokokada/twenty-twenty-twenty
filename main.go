@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"gioui.org/app"
 	"gioui.org/x/notify"
 )
 
@@ -84,5 +83,5 @@ func main() {
 		}
 	}()
 
-	app.Main()
+	mainLoop()
 }
