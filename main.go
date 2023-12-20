@@ -51,6 +51,22 @@ func cancelNotificationAfter(notification notify.Notification, after time.Durati
 	}
 }
 
+func twentyTwentyTwenty(f flags, notifier notify.Notifier) {
+	ticker := time.NewTicker(time.Duration(f.frequencyInMin) * time.Minute)
+	for {
+		<-ticker.C
+		go func() {
+			log.Println("Sending notification...")
+			notification := sendNotification(
+				notifier,
+				"Time to rest your eyes",
+				fmt.Sprintf("Look at 20 feet (~6 meters) away for %d seconds", f.durationInSec),
+			)
+			go cancelNotificationAfter(notification, time.Duration(f.durationInSec)*time.Second)
+		}()
+	}
+}
+
 func main() {
 	flags := parseFlags()
 
@@ -67,21 +83,6 @@ func main() {
 	go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
 
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
-	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
-	go func() {
-		for {
-			<-ticker.C
-			go func() {
-				log.Println("Sending notification...")
-				notification := sendNotification(
-					notifier,
-					"Time to rest your eyes",
-					fmt.Sprintf("Look at 20 feet (~6 meters) away for %d seconds", flags.durationInSec),
-				)
-				go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
-			}()
-		}
-	}()
-
+	go twentyTwentyTwenty(flags, notifier)
 	loop()
 }
