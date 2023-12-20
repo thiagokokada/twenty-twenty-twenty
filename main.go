@@ -66,13 +66,13 @@ func main() {
 	)
 	go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
 
-	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
 	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
+	ticker := time.NewTicker(time.Duration(flags.frequencyInMin) * time.Minute)
 	go func() {
 		for {
 			<-ticker.C
-			log.Println("Sending notification...")
 			go func() {
+				log.Println("Sending notification...")
 				notification := sendNotification(
 					notifier,
 					"Time to rest your eyes",
