@@ -11,7 +11,7 @@
     let
       version = builtins.substring 0 8 self.lastModifiedDate;
 
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" ];
+      supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
@@ -33,7 +33,12 @@
             pname = "twenty-twenty-twenty";
             inherit version;
             src = ./.;
-            vendorHash = "sha256-fIYxqBGBS5vsLcNpoO9uWACQZIlWH0JStBT0PHwmvmA=";
+            vendorHash = "sha256-BIehTg6mdnkGDgqHOik6yu72slItLq3nbkTRqnbMOcM";
+
+            buildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isDarwin [
+              darwin.apple_sdk_11_0.frameworks.MetalKit
+              darwin.apple_sdk_11_0.frameworks.UserNotifications
+            ];
 
             meta = with pkgs.lib; {
               description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
