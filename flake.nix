@@ -34,6 +34,13 @@
             inherit version;
             src = ./.;
             vendorHash = "sha256-fIYxqBGBS5vsLcNpoO9uWACQZIlWH0JStBT0PHwmvmA=";
+
+            meta = with pkgs.lib; {
+              description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
+              homepage = "https://github.com/thiagokokada/twenty-twenty-twenty";
+              license = licenses.mit;
+              mainProgram = "twenty-twenty-twenty";
+            };
           };
         });
 
