@@ -9,7 +9,7 @@
 
   outputs = { self, nixpkgs, ... }:
     let
-      version = builtins.substring 0 8 self.lastModifiedDate;
+      version = "nix-${self.shortRev or self.dirtyShortRev}";
 
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
@@ -39,6 +39,8 @@
               darwin.apple_sdk_11_0.frameworks.MetalKit
               darwin.apple_sdk_11_0.frameworks.UserNotifications
             ];
+
+            ldflags = [ "-X=main.Version=${version}" ];
 
             meta = with pkgs.lib; {
               description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
