@@ -82,6 +82,9 @@ func main() {
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
 	)
+	if notification == nil {
+		log.Fatalf("Test notification failed, exiting...")
+	}
 	go cancelNotificationAfter(notification, duration)
 
 	fmt.Printf("Running twenty-twenty-twenty every %.f minute(s)...\n", frequency.Minutes())
