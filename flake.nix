@@ -47,7 +47,7 @@
       devShells.default = forAllSystems (system:
         let pkgs = nixpkgsFor.${system};
         in pkgs.mkShell {
-          buildInputs = with pkgs; [ go gopls ];
+          buildInputs = with pkgs; [ go gopls gnumake ];
         });
     };
 }
