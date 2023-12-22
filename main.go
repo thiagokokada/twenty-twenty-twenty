@@ -51,7 +51,7 @@ func cancelNotificationAfter(notification notify.Notification, after time.Durati
 	}
 }
 
-func twentyTwentyTwenty(duration time.Duration, frequency time.Duration, notifier notify.Notifier) {
+func twentyTwentyTwenty(notifier notify.Notifier, duration time.Duration, frequency time.Duration) {
 	ticker := time.NewTicker(frequency)
 	for {
 		<-ticker.C
@@ -88,6 +88,6 @@ func main() {
 	go cancelNotificationAfter(notification, duration)
 
 	fmt.Printf("Running twenty-twenty-twenty every %.f minute(s)...\n", frequency.Minutes())
-	go twentyTwentyTwenty(duration, frequency, notifier)
+	go twentyTwentyTwenty(notifier, duration, frequency)
 	loop()
 }
