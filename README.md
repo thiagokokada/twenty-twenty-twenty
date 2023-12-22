@@ -37,7 +37,7 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 
 ## How to build
 
-> [!TIP]
+> [!IMPORTANT]
 > For macOS releases, you will need to install Xcode Command-line Tools first
 > to sign the application:
 > ```console
