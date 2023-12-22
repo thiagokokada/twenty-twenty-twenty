@@ -37,18 +37,18 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 
 ## How to build
 
+> [!TIP]
+> For macOS releases, you will need to install Xcode Command-line Tools first
+> to sign the application:
+> ```console
+> $ xcode-select --install
+> ```
+
 Needs Go 1.18+.
 
 ```console
 $ go generate tools.go # install necessary command-line tools
 $ go generate
-```
-
-For macOS releases, you will also need to install Xcode Command-line Tools to
-sign the application:
-
-```console
-$ xcode-select --install
 ```
 
 If you have `nix` installed, you can also setup the development setup with it:
