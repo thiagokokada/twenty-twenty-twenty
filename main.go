@@ -4,14 +4,18 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"gioui.org/x/notify"
 )
 
+var Version = "development"
+
 type flags struct {
 	durationInSec  uint
 	frequencyInMin uint64
+	version        bool
 }
 
 func parseFlags() flags {
@@ -25,9 +29,18 @@ func parseFlags() flags {
 		20,
 		"how often the pause should be in minutes",
 	)
+	version := flag.Bool(
+		"version",
+		false,
+		"print program version and exit",
+	)
 	flag.Parse()
 
-	return flags{durationInSec: *durationInSec, frequencyInMin: *frequencyInMin}
+	return flags{
+		durationInSec:  *durationInSec,
+		frequencyInMin: *frequencyInMin,
+		version:        *version,
+	}
 }
 
 func sendNotification(notifier notify.Notifier, title string, text string) notify.Notification {
@@ -69,6 +82,11 @@ func twentyTwentyTwenty(notifier notify.Notifier, duration time.Duration, freque
 
 func main() {
 	flags := parseFlags()
+	if flags.version {
+		fmt.Println(Version)
+		os.Exit(0)
+	}
+
 	duration := time.Duration(flags.durationInSec) * time.Second
 	frequency := time.Duration(flags.frequencyInMin) * time.Minute
 

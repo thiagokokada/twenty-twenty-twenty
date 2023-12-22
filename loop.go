@@ -2,7 +2,7 @@
 // +build !darwin
 
 //go:generate go vet ./...
-//go:generate go build -o bin/twenty-twenty-twenty
+//go:generate sh -c "go build -v -ldflags=\"-X 'main.Version=$(git describe --tags --dirty)'\" -o bin/twenty-twenty-twenty"
 
 package main
 

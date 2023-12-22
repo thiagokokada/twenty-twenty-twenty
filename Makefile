@@ -4,7 +4,8 @@ all: bin/twenty-twenty-twenty-windows-386 bin/twenty-twenty-twenty-windows-amd64
 	bin/twenty-twenty-twenty-linux-arm64 bin/twenty-twenty-twenty-linux-amd64
 
 bin/twenty-twenty-twenty-%: *.go go.mod go.sum
-	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) go build -o $@
+	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) \
+			 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
 
 TwentyTwentyTwenty.app: eye.png *.go go.mod go.sum
 	CGO_ENABLED=1 go generate loop_darwin.go
