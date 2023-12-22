@@ -51,5 +51,17 @@ sign the application:
 $ xcode-select --install
 ```
 
+If you have `nix` installed, you can also setup the development setup with it:
+
+```console
+$ nix develop
+```
+
+Or if you have [`nix-direnv`](https://github.com/nix-community/nix-direnv):
+
+```console
+$ direnv allow
+```
+
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
 [2]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule
