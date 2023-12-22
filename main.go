@@ -33,7 +33,7 @@ func parseFlags() flags {
 func sendNotification(notifier notify.Notifier, title string, text string) notify.Notification {
 	notification, err := notifier.CreateNotification(title, text)
 	if err != nil {
-		log.Printf("Error while sending test notification: %v\n", err)
+		log.Printf("Error while sending notification: %v\n", err)
 		return nil
 	}
 	return notification
@@ -51,8 +51,8 @@ func cancelNotificationAfter(notification notify.Notification, after time.Durati
 	}
 }
 
-func twentyTwentyTwenty(f flags, notifier notify.Notifier) {
-	ticker := time.NewTicker(time.Duration(f.frequencyInMin) * time.Minute)
+func twentyTwentyTwenty(duration time.Duration, frequency time.Duration, notifier notify.Notifier) {
+	ticker := time.NewTicker(frequency)
 	for {
 		<-ticker.C
 		go func() {
@@ -60,15 +60,17 @@ func twentyTwentyTwenty(f flags, notifier notify.Notifier) {
 			notification := sendNotification(
 				notifier,
 				"Time to rest your eyes",
-				fmt.Sprintf("Look at 20 feet (~6 meters) away for %d seconds", f.durationInSec),
+				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
 			)
-			go cancelNotificationAfter(notification, time.Duration(f.durationInSec)*time.Second)
+			go cancelNotificationAfter(notification, duration)
 		}()
 	}
 }
 
 func main() {
 	flags := parseFlags()
+	duration := time.Duration(flags.durationInSec) * time.Second
+	frequency := time.Duration(flags.frequencyInMin) * time.Minute
 
 	notifier, err := notify.NewNotifier()
 	if err != nil {
@@ -78,11 +80,11 @@ func main() {
 	notification := sendNotification(
 		notifier,
 		"Starting 20-20-20",
-		fmt.Sprintf("You will see a notification every %d minutes(s)", flags.frequencyInMin),
+		fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
 	)
-	go cancelNotificationAfter(notification, time.Duration(flags.durationInSec)*time.Second)
+	go cancelNotificationAfter(notification, duration)
 
-	fmt.Printf("Running twenty-twenty-twenty every %d minute(s)...\n", flags.frequencyInMin)
-	go twentyTwentyTwenty(flags, notifier)
+	fmt.Printf("Running twenty-twenty-twenty every %.f minute(s)...\n", frequency.Minutes())
+	go twentyTwentyTwenty(duration, frequency, notifier)
 	loop()
 }
