@@ -15,13 +15,14 @@ endif
 bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
 	 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
 
-bin/TwentyTwentyTwenty_amd64.app: bin/TwentyTwentyTwenty_aarch64.app
-
-bin/TwentyTwentyTwenty_aarch64.app: assets/* *.go go.mod go.sum
+bin/TwentyTwentyTwenty_arm64.app: assets/* *.go go.mod go.sum
 	go generate loop_darwin.go
 	mkdir -p bin/
+	rm -rf bin/TwentyTwentyTwenty_*.app
 	mv TwentyTwentyTwenty.app/TwentyTwentyTwenty_*.app bin/
-	rm -rf TwentyTwentyTwenty.app
+	rmdir TwentyTwentyTwenty.app
+
+bin/TwentyTwentyTwenty_amd64.app: bin/TwentyTwentyTwenty_arm64.app
 
 clean:
 	rm -rf bin
