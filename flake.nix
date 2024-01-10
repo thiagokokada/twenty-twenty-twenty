@@ -35,6 +35,10 @@
             src = ./.;
             vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
 
+            nativeBuildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isLinux [
+              pkg-config
+            ];
+
             buildInputs = with pkgs;
               lib.optionals stdenv.hostPlatform.isLinux [
                 alsa-lib
