@@ -113,11 +113,11 @@ func main() {
 
 	duration := time.Duration(flags.durationInSec) * time.Second
 	frequency := time.Duration(flags.frequencyInMin) * time.Minute
-	notificationSound := !flags.disableSound
+	notificationSound := notificationSoundEnabled && !flags.disableSound
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
-	if notificationSoundEnabled && notificationSound {
+	if notificationSound {
 		err := initBeep()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
