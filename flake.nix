@@ -19,9 +19,11 @@
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in
     {
-      apps.default = forAllSystems (system: {
-        type = "app";
-        program = "${self.packages.${system}.twenty-twenty-twenty}/bin/twenty-twenty-twenty";
+      apps = forAllSystems (system: {
+        default = {
+          type = "app";
+          program = nixpkgs.lib.getExe self.packages.${system}.twenty-twenty-twenty;
+        };
       });
 
       packages = forAllSystems (system:
