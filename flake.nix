@@ -19,47 +19,24 @@
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in
     {
-      apps.default = forAllSystems (system: {
-        type = "app";
-        program = "${self.packages.${system}.twenty-twenty-twenty}/bin/twenty-twenty-twenty";
+      apps = forAllSystems (system: {
+        default = {
+          type = "app";
+          program = nixpkgs.lib.getExe self.packages.${system}.twenty-twenty-twenty;
+        };
       });
 
       packages = forAllSystems (system:
         let pkgs = nixpkgsFor.${system};
         in {
           default = self.packages.${system}.twenty-twenty-twenty;
-          twenty-twenty-twenty = pkgs.buildGoModule {
-            pname = "twenty-twenty-twenty";
+          twenty-twenty-twenty = pkgs.callPackage ./twenty-twenty-twenty.nix { inherit version; };
+          twenty-twenty-twenty-static = (pkgs.callPackage ./twenty-twenty-twenty.nix rec {
             inherit version;
-            src = ./.;
-            vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
-
-            nativeBuildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isLinux [
-              pkg-config
-            ];
-
-            buildInputs = with pkgs;
-              lib.optionals stdenv.hostPlatform.isLinux [
-                alsa-lib
-              ] ++
-              lib.optionals stdenv.hostPlatform.isDarwin [
-                darwin.apple_sdk_11_0.frameworks.MetalKit
-                darwin.apple_sdk_11_0.frameworks.UserNotifications
-              ];
-
-            # Tests are mostly useful for development, not to ensure that
-            # program is running correctly.
-            doCheck = false;
-
-            ldflags = [ "-X=main.version=${version}" ];
-
-            meta = with pkgs.lib; {
-              description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
-              homepage = "https://github.com/thiagokokada/twenty-twenty-twenty";
-              license = licenses.mit;
-              mainProgram = "twenty-twenty-twenty";
-            };
-          };
+            inherit (pkgs.pkgsStatic) alsa-lib stdenv;
+            buildGoModule = pkgs.buildGoModule.override { inherit stdenv; };
+            extraLdflags = [ "-linkmode external" ''-extldflags "-static"'' ];
+          });
         });
 
       devShells = forAllSystems (system:
@@ -72,8 +49,8 @@
               gnumake
               go
               gopls
-            ]
-            ++ lib.optionals stdenv.hostPlatform.isLinux [
+            ] ++
+            lib.optionals stdenv.hostPlatform.isLinux [
               alsa-lib
               gcc
               pkg-config
