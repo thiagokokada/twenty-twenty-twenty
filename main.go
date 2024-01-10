@@ -35,7 +35,7 @@ func parseFlags() flags {
 		false,
 		"print program version and exit",
 	)
-	var notificationSound *bool
+	notificationSound := new(bool)
 	if notificationSoundEnabled {
 		notificationSound = flag.Bool(
 			"sound",
@@ -139,12 +139,20 @@ func main() {
 	}
 	go cancelNotificationAfter(notification, duration)
 
-	fmt.Printf(
-		"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
-		frequency.Minutes(),
-		duration.Seconds(),
-		flags.notificationSound,
-	)
+	if notificationSoundEnabled {
+		fmt.Printf(
+			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
+			frequency.Minutes(),
+			duration.Seconds(),
+			flags.notificationSound,
+		)
+	} else {
+		fmt.Printf(
+			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration...\n",
+			frequency.Minutes(),
+			duration.Seconds(),
+		)
+	}
 	go twentyTwentyTwenty(notifier, duration, frequency, flags.notificationSound)
 	loop()
 }
