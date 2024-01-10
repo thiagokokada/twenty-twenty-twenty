@@ -33,7 +33,7 @@
             pname = "twenty-twenty-twenty";
             inherit version;
             src = ./.;
-            vendorHash = "sha256-y1oRJBCDvWTMEx1sL32+P5SxTg79+wNjslcIgEe4QFs=";
+            vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
 
             buildInputs = with pkgs;
               lib.optionals stdenv.hostPlatform.isLinux [
