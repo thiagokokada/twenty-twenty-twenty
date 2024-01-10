@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"flag"
 	"fmt"
 	"log"
@@ -8,9 +9,17 @@ import (
 	"time"
 
 	"gioui.org/x/notify"
+	"github.com/gopxl/beep"
+	"github.com/gopxl/beep/speaker"
+	"github.com/gopxl/beep/vorbis"
 )
 
-var Version = "development"
+var (
+	//go:embed notification.ogg
+	NotificationSound embed.FS
+	Buffer            *beep.Buffer
+	Version           = "development"
+)
 
 type flags struct {
 	durationInSec  uint
@@ -43,12 +52,22 @@ func parseFlags() flags {
 	}
 }
 
+func playNotificationSound() {
+	done := make(chan bool)
+	speaker.Play(
+		beep.Seq(Buffer.Streamer(0, Buffer.Len())),
+		beep.Callback(func() { done <- true }),
+	)
+	<-done
+}
+
 func sendNotification(notifier notify.Notifier, title string, text string) notify.Notification {
 	notification, err := notifier.CreateNotification(title, text)
 	if err != nil {
 		log.Printf("Error while sending notification: %v\n", err)
 		return nil
 	}
+	playNotificationSound()
 	return notification
 }
 
@@ -78,6 +97,23 @@ func twentyTwentyTwenty(notifier notify.Notifier, duration time.Duration, freque
 			go cancelNotificationAfter(notification, duration)
 		}()
 	}
+}
+
+func init() {
+	f, err := NotificationSound.Open("notification.ogg")
+	if err != nil {
+		log.Fatalf("Failed to load notification sound: %v\n", err)
+	}
+
+	streamer, format, err := vorbis.Decode(f)
+	if err != nil {
+		log.Fatalf("Failed to decode the notification sound: %v\n", err)
+	}
+	Buffer = beep.NewBuffer(format)
+	Buffer.Append(streamer)
+
+	// 1s/4 = 250ms of lag, good enough for this use case
+	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/4))
 }
 
 func main() {

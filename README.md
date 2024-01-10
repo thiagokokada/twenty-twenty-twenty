@@ -44,7 +44,7 @@ $ ./twenty-twenty-twenty # the defaults are recommended
 > $ xcode-select --install
 > ```
 
-Needs Go 1.18+.
+Needs Go 1.21+.
 
 ```console
 $ go generate tools.go # install necessary command-line tools
@@ -62,6 +62,11 @@ Or if you have [`nix-direnv`](https://github.com/nix-community/nix-direnv):
 ```console
 $ direnv allow
 ```
+
+## Credits
+
+[Notification sound](https://bigsoundbank.com/sound-1111-message-1.html) by
+Joseph SARDIN - https://bigsoundbank.com.
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
 [2]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule
