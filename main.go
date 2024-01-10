@@ -13,9 +13,10 @@ import (
 var version = "development"
 
 type flags struct {
-	durationInSec  uint
-	frequencyInMin uint64
-	version        bool
+	durationInSec     uint
+	frequencyInMin    uint64
+	notificationSound bool
+	version           bool
 }
 
 func parseFlags() flags {
@@ -29,6 +30,11 @@ func parseFlags() flags {
 		20,
 		"how often the pause should be in minutes",
 	)
+	notificationSound := flag.Bool(
+		"sound",
+		true,
+		"play notification sound",
+	)
 	version := flag.Bool(
 		"version",
 		false,
@@ -37,19 +43,27 @@ func parseFlags() flags {
 	flag.Parse()
 
 	return flags{
-		durationInSec:  *durationInSec,
-		frequencyInMin: *frequencyInMin,
-		version:        *version,
+		durationInSec:     *durationInSec,
+		frequencyInMin:    *frequencyInMin,
+		notificationSound: *notificationSound,
+		version:           *version,
 	}
 }
 
-func sendNotification(notifier notify.Notifier, title string, text string) notify.Notification {
+func sendNotification(
+	notifier notify.Notifier,
+	title string,
+	text string,
+	notificationSound bool,
+) notify.Notification {
 	notification, err := notifier.CreateNotification(title, text)
 	if err != nil {
 		log.Printf("Error while sending notification: %v\n", err)
 		return nil
 	}
-	playNotificationSound()
+	if notificationSound {
+		playNotificationSound()
+	}
 	return notification
 }
 
@@ -65,7 +79,12 @@ func cancelNotificationAfter(notification notify.Notification, after time.Durati
 	}
 }
 
-func twentyTwentyTwenty(notifier notify.Notifier, duration time.Duration, frequency time.Duration) {
+func twentyTwentyTwenty(
+	notifier notify.Notifier,
+	duration time.Duration,
+	frequency time.Duration,
+	notificationSound bool,
+) {
 	ticker := time.NewTicker(frequency)
 	for {
 		<-ticker.C
@@ -75,6 +94,7 @@ func twentyTwentyTwenty(notifier notify.Notifier, duration time.Duration, freque
 				notifier,
 				"Time to rest your eyes",
 				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
+				notificationSound,
 			)
 			go cancelNotificationAfter(notification, duration)
 		}()
@@ -91,6 +111,12 @@ func main() {
 	duration := time.Duration(flags.durationInSec) * time.Second
 	frequency := time.Duration(flags.frequencyInMin) * time.Minute
 
+	// only init Beep if notification sound is enabled, otherwise we will cause
+	// unnecessary noise in the speakers (and also increased memory usage)
+	if flags.notificationSound {
+		initBeep()
+	}
+
 	notifier, err := notify.NewNotifier()
 	if err != nil {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
@@ -100,13 +126,19 @@ func main() {
 		notifier,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
+		flags.notificationSound,
 	)
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
 	go cancelNotificationAfter(notification, duration)
 
-	fmt.Printf("Running twenty-twenty-twenty every %.f minute(s)...\n", frequency.Minutes())
-	go twentyTwentyTwenty(notifier, duration, frequency)
+	fmt.Printf(
+		"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
+		frequency.Minutes(),
+		duration.Seconds(),
+		flags.notificationSound,
+	)
+	go twentyTwentyTwenty(notifier, duration, frequency, flags.notificationSound)
 	loop()
 }

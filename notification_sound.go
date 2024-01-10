@@ -25,7 +25,7 @@ func playNotificationSound() {
 	<-done
 }
 
-func init() {
+func initBeep() {
 	f, err := NotificationSound.Open("notification.ogg")
 	if err != nil {
 		log.Fatalf("Failed to load notification sound: %v\n", err)
