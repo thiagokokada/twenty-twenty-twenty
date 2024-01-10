@@ -1,10 +1,9 @@
 {
   description = "twenty-twenty-twenty";
 
-  inputs.nixpkgs.url = "nixpkgs/nixpkgs-unstable";
-  inputs.flake-compat = {
-    url = "github:edolstra/flake-compat";
-    flake = false;
+  inputs = {
+    nixpkgs.url = "nixpkgs/nixpkgs-unstable";
+    flake-compat.url = "github:edolstra/flake-compat";
   };
 
   outputs = { self, nixpkgs, ... }:
