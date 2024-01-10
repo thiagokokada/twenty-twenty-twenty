@@ -40,7 +40,7 @@
               darwin.apple_sdk_11_0.frameworks.UserNotifications
             ];
 
-            ldflags = [ "-X=main.Version=${version}" ];
+            ldflags = [ "-X=main.version=${version}" ];
 
             meta = with pkgs.lib; {
               description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
