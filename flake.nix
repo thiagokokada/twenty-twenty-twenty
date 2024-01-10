@@ -35,10 +35,14 @@
             src = ./.;
             vendorHash = "sha256-y1oRJBCDvWTMEx1sL32+P5SxTg79+wNjslcIgEe4QFs=";
 
-            buildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isDarwin [
-              darwin.apple_sdk_11_0.frameworks.MetalKit
-              darwin.apple_sdk_11_0.frameworks.UserNotifications
-            ];
+            buildInputs = with pkgs;
+              lib.optionals stdenv.hostPlatform.isLinux [
+                alsa-lib
+              ] ++
+              lib.optionals stdenv.hostPlatform.isDarwin [
+                darwin.apple_sdk_11_0.frameworks.MetalKit
+                darwin.apple_sdk_11_0.frameworks.UserNotifications
+              ];
 
             ldflags = [ "-X=main.version=${version}" ];
 
