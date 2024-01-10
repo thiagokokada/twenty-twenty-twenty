@@ -1,3 +1,6 @@
+//go:build (linux && cgo) || windows || darwin
+// +build linux,cgo windows darwin
+
 package main
 
 import (
@@ -12,8 +15,9 @@ import (
 
 var (
 	//go:embed notification.ogg
-	NotificationSound embed.FS
-	Buffer            *beep.Buffer
+	NotificationSound        embed.FS
+	Buffer                   *beep.Buffer
+	notificationSoundEnabled = true
 )
 
 func playNotificationSound() {

@@ -30,16 +30,19 @@ func parseFlags() flags {
 		20,
 		"how often the pause should be in minutes",
 	)
-	notificationSound := flag.Bool(
-		"sound",
-		true,
-		"play notification sound",
-	)
 	version := flag.Bool(
 		"version",
 		false,
 		"print program version and exit",
 	)
+	var notificationSound *bool
+	if notificationSoundEnabled {
+		notificationSound = flag.Bool(
+			"sound",
+			true,
+			"play notification sound",
+		)
+	}
 	flag.Parse()
 
 	return flags{
