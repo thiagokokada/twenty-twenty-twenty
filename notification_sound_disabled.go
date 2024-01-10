@@ -3,7 +3,7 @@
 
 package main
 
-var notificationSoundEnabled = false
+const notificationSoundEnabled bool = false
 
 func playNotificationSound() chan bool { return make(chan bool) }
 
