@@ -13,10 +13,10 @@ import (
 var version = "development"
 
 type flags struct {
-	durationInSec     uint
-	frequencyInMin    uint64
-	notificationSound bool
-	version           bool
+	disableSound   bool
+	durationInSec  uint
+	frequencyInMin uint64
+	version        bool
 }
 
 func parseFlags() flags {
@@ -35,21 +35,21 @@ func parseFlags() flags {
 		false,
 		"print program version and exit",
 	)
-	notificationSound := new(bool)
+	disableSound := new(bool)
 	if notificationSoundEnabled {
-		notificationSound = flag.Bool(
-			"sound",
-			true,
-			"play notification sound",
+		disableSound = flag.Bool(
+			"disable-sound",
+			false,
+			"disable notification sound",
 		)
 	}
 	flag.Parse()
 
 	return flags{
-		durationInSec:     *durationInSec,
-		frequencyInMin:    *frequencyInMin,
-		notificationSound: *notificationSound,
-		version:           *version,
+		disableSound:   *disableSound,
+		durationInSec:  *durationInSec,
+		frequencyInMin: *frequencyInMin,
+		version:        *version,
 	}
 }
 
@@ -113,10 +113,11 @@ func main() {
 
 	duration := time.Duration(flags.durationInSec) * time.Second
 	frequency := time.Duration(flags.frequencyInMin) * time.Minute
+	notificationSound := !flags.disableSound
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
-	if flags.notificationSound {
+	if notificationSoundEnabled && notificationSound {
 		err := initBeep()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
@@ -132,7 +133,7 @@ func main() {
 		notifier,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
-		flags.notificationSound,
+		notificationSound,
 	)
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
@@ -144,7 +145,7 @@ func main() {
 			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			frequency.Minutes(),
 			duration.Seconds(),
-			flags.notificationSound,
+			notificationSound,
 		)
 	} else {
 		fmt.Printf(
@@ -153,6 +154,6 @@ func main() {
 			duration.Seconds(),
 		)
 	}
-	go twentyTwentyTwenty(notifier, duration, frequency, flags.notificationSound)
+	go twentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 	loop()
 }
