@@ -48,6 +48,10 @@
                 darwin.apple_sdk_11_0.frameworks.UserNotifications
               ];
 
+            # Tests are mostly useful for development, not to ensure that
+            # program is running correctly.
+            doCheck = false;
+
             ldflags = [ "-X=main.version=${version}" ];
 
             meta = with pkgs.lib; {

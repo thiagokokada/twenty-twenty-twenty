@@ -5,6 +5,6 @@ package main
 
 var notificationSoundEnabled = false
 
-func playNotificationSound() {}
+func playNotificationSound() chan bool { return make(chan bool) }
 
-func initBeep() {}
+func initBeep() error { return nil }

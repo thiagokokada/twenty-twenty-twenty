@@ -5,7 +5,7 @@ package main
 
 import (
 	"embed"
-	"log"
+	"fmt"
 	"time"
 
 	"github.com/gopxl/beep"
@@ -20,28 +20,30 @@ var (
 	notificationSoundEnabled = true
 )
 
-func playNotificationSound() {
+func playNotificationSound() chan bool {
 	done := make(chan bool)
 	speaker.Play(
 		beep.Seq(Buffer.Streamer(0, Buffer.Len())),
 		beep.Callback(func() { done <- true }),
 	)
-	<-done
+	return done
 }
 
-func initBeep() {
+func initBeep() error {
 	f, err := NotificationSound.Open("notification.ogg")
 	if err != nil {
-		log.Fatalf("Failed to load notification sound: %v\n", err)
+		return fmt.Errorf("failed to load notification sound: %w", err)
 	}
 
 	streamer, format, err := vorbis.Decode(f)
 	if err != nil {
-		log.Fatalf("Failed to decode the notification sound: %v\n", err)
+		return fmt.Errorf("failed to decode the notification sound: %w", err)
 	}
 	Buffer = beep.NewBuffer(format)
 	Buffer.Append(streamer)
 
 	// 1s/4 = 250ms of lag, good enough for this use case
 	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/4))
+
+	return nil
 }

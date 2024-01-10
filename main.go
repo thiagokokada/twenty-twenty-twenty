@@ -65,7 +65,7 @@ func sendNotification(
 		return nil
 	}
 	if notificationSound {
-		playNotificationSound()
+		<-playNotificationSound()
 	}
 	return notification
 }
@@ -117,7 +117,10 @@ func main() {
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if flags.notificationSound {
-		initBeep()
+		err := initBeep()
+		if err != nil {
+			log.Fatalf("Error while initialising sound: %v\n", err)
+		}
 	}
 
 	notifier, err := notify.NewNotifier()
