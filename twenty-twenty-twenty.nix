@@ -11,7 +11,7 @@
 buildGoModule {
   pname = "twenty-twenty-twenty";
   inherit version;
-  src = ./.;
+  src = lib.cleanSource ./.;
   vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
 
   nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
