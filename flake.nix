@@ -33,14 +33,22 @@
             pname = "twenty-twenty-twenty";
             inherit version;
             src = ./.;
-            vendorHash = "sha256-y1oRJBCDvWTMEx1sL32+P5SxTg79+wNjslcIgEe4QFs=";
+            vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
 
-            buildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isDarwin [
-              darwin.apple_sdk_11_0.frameworks.MetalKit
-              darwin.apple_sdk_11_0.frameworks.UserNotifications
+            nativeBuildInputs = with pkgs; lib.optionals stdenv.hostPlatform.isLinux [
+              pkg-config
             ];
 
-            ldflags = [ "-X=main.Version=${version}" ];
+            buildInputs = with pkgs;
+              lib.optionals stdenv.hostPlatform.isLinux [
+                alsa-lib
+              ] ++
+              lib.optionals stdenv.hostPlatform.isDarwin [
+                darwin.apple_sdk_11_0.frameworks.MetalKit
+                darwin.apple_sdk_11_0.frameworks.UserNotifications
+              ];
+
+            ldflags = [ "-X=main.version=${version}" ];
 
             meta = with pkgs.lib; {
               description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
