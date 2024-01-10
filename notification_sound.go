@@ -13,11 +13,12 @@ import (
 	"github.com/gopxl/beep/vorbis"
 )
 
+const notificationSoundEnabled bool = true
+
 var (
 	//go:embed notification.ogg
-	NotificationSound        embed.FS
-	Buffer                   *beep.Buffer
-	notificationSoundEnabled = true
+	NotificationSound embed.FS
+	Buffer            *beep.Buffer
 )
 
 func playNotificationSound() chan bool {
