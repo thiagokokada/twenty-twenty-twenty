@@ -62,28 +62,27 @@
           };
         });
 
-      devShells = forAllSystems
-        (system:
-          let pkgs = nixpkgsFor.${system}; in
-          {
-            default = pkgs.mkShell {
-              name = "twenty-twenty-twenty";
+      devShells = forAllSystems (system:
+        let pkgs = nixpkgsFor.${system}; in
+        {
+          default = pkgs.mkShell {
+            name = "twenty-twenty-twenty";
 
-              packages = with pkgs; [
-                gnumake
-                go
-                gopls
-              ]
-              ++ lib.optionals stdenv.hostPlatform.isLinux [
-                alsa-lib
-                gcc
-                pkg-config
-              ];
+            packages = with pkgs; [
+              gnumake
+              go
+              gopls
+            ]
+            ++ lib.optionals stdenv.hostPlatform.isLinux [
+              alsa-lib
+              gcc
+              pkg-config
+            ];
 
-              # Keep the current user shell (e.g.: zsh instead of bash)
-              shellHook = "exec $SHELL";
-            };
-          }
-        );
+            # Keep the current user shell (e.g.: zsh instead of bash)
+            shellHook = "exec $SHELL";
+          };
+        }
+      );
     };
 }
