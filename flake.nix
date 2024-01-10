@@ -66,7 +66,13 @@
       devShells.default = forAllSystems (system:
         let pkgs = nixpkgsFor.${system};
         in pkgs.mkShell {
-          buildInputs = with pkgs; [ go gopls gnumake ];
+          buildInputs = with pkgs; [ go gopls gnumake ]
+            ++ pkgs.stdenv.hostPlatform.isLinux [ alsa-lib gcc pkg-config ];
+
+          shellHook = ''
+            # Not sure why this is needed
+            go mod vendor
+          '';
         });
     };
 }

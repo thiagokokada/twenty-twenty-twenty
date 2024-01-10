@@ -31,7 +31,7 @@ func playNotificationSound() chan bool {
 }
 
 func initBeep() error {
-	f, err := NotificationSound.Open("notification.ogg")
+	f, err := NotificationSound.Open("assets/notification.ogg")
 	if err != nil {
 		return fmt.Errorf("failed to load notification sound: %w", err)
 	}
