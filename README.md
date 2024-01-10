@@ -32,7 +32,10 @@ Usage of ./twenty-twenty-twenty:
     	how long each pause should be in seconds (default 20)
   -frequency uint
     	how often the pause should be in minutes (default 20)
-$ ./twenty-twenty-twenty # the defaults are recommended
+  -sound
+    	play notification sound (default true)
+  -version
+    	print program version and exit
 ```
 
 ## How to build
