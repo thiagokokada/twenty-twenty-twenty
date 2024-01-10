@@ -62,16 +62,28 @@
           };
         });
 
-      devShells.default = forAllSystems (system:
-        let pkgs = nixpkgsFor.${system};
-        in pkgs.mkShell {
-          buildInputs = with pkgs; [ go gopls gnumake ]
-            ++ pkgs.stdenv.hostPlatform.isLinux [ alsa-lib gcc pkg-config ];
+      devShells = forAllSystems
+        (system:
+          let pkgs = nixpkgsFor.${system}; in
+          {
+            default = pkgs.mkShell {
+              name = "twenty-twenty-twenty";
 
-          shellHook = ''
-            # Not sure why this is needed
-            go mod vendor
-          '';
-        });
+              packages = with pkgs; [
+                gnumake
+                go
+                gopls
+              ]
+              ++ lib.optionals stdenv.hostPlatform.isLinux [
+                alsa-lib
+                gcc
+                pkg-config
+              ];
+
+              # Keep the current user shell (e.g.: zsh instead of bash)
+              shellHook = "exec $SHELL";
+            };
+          }
+        );
     };
 }
