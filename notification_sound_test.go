@@ -2,7 +2,6 @@ package main
 
 import (
 	"testing"
-	"time"
 )
 
 func TestPlayNotificationSound(t *testing.T) {
@@ -11,6 +10,7 @@ func TestPlayNotificationSound(t *testing.T) {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
 	<-playNotificationSound()
-	// it takes a while until the sound finishes playing
-	time.Sleep(5 * time.Second)
+	// it takes a while until the sound finishes playing,
+	// so uncomment the line below during development
+	// time.Sleep(5 * time.Second)
 }
