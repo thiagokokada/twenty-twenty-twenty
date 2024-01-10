@@ -21,8 +21,10 @@ endif
 # - bin/twenty-twenty-twenty-freebsd-amd64 # no audio
 bin/twenty-twenty-twenty-%: *.go go.mod go.sum
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
-	     go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
+	     go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)' -s -w" -o $@
 
+# Not including the `-s -w` flags here since they're important for debugging
+# and this target is mostly used for development
 bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
 	 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
 

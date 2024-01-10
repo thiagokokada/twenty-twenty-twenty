@@ -30,7 +30,7 @@ buildGoModule {
   # program is running correctly.
   doCheck = false;
 
-  ldflags = [ "-X=main.version=${version}" ] ++ extraLdflags;
+  ldflags = [ "-X=main.version=${version}" "-s" "-w" ] ++ extraLdflags;
 
   meta = with lib; {
     description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
