@@ -16,7 +16,7 @@ import (
 const notificationSoundEnabled bool = true
 
 var (
-	//go:embed notification.ogg
+	//go:embed assets/notification.ogg
 	NotificationSound embed.FS
 	Buffer            *beep.Buffer
 )

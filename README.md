@@ -1,6 +1,6 @@
 # Twenty-Twenty-Twenty
 
-![Twenty-Twenty-Twenty screenshot](./screenshot.png "Screenshot")
+![Twenty-Twenty-Twenty screenshot](./assets/screenshot.png "Screenshot")
 
 20-20-20 is a program that alerts every 20 minutes to look something at 20 feet
 away for 20 seconds, written in Golang. This is done to reduce eye fadigue [1].
