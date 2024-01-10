@@ -25,4 +25,4 @@ bin/TwentyTwentyTwenty_arm64.app: assets/* *.go go.mod go.sum
 bin/TwentyTwentyTwenty_amd64.app: bin/TwentyTwentyTwenty_arm64.app
 
 clean:
-	rm -rf bin
+	rm -rf bin vendor
