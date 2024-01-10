@@ -1,5 +1,5 @@
-//go:build (linux && cgo) || windows || darwin
-// +build linux,cgo windows darwin
+//go:build windows || darwin || cgo
+// +build windows darwin cgo
 
 package main
 

@@ -1,5 +1,5 @@
-//go:build linux && !cgo
-// +build linux,!cgo
+//go:build !windows && !darwin && !cgo
+// +build !windows,!darwin,!cgo
 
 package main
 
