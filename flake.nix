@@ -37,6 +37,11 @@
             buildGoModule = pkgs.buildGoModule.override { inherit stdenv; };
             extraLdflags = [ "-linkmode external" ''-extldflags "-static"'' ];
           });
+          # Also static build because CGO_ENABLED=0
+          twenty-twenty-twenty-no-sound = pkgs.callPackage ./twenty-twenty-twenty.nix {
+            inherit version;
+            withSound = false;
+          };
         });
 
       devShells = forAllSystems (system:
