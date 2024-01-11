@@ -1,13 +1,14 @@
 .PHONY: all
 
-ifeq ($(OS),Windows_NT)
-    detected_OS := Windows
-else
-    detected_OS := $(shell uname -s)
-endif
+os := $(shell uname -s)
+arch := $(shell uname -a)
 
-ifeq ($(detected_OS),Darwin)
-all: bin/TwentyTwentyTwenty_amd64.app bin/TwentyTwentyTwenty_amd64.app
+ifeq ($(os),Darwin)
+ifeq ($(arch),arm64)
+all: bin/TwentyTwentyTwenty_arm64.app bin/TwentyTwentyTwenty_amd64.app
+else
+all: bin/TwentyTwentyTwenty_amd64.app
+endif
 else
 all: bin/twenty-twenty-twenty
 endif
@@ -21,12 +22,12 @@ endif
 # - bin/twenty-twenty-twenty-freebsd-amd64 # no audio
 bin/twenty-twenty-twenty-%: *.go go.mod go.sum
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
-	     go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)' -s -w" -o $@
+			 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)' -s -w" -o $@
 
 # Not including the `-s -w` flags here since they're important for debugging
 # and this target is mostly used for development
 bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
-	 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
+	go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)'" -o $@
 
 bin/TwentyTwentyTwenty_arm64.app: assets/* *.go go.mod go.sum
 	go generate loop_darwin.go
