@@ -6,7 +6,11 @@
 , pkg-config
 , extraLdflags ? [ ]
 , version ? "unknown"
+, withSound ? true
 }:
+
+# Darwin builds always have sound since it doesn't depend in CGO
+assert stdenv.isDarwin -> withSound;
 
 buildGoModule {
   pname = "twenty-twenty-twenty";
@@ -14,11 +18,13 @@ buildGoModule {
   src = lib.cleanSource ./.;
   vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
 
-  nativeBuildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  CGO_ENABLED = if withSound then "1" else "0";
+
+  nativeBuildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
     pkg-config
   ];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
     alsa-lib
   ] ++
   lib.optionals stdenv.hostPlatform.isDarwin [
