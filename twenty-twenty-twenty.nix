@@ -35,6 +35,10 @@ buildGoModule {
     darwin.apple_sdk_11_0.frameworks.UserNotifications
   ];
 
+  preBuild = lib.optionalString stdenv.isDarwin ''
+    export MACOSX_DEPLOYMENT_TARGET=11.0
+  '';
+
   # Tests are mostly useful for development, not to ensure that
   # program is running correctly.
   doCheck = false;
