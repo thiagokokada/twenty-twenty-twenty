@@ -35,6 +35,8 @@ bin/TwentyTwentyTwenty_arm64.app: assets/* *.go go.mod go.sum
 	rm -rf bin/TwentyTwentyTwenty_*.app
 	mv TwentyTwentyTwenty.app/TwentyTwentyTwenty_*.app bin/
 	rmdir TwentyTwentyTwenty.app
+	cp bin/TwentyTwentyTwenty_arm64.app/Contents/Resources/icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
+
 
 bin/TwentyTwentyTwenty_amd64.app: bin/TwentyTwentyTwenty_arm64.app
 
