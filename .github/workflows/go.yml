@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  build:
+  build-linux:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -49,7 +49,21 @@ jobs:
     - name: Build
       run: go generate
 
-  build-nix:
+  build-macos-nix:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: DeterminateSystems/nix-installer-action@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+
+    - name: Build
+      run: nix build
+
+  build-linux-nix:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -64,4 +78,7 @@ jobs:
       run: nix flake check
 
     - name: Build
-      run: nix build
+      run: |
+        nix build
+        # non-flake build
+        nix-build
