@@ -4,6 +4,7 @@
 , buildGoModule
 , darwin
 , pkg-config
+, rcodesign
 , version ? "unknown"
 , withSound ? true
 , withStatic ? false
@@ -25,6 +26,8 @@ buildGoModule {
 
   nativeBuildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
     pkg-config
+  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    rcodesign
   ];
 
   buildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
@@ -39,16 +42,12 @@ buildGoModule {
     export MACOSX_DEPLOYMENT_TARGET=11.0
   '';
 
-  # darwin.sigtool's codesign is failing with the following error:
-  # libc++abi: terminating due to uncaught exception of type SigTool::NotAMachOFileException: std::exception
-  __impureHostDeps = lib.optionals stdenv.isDarwin [ "/usr/bin/codesign" ];
-
   preFixup = lib.optionalString stdenv.isDarwin ''
     OUT_APP="$out/Applications/TwentyTwentyTwenty.app"
     mkdir -p "$OUT_APP/Contents/MacOS"
     cp -r assets/macos/TwentyTwentyTwenty.app/* "$OUT_APP"
     cp $out/bin/twenty-twenty-twenty "$OUT_APP/Contents/MacOS/TwentyTwentyTwenty"
-    /usr/bin/codesign --force --sign - "$OUT_APP"
+    rcodesign sign "$OUT_APP"
   '';
 
   # Tests are mostly useful for development, not to ensure that
