@@ -31,13 +31,12 @@
         in {
           default = self.packages.${system}.twenty-twenty-twenty;
           twenty-twenty-twenty = pkgs.callPackage ./twenty-twenty-twenty.nix { inherit version; };
-          twenty-twenty-twenty-static = self.packages.${system}.twenty-twenty-twenty.override rec {
-            inherit (pkgs.pkgsStatic) alsa-lib stdenv;
-            buildGoModule = pkgs.buildGoModule.override { inherit stdenv; };
-            extraLdflags = [ "-linkmode external" ''-extldflags "-static"'' ];
+          twenty-twenty-twenty-static = pkgs.pkgsStatic.callPackage ./twenty-twenty-twenty.nix {
+            inherit version;
+            withStatic = true;
           };
           # Also static build because CGO_ENABLED=0
-          twenty-twenty-twenty-no-sound = self.packages.${system}.twenty-twenty-twenty.override {
+          twenty-twenty-twenty-no-sound = pkgs.callPackage ./twenty-twenty-twenty.nix {
             inherit version;
             withSound = false;
           };

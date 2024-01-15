@@ -4,13 +4,16 @@
 , buildGoModule
 , darwin
 , pkg-config
-, extraLdflags ? [ ]
 , version ? "unknown"
 , withSound ? true
+, withStatic ? false
 }:
 
-# Darwin builds always have sound since it doesn't depend in CGO
+# Darwin builds always have sound since it doesn't depend in CGO, and darwin
+# builds always depends on CGO anyway because gioui
 assert stdenv.isDarwin -> withSound;
+# No sound builds are always static
+assert withStatic -> withSound;
 
 buildGoModule {
   pname = "twenty-twenty-twenty";
@@ -36,7 +39,8 @@ buildGoModule {
   # program is running correctly.
   doCheck = false;
 
-  ldflags = [ "-X=main.version=${version}" "-s" "-w" ] ++ extraLdflags;
+  ldflags = [ "-X=main.version=${version}" "-s" "-w" ]
+    ++ lib.optionals withStatic [ "-linkmode external" ''-extldflags "-static"'' ];
 
   meta = with lib; {
     description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
