@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -67,6 +68,10 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 // and needs a proper desktop environment to work, and this is the reason why it
 // is not run in CI.
 func TestPlayNotificationSound(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+
 	err := initNotification()
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
@@ -85,6 +90,10 @@ func TestPlayNotificationSound(t *testing.T) {
 }
 
 func TestSendNotification(t *testing.T) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+
 	notifier, err := notify.NewNotifier()
 	if err != nil {
 		t.Fatalf("Error while creating a notifier: %v\n", err)
