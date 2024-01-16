@@ -1,7 +1,6 @@
 package main
 
 import (
-	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -12,8 +11,6 @@ import (
 )
 
 var (
-	//go:embed assets/eye.png
-	data              []byte
 	version           = "development"
 	duration          = new(time.Duration)
 	frequency         = new(time.Duration)

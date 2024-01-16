@@ -1,10 +1,14 @@
 package main
 
 import (
+	_ "embed"
 	"log"
 
 	"fyne.io/systray"
 )
+
+//go:embed assets/eye.png
+var data []byte
 
 func onReady() {
 	systray.SetIcon(data)
