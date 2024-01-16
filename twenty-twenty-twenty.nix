@@ -51,9 +51,10 @@ buildGoModule {
     rcodesign sign "$OUT_APP"
   '';
 
-  # Tests are mostly useful for development, not to ensure that
-  # program is running correctly.
-  doCheck = false;
+  # Disable tests that can't run in CI, since they require desktop environment
+  preCheck = ''
+    export CI=1
+  '';
 
   ldflags = [ "-X=main.version=${version}" "-s" "-w" ]
     ++ lib.optionals withStatic [ "-linkmode external" ''-extldflags "-static"'' ];
