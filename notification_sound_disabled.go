@@ -5,10 +5,8 @@ package main
 
 const notificationSoundEnabled bool = false
 
-func playNotificationSound() chan bool {
-	c := make(chan bool)
-	c <- false
-	return c
-}
+func playNotificationSound1() {}
 
-func initBeep() error { return nil }
+func playNotificationSound2() {}
+
+func initNotification() error { return nil }
