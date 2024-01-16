@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.21.5
 
 require (
+	fyne.io/systray v1.10.0
 	gioui.org v0.4.2
 	gioui.org/cmd v0.0.0-20240109195218-88b4ff53bd6a
 	gioui.org/x v0.4.0
@@ -26,6 +27,7 @@ require (
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/tevino/abool v1.2.0 // indirect
 	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc // indirect
 	golang.org/x/exp/shiny v0.0.0-20240103183307-be819d1f06fc // indirect
 	golang.org/x/image v0.15.0 // indirect
