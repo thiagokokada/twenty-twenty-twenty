@@ -15,6 +15,13 @@ import (
 
 const notificationSoundEnabled bool = true
 
+// Maximum lag, good enough for this use case and will use lower CPU, but need
+// to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
+// notifications because the sound comes too late).
+// About as good we can get of CPU usage for now, until this issue is fixed:
+// https://github.com/gopxl/beep/issues/137.
+const lag time.Duration = time.Second
+
 var (
 	buffer1 *beep.Buffer
 	buffer2 *beep.Buffer
@@ -31,6 +38,8 @@ func playSendNotificationSound() {
 		beep.Callback(func() { done <- true }),
 	)
 	<-done
+	// compesate the lag
+	time.Sleep(lag)
 }
 
 func playCancelNotificationSound() {
@@ -40,6 +49,8 @@ func playCancelNotificationSound() {
 		beep.Callback(func() { done <- true }),
 	)
 	<-done
+	// compesate the lag
+	time.Sleep(lag)
 }
 
 func initNotification() error {
@@ -71,8 +82,7 @@ func initNotification() error {
 		return fmt.Errorf("notification 2 sound failed: %w", err)
 	}
 
-	// 1s/8 = 125ms of maximum lag, good enough for this use case
-	speaker.Init(format.SampleRate, format.SampleRate.N(time.Second/8))
+	speaker.Init(format.SampleRate, format.SampleRate.N(lag))
 
 	return nil
 }

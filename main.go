@@ -59,13 +59,14 @@ func sendNotification(
 	text string,
 	notificationSound bool,
 ) notify.Notification {
+	if notificationSound {
+		playSendNotificationSound()
+	}
+
 	notification, err := notifier.CreateNotification(title, text)
 	if err != nil {
 		log.Printf("Error while sending notification: %v\n", err)
 		return nil
-	}
-	if notificationSound {
-		playSendNotificationSound()
 	}
 	return notification
 }
@@ -78,14 +79,15 @@ func cancelNotificationAfter(
 	if notification == nil {
 		return
 	}
-
 	time.Sleep(after)
+
+	if notificationSound {
+		playCancelNotificationSound()
+	}
+
 	err := notification.Cancel()
 	if err != nil {
 		fmt.Printf("Error while cancelling notification: %v\n", err)
-	}
-	if notificationSound {
-		playCancelNotificationSound()
 	}
 }
 
