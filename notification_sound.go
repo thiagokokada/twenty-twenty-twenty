@@ -16,15 +16,15 @@ import (
 const notificationSoundEnabled bool = true
 
 var (
+	buffer1 *beep.Buffer
+	buffer2 *beep.Buffer
 	//go:embed assets/notification_1.ogg
 	notification1 embed.FS
 	//go:embed assets/notification_2.ogg
 	notification2 embed.FS
-	buffer1       *beep.Buffer
-	buffer2       *beep.Buffer
 )
 
-func playNotificationSound1() {
+func playSendNotificationSound() {
 	done := make(chan bool)
 	speaker.Play(
 		beep.Seq(buffer1.Streamer(0, buffer1.Len())),
@@ -33,7 +33,7 @@ func playNotificationSound1() {
 	<-done
 }
 
-func playNotificationSound2() {
+func playCancelNotificationSound() {
 	done := make(chan bool)
 	speaker.Play(
 		beep.Seq(buffer2.Streamer(0, buffer2.Len())),

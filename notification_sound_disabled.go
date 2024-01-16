@@ -5,11 +5,11 @@ package main
 
 const notificationSoundEnabled bool = false
 
-func playNotificationSound1() {
+func playSendNotificationSound() {
 	panic("Not implemented")
 }
 
-func playNotificationSound2() {
+func playCancelNotificationSound() {
 	panic("Not implemented")
 }
 

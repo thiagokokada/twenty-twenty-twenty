@@ -65,7 +65,7 @@ func sendNotification(
 		return nil
 	}
 	if notificationSound {
-		playNotificationSound1()
+		playSendNotificationSound()
 	}
 	return notification
 }
@@ -85,7 +85,7 @@ func cancelNotificationAfter(
 		fmt.Printf("Error while cancelling notification: %v\n", err)
 	}
 	if notificationSound {
-		playNotificationSound2()
+		playCancelNotificationSound()
 	}
 }
 
