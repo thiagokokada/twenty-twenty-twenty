@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -97,6 +98,7 @@ func cancelNotificationAfter(
 }
 
 func twentyTwentyTwenty(
+	ctx context.Context,
 	notifier notify.Notifier,
 	duration *time.Duration,
 	frequency *time.Duration,
@@ -104,17 +106,22 @@ func twentyTwentyTwenty(
 ) {
 	ticker := time.NewTicker(*frequency)
 	for {
-		<-ticker.C
-		go func() {
-			log.Println("Sending notification...")
-			notification := sendNotification(
-				notifier,
-				"Time to rest your eyes",
-				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
-				notificationSound,
-			)
-			go cancelNotificationAfter(notification, duration, notificationSound)
-		}()
+		select {
+		case <-ticker.C:
+			go func() {
+				log.Println("Sending notification...")
+				notification := sendNotification(
+					notifier,
+					"Time to rest your eyes",
+					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
+					notificationSound,
+				)
+				go cancelNotificationAfter(notification, duration, notificationSound)
+			}()
+		case <-ctx.Done():
+			log.Println("Cancelling main loop...")
+			return
+		}
 	}
 }
 
@@ -168,6 +175,6 @@ func main() {
 			duration.Seconds(),
 		)
 	}
-	go twentyTwentyTwenty(notifier, duration, frequency, notificationSound)
+	go twentyTwentyTwenty(context.Background(), notifier, duration, frequency, notificationSound)
 	loop()
 }
