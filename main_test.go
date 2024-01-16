@@ -14,14 +14,21 @@ import (
 // is not run in CI.
 
 func TestPlayNotificationSound(t *testing.T) {
-	err := initBeep()
+	err := initNotification()
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
+	const wait = 10
+
 	log.Println("You should listen to a sound!")
-	<-playNotificationSound()
-	log.Println("Waiting 5 seconds to ensure that the sound is finished")
-	time.Sleep(5 * time.Second)
+	playSendNotificationSound()
+	log.Printf("Waiting %d seconds to ensure that the sound is finished", wait)
+	time.Sleep(wait * time.Second)
+
+	log.Println("You should listen to another sound!")
+	playCancelNotificationSound()
+	log.Printf("Waiting %d seconds to ensure that the sound is finished", wait)
+	time.Sleep(wait * time.Second)
 }
 
 func TestSendNotification(t *testing.T) {

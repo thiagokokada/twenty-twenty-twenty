@@ -5,10 +5,14 @@ package main
 
 const notificationSoundEnabled bool = false
 
-func playNotificationSound() chan bool {
-	c := make(chan bool)
-	c <- false
-	return c
+func playSendNotificationSound() {
+	panic("Not implemented")
 }
 
-func initBeep() error { return nil }
+func playCancelNotificationSound() {
+	panic("Not implemented")
+}
+
+func initNotification() error {
+	panic("Not implemented")
+}

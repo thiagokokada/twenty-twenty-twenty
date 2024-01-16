@@ -68,8 +68,12 @@ $ direnv allow
 
 ## Credits
 
-[Notification sound](https://bigsoundbank.com/sound-1111-message-1.html) by
+[Notification sound 1](https://bigsoundbank.com/sound-1111-message-1.html) and
+[Notification sound 2](https://bigsoundbank.com/sound-1112-message-2.html) by
 Joseph SARDIN - https://bigsoundbank.com.
+
+Eye open extracted from Font Awesome, in SVG format from
+[Wikipedia](https://en.m.wikipedia.org/wiki/File:Eye_open_font_awesome.svg).
 
 [1]: https://www.allaboutvision.com/conditions/refractive-errors/what-is-20-20-20-rule/
 [2]: https://modernod.com/articles/2023-july-aug/myth-busting-the-202020-rule

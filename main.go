@@ -65,12 +65,16 @@ func sendNotification(
 		return nil
 	}
 	if notificationSound {
-		<-playNotificationSound()
+		playSendNotificationSound()
 	}
 	return notification
 }
 
-func cancelNotificationAfter(notification notify.Notification, after time.Duration) {
+func cancelNotificationAfter(
+	notification notify.Notification,
+	after time.Duration,
+	notificationSound bool,
+) {
 	if notification == nil {
 		return
 	}
@@ -79,6 +83,9 @@ func cancelNotificationAfter(notification notify.Notification, after time.Durati
 	err := notification.Cancel()
 	if err != nil {
 		fmt.Printf("Error while cancelling notification: %v\n", err)
+	}
+	if notificationSound {
+		playCancelNotificationSound()
 	}
 }
 
@@ -99,7 +106,7 @@ func twentyTwentyTwenty(
 				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
 				notificationSound,
 			)
-			go cancelNotificationAfter(notification, duration)
+			go cancelNotificationAfter(notification, duration, notificationSound)
 		}()
 	}
 }
@@ -118,7 +125,7 @@ func main() {
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if notificationSound {
-		err := initBeep()
+		err := initNotification()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}
@@ -138,7 +145,7 @@ func main() {
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go cancelNotificationAfter(notification, duration)
+	go cancelNotificationAfter(notification, duration, notificationSound)
 
 	if notificationSoundEnabled {
 		fmt.Printf(
