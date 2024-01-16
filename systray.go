@@ -1,6 +1,3 @@
-//go:build darwin
-// +build darwin
-
 package main
 
 import (
@@ -16,8 +13,11 @@ var data []byte
 func onReady() {
 	systray.SetIcon(data)
 	systray.SetTooltip("TwentyTwentyTwenty")
-	mSound := systray.AddMenuItemCheckbox("Sound", "Enable notification sound", *notificationSound)
-	systray.AddSeparator()
+	mSound := new(systray.MenuItem)
+	if notificationSoundEnabled {
+		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", *notificationSound)
+		systray.AddSeparator()
+	}
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 
 	for {
