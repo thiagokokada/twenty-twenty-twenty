@@ -20,7 +20,7 @@ buildGoModule {
   pname = "twenty-twenty-twenty";
   inherit version;
   src = lib.cleanSource ./.;
-  vendorHash = "sha256-3RtdnS4J7JbdU+jMTEzClSlDDPh6bWqbjchvrtS8HUc";
+  vendorHash = "sha256-5e5+E9622MhteW56l2sUKocMV+fUs+G+0ZBB3uXjw2Q=";
 
   CGO_ENABLED = if withSound then "1" else "0";
 
@@ -34,6 +34,7 @@ buildGoModule {
     alsa-lib
   ] ++
   lib.optionals stdenv.hostPlatform.isDarwin [
+    darwin.apple_sdk_11_0.frameworks.Cocoa
     darwin.apple_sdk_11_0.frameworks.MetalKit
     darwin.apple_sdk_11_0.frameworks.UserNotifications
   ];
