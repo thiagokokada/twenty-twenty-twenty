@@ -66,6 +66,16 @@ Or if you have [`nix-direnv`](https://github.com/nix-community/nix-direnv):
 $ direnv allow
 ```
 
+### Optional features
+
+You can enable/disable optional features by passing the following build tags
+(e.g.: `go build -tags=<tag>`):
+
+- `cgo`: [CGO](https://pkg.go.dev/cmd/cgo) is necessary for some features in
+some platforms. It is required for `darwin`, not used in `windows`, and
+enables/disables sound support in `linux` (and other *nix systems)
+- `nosystray`: disable system tray support. Not supported in `darwin`
+
 ## Credits
 
 [Notification sound 1](https://bigsoundbank.com/sound-1111-message-1.html) and
