@@ -10,7 +10,7 @@ import (
 	"fyne.io/systray"
 )
 
-//go:embed assets/eye.png
+//go:embed assets/eye_light.png
 var data []byte
 
 func onReady() {
