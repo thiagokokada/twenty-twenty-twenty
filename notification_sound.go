@@ -29,6 +29,7 @@ var (
 	notification1 embed.FS
 	//go:embed assets/notification_2.ogg
 	notification2 embed.FS
+	initialized   bool
 )
 
 func playSendNotificationSound() {
@@ -54,35 +55,40 @@ func playCancelNotificationSound() {
 }
 
 func initNotification() error {
-	loadNotification := func(notification embed.FS, file string) (*beep.Buffer, beep.Format, error) {
-		f, err := notification.Open(file)
+	// should be safe to call multiple times
+	if !initialized {
+		var format beep.Format
+		var err error
+
+		buffer1, format, err = _loadSound(notification1, "assets/notification_1.ogg")
 		if err != nil {
-			return nil, beep.Format{}, fmt.Errorf("load notification %s sound: %w", file, err)
+			return fmt.Errorf("notification 1 sound failed: %w", err)
 		}
-		streamer, format, err := vorbis.Decode(f)
+
+		// ignoring format since all audio files should have the same format
+		buffer2, _, err = _loadSound(notification2, "assets/notification_2.ogg")
 		if err != nil {
-			return nil, beep.Format{}, fmt.Errorf("decode notification %s sound: %w", file, err)
+			return fmt.Errorf("notification 2 sound failed: %w", err)
 		}
-		buffer := beep.NewBuffer(format)
-		buffer.Append(streamer)
-		return buffer, format, nil
+
+		speaker.Init(format.SampleRate, format.SampleRate.N(lag))
+		initialized = true
+
+		return nil
 	}
-
-	var format beep.Format
-	var err error
-
-	buffer1, format, err = loadNotification(notification1, "assets/notification_1.ogg")
-	if err != nil {
-		return fmt.Errorf("notification 1 sound failed: %w", err)
-	}
-
-	// ignoring format since all audio files should have the same format
-	buffer2, _, err = loadNotification(notification2, "assets/notification_2.ogg")
-	if err != nil {
-		return fmt.Errorf("notification 2 sound failed: %w", err)
-	}
-
-	speaker.Init(format.SampleRate, format.SampleRate.N(lag))
-
 	return nil
+}
+
+func _loadSound(notification embed.FS, file string) (*beep.Buffer, beep.Format, error) {
+	f, err := notification.Open(file)
+	if err != nil {
+		return nil, beep.Format{}, fmt.Errorf("load notification %s sound: %w", file, err)
+	}
+	streamer, format, err := vorbis.Decode(f)
+	if err != nil {
+		return nil, beep.Format{}, fmt.Errorf("decode notification %s sound: %w", file, err)
+	}
+	buffer := beep.NewBuffer(format)
+	buffer.Append(streamer)
+	return buffer, format, nil
 }

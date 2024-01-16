@@ -8,8 +8,15 @@
 
 package main
 
-import "gioui.org/app"
+import (
+	"fyne.io/systray"
+	"gioui.org/app"
+)
 
 func loop() {
+	start, exit := systray.RunWithExternalLoop(onReady, onExit)
+	start()
 	app.Main()
+	// Probably will never be called
+	exit()
 }

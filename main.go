@@ -10,7 +10,12 @@ import (
 	"gioui.org/x/notify"
 )
 
-var version = "development"
+var (
+	version           = "development"
+	duration          = new(time.Duration)
+	frequency         = new(time.Duration)
+	notificationSound = new(bool)
+)
 
 type flags struct {
 	disableSound   bool
@@ -57,9 +62,9 @@ func sendNotification(
 	notifier notify.Notifier,
 	title string,
 	text string,
-	notificationSound bool,
+	notificationSound *bool,
 ) notify.Notification {
-	if notificationSound {
+	if *notificationSound {
 		playSendNotificationSound()
 	}
 
@@ -73,15 +78,15 @@ func sendNotification(
 
 func cancelNotificationAfter(
 	notification notify.Notification,
-	after time.Duration,
-	notificationSound bool,
+	after *time.Duration,
+	notificationSound *bool,
 ) {
 	if notification == nil {
 		return
 	}
-	time.Sleep(after)
+	time.Sleep(*after)
 
-	if notificationSound {
+	if *notificationSound {
 		playCancelNotificationSound()
 	}
 
@@ -93,11 +98,11 @@ func cancelNotificationAfter(
 
 func twentyTwentyTwenty(
 	notifier notify.Notifier,
-	duration time.Duration,
-	frequency time.Duration,
-	notificationSound bool,
+	duration *time.Duration,
+	frequency *time.Duration,
+	notificationSound *bool,
 ) {
-	ticker := time.NewTicker(frequency)
+	ticker := time.NewTicker(*frequency)
 	for {
 		<-ticker.C
 		go func() {
@@ -120,13 +125,13 @@ func main() {
 		os.Exit(0)
 	}
 
-	duration := time.Duration(flags.durationInSec) * time.Second
-	frequency := time.Duration(flags.frequencyInMin) * time.Minute
-	notificationSound := notificationSoundEnabled && !flags.disableSound
+	*duration = time.Duration(flags.durationInSec) * time.Second
+	*frequency = time.Duration(flags.frequencyInMin) * time.Minute
+	*notificationSound = notificationSoundEnabled && !flags.disableSound
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
-	if notificationSound {
+	if *notificationSound {
 		err := initNotification()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
@@ -154,7 +159,7 @@ func main() {
 			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			frequency.Minutes(),
 			duration.Seconds(),
-			notificationSound,
+			*notificationSound,
 		)
 	} else {
 		fmt.Printf(

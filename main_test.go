@@ -37,12 +37,14 @@ func TestSendNotification(t *testing.T) {
 		t.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 	log.Println("You should see a notification!")
+	notificationSound = new(bool)
+	*notificationSound = false
 	// ignoring result, because this test does not work in some platforms (e.g.:
 	// darwin, because lack of signature)
 	_ = sendNotification(
 		notifier,
 		"Test notification title",
 		"Test notification text",
-		false, // being tested in TestPlayNotificationSound
+		notificationSound, // being tested in TestPlayNotificationSound
 	)
 }
