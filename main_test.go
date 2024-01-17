@@ -17,18 +17,25 @@ var (
 
 type mockNotifier struct {
 	notify.Notifier
+	t *testing.T
 }
 
 type mockNotification struct {
 	*mockNotifier
 }
 
-func (l mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
+func (notifier mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
 	notificationCount++
+	if title != "Time to rest your eyes" {
+		notifier.t.Errorf("Title is '%s'", title)
+	}
+	if text != "Look at 20 feet (~6 meters) away for 0 seconds" {
+		notifier.t.Errorf("Text is '%s'", text)
+	}
 	return &mockNotification{}, nil
 }
 
-func (l mockNotification) Cancel() error {
+func (notification mockNotification) Cancel() error {
 	cancellationCount++
 	return nil
 }
@@ -36,7 +43,7 @@ func (l mockNotification) Cancel() error {
 func TestTwentyTwentyTwenty(t *testing.T) {
 	notificationCount = 0
 	cancellationCount = 0
-	notifier := mockNotifier{Notifier: nil}
+	notifier := mockNotifier{Notifier: nil, t: t}
 
 	duration := new(time.Duration)
 	*duration = time.Millisecond * 500
