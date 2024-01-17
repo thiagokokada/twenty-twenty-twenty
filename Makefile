@@ -13,10 +13,16 @@ else
 all: bin/twenty-twenty-twenty
 endif
 
+# Cross-build target for Windows:
+# - bin/twenty-twenty-twenty-windows-386
+# - bin/twenty-twenty-twenty-windows-arm64
+# - bin/twenty-twenty-twenty-windows-amd64
+bin/twenty-twenty-twenty-%.exe: assets/* *.go go.mod go.sum
+	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
+			 go build -v -ldflags="-H=windowsgui -X 'main.Version=$(shell git describe --tags --dirty)' -s -w" -o $@
+
 # Cross-build target, use as e.g.: `make bin/twenty-twenty-twenty-linux-arm64`
 # Some valid targets:
-# - bin/twenty-twenty-twenty-windows-386
-# - bin/twenty-twenty-twenty-windows-amd64
 # - bin/twenty-twenty-twenty-linux-amd64 # no audio
 # - bin/twenty-twenty-twenty-linux-arm64 # no audio
 # - bin/twenty-twenty-twenty-freebsd-amd64 # no audio
