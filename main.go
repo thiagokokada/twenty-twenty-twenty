@@ -96,7 +96,7 @@ func cancelNotificationAfter(
 
 	err := notification.Cancel()
 	if err != nil {
-		fmt.Printf("Error while cancelling notification: %v\n", err)
+		log.Printf("Error while cancelling notification: %v\n", err)
 	}
 }
 
