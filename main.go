@@ -25,8 +25,8 @@ var (
 type flags struct {
 	disableSound   bool
 	durationInSec  uint
-	frequencyInMin float64
-	pauseInHour    float64
+	frequencyInSec uint
+	pauseInSec     uint
 	version        bool
 }
 
@@ -36,10 +36,10 @@ func parseFlags() flags {
 		20,
 		"how long each pause should be in seconds",
 	)
-	frequencyInMin := flag.Float64(
+	frequencyInSec := flag.Uint(
 		"frequency",
-		20,
-		"how often the pause should be in minutes",
+		20*60,
+		"how often the pause should be in seconds",
 	)
 	version := flag.Bool(
 		"version",
@@ -54,12 +54,12 @@ func parseFlags() flags {
 			"disable notification sound",
 		)
 	}
-	pauseInHour := new(float64)
+	pauseInSec := new(uint)
 	if systrayEnabled {
-		pauseInHour = flag.Float64(
+		pauseInSec = flag.Uint(
 			"pause",
-			1,
-			"how long the pause (from systray) should be in hours",
+			60*60,
+			"how long the pause (from systray) should be in seconds",
 		)
 	}
 	flag.Parse()
@@ -67,8 +67,8 @@ func parseFlags() flags {
 	return flags{
 		disableSound:   *disableSound,
 		durationInSec:  *durationInSec,
-		frequencyInMin: *frequencyInMin,
-		pauseInHour:    *pauseInHour,
+		frequencyInSec: *frequencyInSec,
+		pauseInSec:     *pauseInSec,
 		version:        *version,
 	}
 }
@@ -172,8 +172,8 @@ func main() {
 	}
 
 	*duration = time.Duration(flags.durationInSec) * time.Second
-	*frequency = time.Duration(flags.frequencyInMin * float64(time.Minute))
-	*pause = time.Duration(flags.pauseInHour * float64(time.Hour))
+	*frequency = time.Duration(flags.frequencyInSec) * time.Second
+	*pause = time.Duration(flags.pauseInSec) * time.Second
 	*notificationSound = notificationSoundEnabled && !flags.disableSound
 	var err error
 
