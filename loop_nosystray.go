@@ -6,6 +6,8 @@
 
 package main
 
+const systrayEnabled bool = false
+
 func loop() {
 	// https://blog.sgmansfield.com/2016/06/how-to-block-forever-in-go/
 	select {}

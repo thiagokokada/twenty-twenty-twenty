@@ -29,13 +29,15 @@ In Linux/other OS:
 $ ./twenty-twenty-twenty -help
 Usage of ./twenty-twenty-twenty:
   -disable-sound
-    	disable notification sound
+        disable notification sound
   -duration uint
-    	how long each pause should be in seconds (default 20)
+        how long each pause should be in seconds (default 20)
   -frequency uint
-    	how often the pause should be in minutes (default 20)
+        how often the pause should be in seconds (default 1200)
+  -pause uint
+        how long the pause (from systray) should be in seconds (default 3600)
   -version
-    	print program version and exit
+        print program version and exit
 ```
 
 ## How to build

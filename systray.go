@@ -13,6 +13,8 @@ import (
 	"fyne.io/systray"
 )
 
+const systrayEnabled bool = true
+
 //go:embed assets/eye_light.png
 var data []byte
 
@@ -35,6 +37,9 @@ func resumeTwentyTwentyTwentyAfter(
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
 			notificationSound,
 		)
+		if notification == nil {
+			log.Printf("Resume notification failed...")
+		}
 		go cancelNotificationAfter(notification, duration, notificationSound)
 		runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 
@@ -49,7 +54,11 @@ func onReady() {
 	systray.SetIcon(data)
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
-	mPause := systray.AddMenuItemCheckbox("Pause for 1 hour", "Pause twenty-twenty-twenty for 1 hour", false)
+	mPause := systray.AddMenuItemCheckbox(
+		fmt.Sprintf("Pause for %.f hour", pause.Hours()),
+		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", pause.Hours()),
+		false,
+	)
 	mSound := new(systray.MenuItem)
 	if notificationSoundEnabled {
 		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", *notificationSound)
@@ -83,7 +92,7 @@ func onReady() {
 				mPause.Uncheck()
 			} else {
 				ctx, ctxCancel = context.WithCancel(context.Background())
-				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, time.Hour, mEnabled, mPause)
+				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, *pause, mEnabled, mPause)
 
 				mEnabled.Disable()
 				mPause.Check()
