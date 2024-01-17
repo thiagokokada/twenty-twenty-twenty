@@ -13,8 +13,8 @@ import (
 
 var (
 	version           = "development"
-	ctx               context.Context
-	ctxCancel         context.CancelFunc
+	mainCtx           context.Context
+	mainCtxCancel     context.CancelFunc
 	duration          = new(time.Duration)
 	frequency         = new(time.Duration)
 	notificationSound = new(bool)
@@ -144,8 +144,8 @@ func runTwentyTwentyTwenty() {
 		)
 	}
 
-	ctx, ctxCancel = context.WithCancel(context.Background())
-	go twentyTwentyTwenty(ctx, notifier, duration, frequency, notificationSound)
+	mainCtx, mainCtxCancel = context.WithCancel(context.Background())
+	go twentyTwentyTwenty(mainCtx, notifier, duration, frequency, notificationSound)
 }
 
 func main() {

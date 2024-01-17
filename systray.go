@@ -4,8 +4,10 @@
 package main
 
 import (
+	"context"
 	_ "embed"
 	"log"
+	"time"
 
 	"fyne.io/systray"
 )
@@ -17,22 +19,52 @@ func onReady() {
 	systray.SetIcon(data)
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
+	mPause := systray.AddMenuItemCheckbox("Pause for 1 hour", "Pause twenty-twenty-twenty for 1 hour", false)
 	mSound := new(systray.MenuItem)
 	if notificationSoundEnabled {
 		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", *notificationSound)
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
+	var ctx context.Context
+	var cancel context.CancelFunc
 
 	for {
 		select {
 		case <-mEnabled.ClickedCh:
 			if mEnabled.Checked() {
-				ctxCancel()
+				mainCtxCancel()
 				mEnabled.Uncheck()
+				mPause.Disable()
 			} else {
 				runTwentyTwentyTwenty()
 				mEnabled.Check()
+				mPause.Enable()
+			}
+		case <-mPause.ClickedCh:
+			if mPause.Checked() {
+				mainCtxCancel() // make sure the loop stopped
+				cancel()
+				runTwentyTwentyTwenty()
+				mEnabled.Enable()
+				mPause.Uncheck()
+			} else {
+				log.Println("Pausing twenty-twenty-twenty for 1 hour...")
+				ctx, cancel = context.WithCancel(context.Background())
+				go func(ctx context.Context) {
+					mainCtxCancel()
+					timer := time.NewTimer(time.Hour)
+					select {
+					case <-timer.C:
+						runTwentyTwentyTwenty()
+						mEnabled.Enable()
+						mPause.Uncheck()
+					case <-ctx.Done():
+					}
+					cancel()
+				}(ctx)
+				mEnabled.Disable()
+				mPause.Check()
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
