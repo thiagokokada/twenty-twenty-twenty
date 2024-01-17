@@ -31,14 +31,12 @@
         in {
           default = self.packages.${system}.twenty-twenty-twenty;
           twenty-twenty-twenty = pkgs.callPackage ./twenty-twenty-twenty.nix { inherit version; };
+          twenty-twenty-twenty-no-sound = self.packages.${system}.twenty-twenty-twenty.override { withSound = false; };
+          twenty-twenty-twenty-no-systray = self.packages.${system}.twenty-twenty-twenty.override { withSystray = false; };
+          twenty-twenty-twenty-minimal = self.packages.${system}.twenty-twenty-twenty.override { withSound = false; withSystray = false; };
           twenty-twenty-twenty-static = pkgs.pkgsStatic.callPackage ./twenty-twenty-twenty.nix {
             inherit version;
             withStatic = true;
-          };
-          # Also static build because CGO_ENABLED=0
-          twenty-twenty-twenty-no-sound = pkgs.callPackage ./twenty-twenty-twenty.nix {
-            inherit version;
-            withSound = false;
           };
         });
 

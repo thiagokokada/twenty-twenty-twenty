@@ -8,6 +8,7 @@
 , version ? "unknown"
 , withSound ? true
 , withStatic ? false
+, withSystray ? true
 }:
 
 # Darwin builds always have sound since it doesn't depend in CGO, and darwin
@@ -57,7 +58,8 @@ buildGoModule {
   '';
 
   ldflags = [ "-X=main.version=${version}" "-s" "-w" ]
-    ++ lib.optionals withStatic [ "-linkmode external" ''-extldflags "-static"'' ];
+    ++ lib.optionals withStatic [ "-linkmode external" ''-extldflags "-static"'' ]
+    ++ lib.optionals (!withSystray) [ "-tags=nosystray" ];
 
   meta = with lib; {
     description = "Alerts every 20 minutes to look something at 20 feet away for 20 seconds";
