@@ -6,7 +6,7 @@ toolchain go1.21.5
 
 require (
 	fyne.io/systray v1.10.0
-	gioui.org/cmd v0.0.0-20240109195218-88b4ff53bd6a
+	gioui.org/cmd v0.0.0-20240115171100-84ca391d514b
 	gioui.org/x v0.4.0
 	github.com/gopxl/beep v1.3.0
 )
@@ -22,18 +22,18 @@ require (
 	github.com/ebitengine/purego v0.5.1 // indirect
 	github.com/esiqveland/notify v0.11.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/go-text/typesetting v0.0.0-20231126133128-3b7c9205d99e // indirect
+	github.com/go-text/typesetting v0.1.0 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
 	github.com/jfreymuth/oggvorbis v1.0.5 // indirect
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
-	golang.org/x/exp v0.0.0-20240103183307-be819d1f06fc // indirect
-	golang.org/x/exp/shiny v0.0.0-20240103183307-be819d1f06fc // indirect
+	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 // indirect
+	golang.org/x/exp/shiny v0.0.0-20240112132812-db7319d0e0e3 // indirect
 	golang.org/x/image v0.15.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
 	golang.org/x/sys v0.16.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	golang.org/x/tools v0.16.1 // indirect
+	golang.org/x/tools v0.17.0 // indirect
 )
