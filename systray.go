@@ -15,7 +15,7 @@ import (
 
 const systrayEnabled bool = true
 
-//go:embed assets/eye_light.png
+//go:embed assets/eye_light.ico
 var data []byte
 
 func resumeTwentyTwentyTwentyAfter(

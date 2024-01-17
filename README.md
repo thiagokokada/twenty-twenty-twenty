@@ -23,6 +23,15 @@ In macOS just run `TwentyTwentyTwenty_<arch>.app`.
 > stay until the end of the duration period instead of disappearing in a few
 > seconds.
 
+In Windows just run `twenty-twenty-twenty-windows-<arch>.exe`. You may want to
+disable the sounds either from the application (using the system tray) or from
+Windows itself (you can disable sounds for notifications from a specific
+application).
+
+The second option is probably a better idea since the application play sounds
+when the notification starts and ends, to remind you that you can look at the
+screen again.
+
 In Linux/other OS:
 
 ```console
@@ -53,7 +62,7 @@ Needs Go 1.21+.
 
 ```console
 $ go generate tools.go # install necessary command-line tools
-$ go generate
+$ make
 ```
 
 If you have `nix` installed, you can also setup the development setup with it:
