@@ -41,6 +41,11 @@ jobs:
     - name: Build with CGO_ENABLED=0
       run: CGO_ENABLED=0 go generate
 
+    - name: Cross-platform build
+      run: |
+          make bin/twenty-twenty-twenty-windows-amd64
+          make bin/twenty-twenty-twenty-windows-arm64
+
   build-macos:
     runs-on: macos-latest
     steps:
