@@ -13,15 +13,18 @@ import (
 
 var (
 	version           = "development"
+	ctx               context.Context
+	ctxCancel         context.CancelFunc
 	duration          = new(time.Duration)
 	frequency         = new(time.Duration)
 	notificationSound = new(bool)
+	notifier          notify.Notifier
 )
 
 type flags struct {
 	disableSound   bool
 	durationInSec  uint
-	frequencyInMin uint64
+	frequencyInMin float64
 	version        bool
 }
 
@@ -31,7 +34,7 @@ func parseFlags() flags {
 		20,
 		"how long each pause should be in seconds",
 	)
-	frequencyInMin := flag.Uint64(
+	frequencyInMin := flag.Float64(
 		"frequency",
 		20,
 		"how often the pause should be in minutes",
@@ -93,7 +96,7 @@ func cancelNotificationAfter(
 
 	err := notification.Cancel()
 	if err != nil {
-		fmt.Printf("Error while cancelling notification: %v\n", err)
+		log.Printf("Error while cancelling notification: %v\n", err)
 	}
 }
 
@@ -119,10 +122,30 @@ func twentyTwentyTwenty(
 				go cancelNotificationAfter(notification, duration, notificationSound)
 			}()
 		case <-ctx.Done():
-			log.Println("Cancelling main loop...")
+			log.Println("Disabling twenty-twenty-twenty...")
 			return
 		}
 	}
+}
+
+func runTwentyTwentyTwenty() {
+	if notificationSoundEnabled {
+		log.Printf(
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
+			frequency.Minutes(),
+			duration.Seconds(),
+			*notificationSound,
+		)
+	} else {
+		log.Printf(
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration...\n",
+			frequency.Minutes(),
+			duration.Seconds(),
+		)
+	}
+
+	ctx, ctxCancel = context.WithCancel(context.Background())
+	go twentyTwentyTwenty(ctx, notifier, duration, frequency, notificationSound)
 }
 
 func main() {
@@ -133,19 +156,20 @@ func main() {
 	}
 
 	*duration = time.Duration(flags.durationInSec) * time.Second
-	*frequency = time.Duration(flags.frequencyInMin) * time.Minute
+	*frequency = time.Duration(flags.frequencyInMin * float64(time.Minute))
 	*notificationSound = notificationSoundEnabled && !flags.disableSound
+	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if *notificationSound {
-		err := initNotification()
+		err = initNotification()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}
 	}
 
-	notifier, err := notify.NewNotifier()
+	notifier, err = notify.NewNotifier()
 	if err != nil {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
@@ -161,20 +185,6 @@ func main() {
 	}
 	go cancelNotificationAfter(notification, duration, notificationSound)
 
-	if notificationSoundEnabled {
-		fmt.Printf(
-			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
-			frequency.Minutes(),
-			duration.Seconds(),
-			*notificationSound,
-		)
-	} else {
-		fmt.Printf(
-			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration...\n",
-			frequency.Minutes(),
-			duration.Seconds(),
-		)
-	}
-	go twentyTwentyTwenty(context.Background(), notifier, duration, frequency, notificationSound)
+	runTwentyTwentyTwenty()
 	loop()
 }
