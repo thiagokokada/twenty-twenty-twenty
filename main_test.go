@@ -47,18 +47,18 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 	}
 
 	duration := new(time.Duration)
-	*duration = time.Millisecond * 500
+	*duration = time.Millisecond * 50
 
 	frequency := new(time.Duration)
-	*frequency = time.Second * 1
+	*frequency = time.Millisecond * 100
 
 	notificationSound := new(bool)
 	*notificationSound = false
 
-	const timeoutInSec = 5
+	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
-	const expectCount = timeoutInSec - 1
-	context, cancel := context.WithTimeout(context.Background(), time.Second*timeoutInSec)
+	expectCount := int(timeout / *frequency) - 1
+	context, cancel := context.WithTimeout(context.Background(), timeout)
 
 	twentyTwentyTwenty(context, notifier, duration, frequency, notificationSound)
 	cancel()
