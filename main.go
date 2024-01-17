@@ -128,7 +128,12 @@ func twentyTwentyTwenty(
 	}
 }
 
-func runTwentyTwentyTwenty() {
+func runTwentyTwentyTwenty(
+	notifier notify.Notifier,
+	duration *time.Duration,
+	frequency *time.Duration,
+	notificationSound *bool,
+) {
 	if notificationSoundEnabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
@@ -185,6 +190,6 @@ func main() {
 	}
 	go cancelNotificationAfter(notification, duration, notificationSound)
 
-	runTwentyTwentyTwenty()
+	runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 	loop()
 }

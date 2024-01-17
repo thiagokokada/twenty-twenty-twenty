@@ -27,8 +27,7 @@ func onReady() {
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
-	var ctx context.Context
-	var cancel context.CancelFunc
+	ctx, ctxCancel := context.WithCancel(context.Background())
 
 	for {
 		select {
@@ -38,20 +37,19 @@ func onReady() {
 				mEnabled.Uncheck()
 				mPause.Disable()
 			} else {
-				runTwentyTwentyTwenty()
+				runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 				mEnabled.Check()
 				mPause.Enable()
 			}
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
 				mainCtxCancel() // make sure the loop stopped
-				cancel()
-				runTwentyTwentyTwenty()
+				ctxCancel()
+				runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 				mEnabled.Enable()
 				mPause.Uncheck()
 			} else {
 				log.Println("Pausing twenty-twenty-twenty for 1 hour...")
-				ctx, cancel = context.WithCancel(context.Background())
 				go func(ctx context.Context) {
 					mainCtxCancel()
 					timer := time.NewTimer(time.Hour)
@@ -64,12 +62,12 @@ func onReady() {
 							notificationSound,
 						)
 						cancelNotificationAfter(notification, duration, notificationSound)
-						runTwentyTwentyTwenty()
+						runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 						mEnabled.Enable()
 						mPause.Uncheck()
 					case <-ctx.Done():
 					}
-					cancel()
+					ctxCancel()
 				}(ctx)
 				mEnabled.Disable()
 				mPause.Check()

@@ -58,10 +58,10 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
 	expectCount := int(timeout / *frequency) - 1
-	context, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, ctxCancel := context.WithTimeout(context.Background(), timeout)
 
-	twentyTwentyTwenty(context, notifier, duration, frequency, notificationSound)
-	cancel()
+	twentyTwentyTwenty(ctx, notifier, duration, frequency, notificationSound)
+	ctxCancel()
 
 	if *notificationCount < expectCount {
 		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
