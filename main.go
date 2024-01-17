@@ -24,7 +24,7 @@ var (
 type flags struct {
 	disableSound   bool
 	durationInSec  uint
-	frequencyInMin uint64
+	frequencyInMin float64
 	version        bool
 }
 
@@ -34,7 +34,7 @@ func parseFlags() flags {
 		20,
 		"how long each pause should be in seconds",
 	)
-	frequencyInMin := flag.Uint64(
+	frequencyInMin := flag.Float64(
 		"frequency",
 		20,
 		"how often the pause should be in minutes",
@@ -131,14 +131,14 @@ func twentyTwentyTwenty(
 func runTwentyTwentyTwenty() {
 	if notificationSoundEnabled {
 		log.Printf(
-			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration and sound set to %t...\n",
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			frequency.Minutes(),
 			duration.Seconds(),
 			*notificationSound,
 		)
 	} else {
 		log.Printf(
-			"Running twenty-twenty-twenty every %.f minute(s), with %.f second(s) duration...\n",
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration...\n",
 			frequency.Minutes(),
 			duration.Seconds(),
 		)
@@ -156,7 +156,7 @@ func main() {
 	}
 
 	*duration = time.Duration(flags.durationInSec) * time.Second
-	*frequency = time.Duration(flags.frequencyInMin) * time.Minute
+	*frequency = time.Duration(flags.frequencyInMin * float64(time.Minute))
 	*notificationSound = notificationSoundEnabled && !flags.disableSound
 	var err error
 
