@@ -10,13 +10,8 @@ package main
 
 import (
 	"fyne.io/systray"
-	"gioui.org/app"
 )
 
 func loop() {
-	start, exit := systray.RunWithExternalLoop(onReady, onExit)
-	start()
-	app.Main()
-	// Probably will never be called
-	exit()
+	systray.Run(onReady, onExit)
 }
