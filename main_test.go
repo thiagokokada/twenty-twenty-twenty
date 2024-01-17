@@ -10,40 +10,41 @@ import (
 	"gioui.org/x/notify"
 )
 
-var (
-	notificationCount int
-	cancellationCount int
-)
-
 type mockNotifier struct {
 	notify.Notifier
-	t *testing.T
+	cancellationCount *int
+	notificationCount *int
+	t                 *testing.T
 }
 
 type mockNotification struct {
 	*mockNotifier
 }
 
-func (notifier mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
-	notificationCount++
+func (n mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
+	*n.notificationCount++
 	if title != "Time to rest your eyes" {
-		notifier.t.Errorf("Title is '%s'", title)
+		n.t.Errorf("Title is '%s'", title)
 	}
 	if text != "Look at 20 feet (~6 meters) away for 0 seconds" {
-		notifier.t.Errorf("Text is '%s'", text)
+		n.t.Errorf("Text is '%s'", text)
 	}
-	return &mockNotification{}, nil
+	return &mockNotification{mockNotifier: &n}, nil
 }
 
-func (notification mockNotification) Cancel() error {
-	cancellationCount++
+func (n mockNotification) Cancel() error {
+	*n.mockNotifier.cancellationCount++
 	return nil
 }
 
 func TestTwentyTwentyTwenty(t *testing.T) {
-	notificationCount = 0
-	cancellationCount = 0
-	notifier := mockNotifier{Notifier: nil, t: t}
+	notificationCount := new(int)
+	cancellationCount := new(int)
+	notifier := mockNotifier{
+		cancellationCount: cancellationCount,
+		notificationCount: notificationCount,
+		t:                 t,
+	}
 
 	duration := new(time.Duration)
 	*duration = time.Millisecond * 500
@@ -62,11 +63,11 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 	twentyTwentyTwenty(context, notifier, duration, frequency, notificationSound)
 	cancel()
 
-	if notificationCount < expectCount {
-		t.Errorf("Notification count should be at least %d, it was %d", expectCount, notificationCount)
+	if *notificationCount < expectCount {
+		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
 	}
-	if cancellationCount < expectCount {
-		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, cancellationCount)
+	if *cancellationCount < expectCount {
+		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, *cancellationCount)
 	}
 }
 
