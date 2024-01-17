@@ -15,20 +15,20 @@ var (
 	cancellationCount int
 )
 
-type testNotifier struct {
+type mockNotifier struct {
 	notify.Notifier
 }
 
-type testNotification struct {
-	*testNotifier
+type mockNotification struct {
+	*mockNotifier
 }
 
-func (l testNotifier) CreateNotification(title, text string) (notify.Notification, error) {
+func (l mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
 	notificationCount++
-	return &testNotification{}, nil
+	return &mockNotification{}, nil
 }
 
-func (l testNotification) Cancel() error {
+func (l mockNotification) Cancel() error {
 	cancellationCount++
 	return nil
 }
@@ -36,7 +36,7 @@ func (l testNotification) Cancel() error {
 func TestTwentyTwentyTwenty(t *testing.T) {
 	notificationCount = 0
 	cancellationCount = 0
-	notifier := testNotifier{Notifier: nil}
+	notifier := mockNotifier{Notifier: nil}
 
 	duration := new(time.Duration)
 	*duration = time.Millisecond * 500
