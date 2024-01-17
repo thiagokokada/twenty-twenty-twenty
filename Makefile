@@ -20,7 +20,7 @@ endif
 # - bin/twenty-twenty-twenty-linux-amd64 # no audio
 # - bin/twenty-twenty-twenty-linux-arm64 # no audio
 # - bin/twenty-twenty-twenty-freebsd-amd64 # no audio
-bin/twenty-twenty-twenty-%: *.go go.mod go.sum
+bin/twenty-twenty-twenty-%: assets/* *.go go.mod go.sum
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
 			 go build -v -ldflags="-X 'main.Version=$(shell git describe --tags --dirty)' -s -w" -o $@
 
@@ -39,6 +39,12 @@ bin/TwentyTwentyTwenty_arm64.app: assets/* *.go go.mod go.sum
 
 
 bin/TwentyTwentyTwenty_amd64.app: bin/TwentyTwentyTwenty_arm64.app
+
+bin/twenty-twenty-twenty-linux-amd64-static: assets/* *.go go.mod go.sum *.nix
+	cp $(shell nix build '.#packages.x86_64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+
+bin/twenty-twenty-twenty-linux-arm64-static: assets/* *.go go.mod go.sum *.nix
+	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
 
 clean:
 	rm -rf bin
