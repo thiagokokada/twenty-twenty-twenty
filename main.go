@@ -19,12 +19,14 @@ var (
 	frequency         = new(time.Duration)
 	notificationSound = new(bool)
 	notifier          notify.Notifier
+	pause             = new(time.Duration)
 )
 
 type flags struct {
 	disableSound   bool
 	durationInSec  uint
 	frequencyInMin float64
+	pauseInHour    float64
 	version        bool
 }
 
@@ -52,12 +54,21 @@ func parseFlags() flags {
 			"disable notification sound",
 		)
 	}
+	pauseInHour := new(float64)
+	if systrayEnabled {
+		pauseInHour = flag.Float64(
+			"pause",
+			1,
+			"how long the pause (from systray) should be in hours",
+		)
+	}
 	flag.Parse()
 
 	return flags{
 		disableSound:   *disableSound,
 		durationInSec:  *durationInSec,
 		frequencyInMin: *frequencyInMin,
+		pauseInHour:    *pauseInHour,
 		version:        *version,
 	}
 }
@@ -162,6 +173,7 @@ func main() {
 
 	*duration = time.Duration(flags.durationInSec) * time.Second
 	*frequency = time.Duration(flags.frequencyInMin * float64(time.Minute))
+	*pause = time.Duration(flags.pauseInHour * float64(time.Hour))
 	*notificationSound = notificationSoundEnabled && !flags.disableSound
 	var err error
 
