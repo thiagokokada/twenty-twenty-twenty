@@ -35,7 +35,7 @@ func resumeTwentyTwentyTwentyAfter(
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
 			notificationSound,
 		)
-		cancelNotificationAfter(notification, duration, notificationSound)
+		go cancelNotificationAfter(notification, duration, notificationSound)
 		runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
 
 		mEnabled.Enable()
