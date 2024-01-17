@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	_ "embed"
+	"fmt"
 	"log"
 	"time"
 
@@ -56,6 +57,13 @@ func onReady() {
 					timer := time.NewTimer(time.Hour)
 					select {
 					case <-timer.C:
+						notification := sendNotification(
+							notifier,
+							"Resuming 20-20-20",
+							fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
+							notificationSound,
+						)
+						cancelNotificationAfter(notification, duration, notificationSound)
 						runTwentyTwentyTwenty()
 						mEnabled.Enable()
 						mPause.Uncheck()
