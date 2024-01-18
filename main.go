@@ -92,18 +92,22 @@ func sendNotification(
 }
 
 func cancelNotificationAfter(
+	ctx context.Context,
 	notification notify.Notification,
 	settings *appSettings,
 ) {
 	if notification == nil {
 		return
 	}
-	time.Sleep(settings.duration)
 
-	if settings.sound {
-		playCancelNotificationSound()
+	timer := time.NewTimer(settings.duration)
+	select {
+	case <-timer.C:
+		if settings.sound {
+			playCancelNotificationSound()
+		}
+	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
-
 	err := notification.Cancel()
 	if err != nil {
 		log.Printf("Error while cancelling notification: %v\n", err)
@@ -116,6 +120,7 @@ func twentyTwentyTwenty(
 	settings *appSettings,
 ) {
 	ticker := time.NewTicker(settings.frequency)
+	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 	for {
 		select {
 		case <-ticker.C:
@@ -127,10 +132,11 @@ func twentyTwentyTwenty(
 					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.duration.Seconds()),
 					settings,
 				)
-				go cancelNotificationAfter(notification, settings)
+				go cancelNotificationAfter(cancelCtx, notification, settings)
 			}()
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
+			cancelCtxCancel()
 			return
 		}
 	}
@@ -186,7 +192,7 @@ func main() {
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go cancelNotificationAfter(notification, &settings)
+	go cancelNotificationAfter(context.Background(), notification, &settings)
 
 	runTwentyTwentyTwenty(notifier, &settings)
 	loop()

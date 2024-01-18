@@ -34,6 +34,7 @@ func resumeTwentyTwentyTwentyAfter(
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.pause.Hours())
 	mainCtxCancel() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.pause)
+	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 
 	select {
 	case <-timer.C:
@@ -46,13 +47,14 @@ func resumeTwentyTwentyTwentyAfter(
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go cancelNotificationAfter(notification, settings)
+		go cancelNotificationAfter(cancelCtx, notification, settings)
 		runTwentyTwentyTwenty(notifier, settings)
 
 		menu.mEnabled.Enable()
 		menu.mPause.Uncheck()
 	case <-ctx.Done():
 	}
+	cancelCtxCancel()
 	ctxCancel() // make sure the current context is closed
 }
 
