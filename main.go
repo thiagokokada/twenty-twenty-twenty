@@ -93,14 +93,14 @@ func sendNotification(
 
 func cancelNotificationAfter(
 	ctx context.Context,
+	after *time.Duration,
 	notification notify.Notification,
-	settings *appSettings,
 ) {
 	if notification == nil {
 		return
 	}
 
-	timer := time.NewTimer(settings.duration)
+	timer := time.NewTimer(*after)
 	select {
 	case <-timer.C:
 		if settings.sound {
@@ -132,7 +132,7 @@ func twentyTwentyTwenty(
 					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.duration.Seconds()),
 					&settings.sound,
 				)
-				go cancelNotificationAfter(cancelCtx, notification, settings)
+				go cancelNotificationAfter(cancelCtx, &settings.duration, notification)
 			}()
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
@@ -192,7 +192,7 @@ func main() {
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go cancelNotificationAfter(context.Background(), notification, &settings)
+	go cancelNotificationAfter(context.Background(), &settings.duration, notification)
 
 	runTwentyTwentyTwenty(notifier, &settings)
 	loop()

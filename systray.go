@@ -47,7 +47,7 @@ func resumeTwentyTwentyTwentyAfter(
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go cancelNotificationAfter(cancelCtx, notification, settings)
+		go cancelNotificationAfter(cancelCtx, &settings.duration, notification)
 		runTwentyTwentyTwenty(notifier, settings)
 
 		menu.mEnabled.Enable()
