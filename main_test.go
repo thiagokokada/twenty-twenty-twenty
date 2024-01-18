@@ -105,12 +105,14 @@ func TestSendNotification(t *testing.T) {
 	}
 	log.Println("You should see a notification!")
 
+	sound := new(bool)
+	*sound = false
 	// ignoring result, because this test does not work in some platforms (e.g.:
 	// darwin, because lack of signature)
 	_ = sendNotification(
 		notifier,
 		"Test notification title",
 		"Test notification text",
-		&appSettings{sound: false}, // being tested in TestPlayNotificationSound
+		sound, // being tested in TestPlayNotificationSound
 	)
 }
