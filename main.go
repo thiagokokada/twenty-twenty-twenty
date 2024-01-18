@@ -37,19 +37,6 @@ func parseFlags() appSettings {
 		20*60,
 		"how often the pause should be in seconds",
 	)
-	version := flag.Bool(
-		"version",
-		false,
-		"print program version and exit",
-	)
-	disableSound := new(bool)
-	if notificationSoundEnabled {
-		disableSound = flag.Bool(
-			"disable-sound",
-			false,
-			"disable notification sound",
-		)
-	}
 	pauseInSec := new(uint)
 	if systrayEnabled {
 		pauseInSec = flag.Uint(
@@ -58,9 +45,22 @@ func parseFlags() appSettings {
 			"how long the pause (from systray) should be in seconds",
 		)
 	}
+	disableSound := new(bool)
+	if notificationSoundEnabled {
+		disableSound = flag.Bool(
+			"disable-sound",
+			false,
+			"disable notification sound",
+		)
+	}
+	showVersion := flag.Bool(
+		"version",
+		false,
+		"print program version and exit",
+	)
 	flag.Parse()
 
-	if *version {
+	if *showVersion {
 		fmt.Println(version)
 		os.Exit(0)
 	}
