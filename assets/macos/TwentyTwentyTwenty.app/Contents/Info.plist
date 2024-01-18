@@ -8,9 +8,13 @@
 	<string>icon.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.github.twenty_twenty_twenty</string>
+	<!-- avoid having a blurry icon and text -->
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
+	<!-- avoid showing the app on the Dock -->
+	<key>LSUIElement</key>
+	<string>1</string>
 </dict>
 </plist>
