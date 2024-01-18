@@ -39,12 +39,14 @@ bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
 
 bin/TwentyTwentyTwenty_arm64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=arm64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
-	sed 's|TwentyTwentyTwenty|TwentyTwentyTwenty_arm64|' < assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist > $@/Contents/Info.plist
+	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
+	mv $@/Contents/MacOS/TwentyTwentyTwenty_arm64 $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
 
 bin/TwentyTwentyTwenty_amd64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=amd64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
-	sed 's|TwentyTwentyTwenty|TwentyTwentyTwenty_amd64|' < assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist > $@/Contents/Info.plist
+	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
+	mv $@/Contents/MacOS/TwentyTwentyTwenty_amd64 $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
 
 bin/twenty-twenty-twenty-linux-amd64-static: $(DEPS) *.nix
