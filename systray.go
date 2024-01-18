@@ -109,7 +109,7 @@ func onReady() {
 
 				mSound.Uncheck()
 			} else {
-				err := initNotification()
+				err := initSound()
 				if err != nil {
 					log.Fatalf("Error while initialising sound: %v\n", err)
 				}

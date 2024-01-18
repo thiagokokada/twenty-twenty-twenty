@@ -172,7 +172,7 @@ func main() {
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if settings.sound {
-		err = initNotification()
+		err = initSound()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}

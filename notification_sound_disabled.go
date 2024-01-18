@@ -13,6 +13,6 @@ func playCancelNotificationSound() {
 	panic("Not implemented")
 }
 
-func initNotification() error {
+func initSound() error {
 	panic("Not implemented")
 }

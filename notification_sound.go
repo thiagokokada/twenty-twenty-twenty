@@ -52,7 +52,7 @@ func playCancelNotificationSound() {
 	time.Sleep(lag)
 }
 
-func initNotification() error {
+func initSound() error {
 	// should be safe to call multiple times
 	if !initialized {
 		var format beep.Format
