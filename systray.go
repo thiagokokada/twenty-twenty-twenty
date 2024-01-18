@@ -41,7 +41,7 @@ func resumeTwentyTwentyTwentyAfter(
 			notifier,
 			"Resuming 20-20-20",
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.frequency.Minutes()),
-			&settings.sound,
+			settings,
 		)
 		if notification == nil {
 			log.Printf("Resume notification failed...")

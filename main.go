@@ -77,9 +77,9 @@ func sendNotification(
 	notifier notify.Notifier,
 	title string,
 	text string,
-	sound *bool,
+	settings *appSettings,
 ) notify.Notification {
-	if *sound {
+	if settings.sound {
 		playSendNotificationSound()
 	}
 
@@ -125,7 +125,7 @@ func twentyTwentyTwenty(
 					notifier,
 					"Time to rest your eyes",
 					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.duration.Seconds()),
-					&settings.sound,
+					settings,
 				)
 				go cancelNotificationAfter(notification, settings)
 			}()
@@ -181,7 +181,7 @@ func main() {
 		notifier,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.frequency.Minutes()),
-		&settings.sound,
+		&settings,
 	)
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
