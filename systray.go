@@ -18,12 +18,18 @@ const systrayEnabled bool = true
 //go:embed assets/eye_light.ico
 var data []byte
 
+type menuItems struct {
+	mEnabled *systray.MenuItem
+	mPause   *systray.MenuItem
+	mQuit    *systray.MenuItem
+	mSound   *systray.MenuItem
+}
+
 func resumeTwentyTwentyTwentyAfter(
 	ctx context.Context,
 	ctxCancel context.CancelFunc,
 	settings *appSettings,
-	mEnabled *systray.MenuItem,
-	mPause *systray.MenuItem,
+	menu *menuItems,
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.pause.Hours())
 	mainCtxCancel() // cancelling current twenty-twenty-twenty goroutine
@@ -43,8 +49,8 @@ func resumeTwentyTwentyTwentyAfter(
 		go cancelNotificationAfter(notification, settings)
 		runTwentyTwentyTwenty(notifier, settings)
 
-		mEnabled.Enable()
-		mPause.Uncheck()
+		menu.mEnabled.Enable()
+		menu.mPause.Uncheck()
 	case <-ctx.Done():
 	}
 	ctxCancel() // make sure the current context is closed
@@ -65,6 +71,8 @@ func onReady() {
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
+	menu := menuItems{mEnabled, mPause, mSound, mQuit}
+
 	var ctx context.Context
 	var ctxCancel context.CancelFunc
 
@@ -92,7 +100,7 @@ func onReady() {
 				mPause.Uncheck()
 			} else {
 				ctx, ctxCancel = context.WithCancel(context.Background())
-				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, &settings, mEnabled, mPause)
+				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, &settings, &menu)
 
 				mEnabled.Disable()
 				mPause.Check()
