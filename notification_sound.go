@@ -25,10 +25,8 @@ const lag time.Duration = time.Second
 var (
 	buffer1 *beep.Buffer
 	buffer2 *beep.Buffer
-	//go:embed assets/notification_1.ogg
-	notification1 embed.FS
-	//go:embed assets/notification_2.ogg
-	notification2 embed.FS
+	//go:embed assets/*.ogg
+	notifications embed.FS
 	initialized   bool
 )
 
@@ -60,13 +58,13 @@ func initNotification() error {
 		var format beep.Format
 		var err error
 
-		buffer1, format, err = _loadSound(notification1, "assets/notification_1.ogg")
+		buffer1, format, err = _loadSound("assets/notification_1.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 1 sound failed: %w", err)
 		}
 
 		// ignoring format since all audio files should have the same format
-		buffer2, _, err = _loadSound(notification2, "assets/notification_2.ogg")
+		buffer2, _, err = _loadSound("assets/notification_2.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 2 sound failed: %w", err)
 		}
@@ -79,8 +77,8 @@ func initNotification() error {
 	return nil
 }
 
-func _loadSound(notification embed.FS, file string) (*beep.Buffer, beep.Format, error) {
-	f, err := notification.Open(file)
+func _loadSound(file string) (*beep.Buffer, beep.Format, error) {
+	f, err := notifications.Open(file)
 	if err != nil {
 		return nil, beep.Format{}, fmt.Errorf("load notification %s sound: %w", file, err)
 	}
