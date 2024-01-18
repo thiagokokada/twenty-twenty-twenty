@@ -22,7 +22,11 @@
       apps = forAllSystems (system: {
         default = {
           type = "app";
-          program = nixpkgs.lib.getExe self.packages.${system}.twenty-twenty-twenty;
+          program = let inherit (self.packages.${system}) twenty-twenty-twenty; in
+            if (system == "aarch64-darwin" || system == "x86_64-darwin") then
+              "${twenty-twenty-twenty}/Applications/TwentyTwentyTwenty.app/Contents/MacOS/TwentyTwentyTwenty"
+            else
+              nixpkgs.lib.getExe twenty-twenty-twenty;
         };
       });
 
