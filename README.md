@@ -49,6 +49,12 @@ Usage of ./twenty-twenty-twenty:
         print program version and exit
 ```
 
+If you have [`nix`](https://nixos.org/download) installed, you can run:
+
+```console
+nix run github:thiagokokada/twenty-twenty-twenty
+```
+
 ## How to build
 
 > [!IMPORTANT]
@@ -61,20 +67,20 @@ Usage of ./twenty-twenty-twenty:
 Needs Go 1.21+.
 
 ```console
-$ go generate tools.go # install necessary command-line tools
-$ make
+go generate tools.go # install necessary command-line tools
+make
 ```
 
 If you have `nix` installed, you can also setup the development setup with it:
 
 ```console
-$ nix develop
+nix develop
 ```
 
 Or if you have [`nix-direnv`](https://github.com/nix-community/nix-direnv):
 
 ```console
-$ direnv allow
+direnv allow
 ```
 
 ### Optional features
