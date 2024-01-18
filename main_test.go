@@ -46,21 +46,18 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 		t:                 t,
 	}
 
-	duration := new(time.Duration)
-	*duration = time.Millisecond * 50
-
-	frequency := new(time.Duration)
-	*frequency = time.Millisecond * 100
-
-	notificationSound := new(bool)
-	*notificationSound = false
+	settings := appSettings{
+		duration:  time.Millisecond * 50,
+		frequency: time.Millisecond * 100,
+		sound:     false,
+	}
 
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
-	expectCount := int(timeout / *frequency) - 1
+	expectCount := int(timeout/settings.frequency) - 1
 	ctx, ctxCancel := context.WithTimeout(context.Background(), timeout)
 
-	twentyTwentyTwenty(ctx, notifier, duration, frequency, notificationSound)
+	twentyTwentyTwenty(ctx, notifier, &settings)
 	ctxCancel()
 
 	if *notificationCount < expectCount {
@@ -107,14 +104,15 @@ func TestSendNotification(t *testing.T) {
 		t.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 	log.Println("You should see a notification!")
-	notificationSound = new(bool)
-	*notificationSound = false
+
+	sound := new(bool)
+	*sound = false
 	// ignoring result, because this test does not work in some platforms (e.g.:
 	// darwin, because lack of signature)
 	_ = sendNotification(
 		notifier,
 		"Test notification title",
 		"Test notification text",
-		notificationSound, // being tested in TestPlayNotificationSound
+		sound, // being tested in TestPlayNotificationSound
 	)
 }

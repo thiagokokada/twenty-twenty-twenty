@@ -21,27 +21,27 @@ var data []byte
 func resumeTwentyTwentyTwentyAfter(
 	ctx context.Context,
 	ctxCancel context.CancelFunc,
-	after time.Duration,
+	settings *appSettings,
 	mEnabled *systray.MenuItem,
 	mPause *systray.MenuItem,
 ) {
-	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", after.Hours())
+	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.pause.Hours())
 	mainCtxCancel() // cancelling current twenty-twenty-twenty goroutine
-	timer := time.NewTimer(after)
+	timer := time.NewTimer(settings.pause)
 
 	select {
 	case <-timer.C:
 		notification := sendNotification(
 			notifier,
 			"Resuming 20-20-20",
-			fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
-			notificationSound,
+			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.frequency.Minutes()),
+			&settings.sound,
 		)
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go cancelNotificationAfter(notification, duration, notificationSound)
-		runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
+		go cancelNotificationAfter(notification, settings)
+		runTwentyTwentyTwenty(notifier, settings)
 
 		mEnabled.Enable()
 		mPause.Uncheck()
@@ -55,13 +55,13 @@ func onReady() {
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
 	mPause := systray.AddMenuItemCheckbox(
-		fmt.Sprintf("Pause for %.f hour", pause.Hours()),
-		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", pause.Hours()),
+		fmt.Sprintf("Pause for %.f hour", settings.pause.Hours()),
+		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", settings.pause.Hours()),
 		false,
 	)
 	mSound := new(systray.MenuItem)
 	if notificationSoundEnabled {
-		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", *notificationSound)
+		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.sound)
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
@@ -77,7 +77,7 @@ func onReady() {
 				mEnabled.Uncheck()
 				mPause.Disable()
 			} else {
-				runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
+				runTwentyTwentyTwenty(notifier, &settings)
 
 				mEnabled.Check()
 				mPause.Enable()
@@ -86,20 +86,20 @@ func onReady() {
 			if mPause.Checked() {
 				mainCtxCancel() // make sure the current twenty-twenty-twenty goroutine stopped
 				ctxCancel()     // cancel the current pause if it is running
-				runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
+				runTwentyTwentyTwenty(notifier, &settings)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
 			} else {
 				ctx, ctxCancel = context.WithCancel(context.Background())
-				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, *pause, mEnabled, mPause)
+				go resumeTwentyTwentyTwentyAfter(ctx, ctxCancel, &settings, mEnabled, mPause)
 
 				mEnabled.Disable()
 				mPause.Check()
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
-				*notificationSound = false
+				settings.sound = false
 
 				mSound.Uncheck()
 			} else {
@@ -107,7 +107,7 @@ func onReady() {
 				if err != nil {
 					log.Fatalf("Error while initialising sound: %v\n", err)
 				}
-				*notificationSound = true
+				settings.sound = true
 
 				mSound.Check()
 			}
