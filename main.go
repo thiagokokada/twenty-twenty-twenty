@@ -12,25 +12,21 @@ import (
 )
 
 var (
-	version           = "development"
-	mainCtx           context.Context
-	mainCtxCancel     context.CancelFunc
-	duration          = new(time.Duration)
-	frequency         = new(time.Duration)
-	notificationSound = new(bool)
-	notifier          notify.Notifier
-	pause             = new(time.Duration)
+	version       = "development"
+	mainCtx       context.Context
+	mainCtxCancel context.CancelFunc
+	notifier      notify.Notifier
+	settings      appSettings
 )
 
-type flags struct {
-	disableSound   bool
-	durationInSec  uint
-	frequencyInSec uint
-	pauseInSec     uint
-	version        bool
+type appSettings struct {
+	duration  time.Duration
+	frequency time.Duration
+	pause     time.Duration
+	sound     bool
 }
 
-func parseFlags() flags {
+func parseFlags() appSettings {
 	durationInSec := flag.Uint(
 		"duration",
 		20,
@@ -41,19 +37,6 @@ func parseFlags() flags {
 		20*60,
 		"how often the pause should be in seconds",
 	)
-	version := flag.Bool(
-		"version",
-		false,
-		"print program version and exit",
-	)
-	disableSound := new(bool)
-	if notificationSoundEnabled {
-		disableSound = flag.Bool(
-			"disable-sound",
-			false,
-			"disable notification sound",
-		)
-	}
 	pauseInSec := new(uint)
 	if systrayEnabled {
 		pauseInSec = flag.Uint(
@@ -62,14 +45,31 @@ func parseFlags() flags {
 			"how long the pause (from systray) should be in seconds",
 		)
 	}
+	disableSound := new(bool)
+	if notificationSoundEnabled {
+		disableSound = flag.Bool(
+			"disable-sound",
+			false,
+			"disable notification sound",
+		)
+	}
+	showVersion := flag.Bool(
+		"version",
+		false,
+		"print program version and exit",
+	)
 	flag.Parse()
 
-	return flags{
-		disableSound:   *disableSound,
-		durationInSec:  *durationInSec,
-		frequencyInSec: *frequencyInSec,
-		pauseInSec:     *pauseInSec,
-		version:        *version,
+	if *showVersion {
+		fmt.Println(version)
+		os.Exit(0)
+	}
+
+	return appSettings{
+		duration:  time.Duration(*durationInSec) * time.Second,
+		frequency: time.Duration(*frequencyInSec) * time.Second,
+		pause:     time.Duration(*pauseInSec) * time.Second,
+		sound:     notificationSoundEnabled && !*disableSound,
 	}
 }
 
@@ -77,9 +77,9 @@ func sendNotification(
 	notifier notify.Notifier,
 	title string,
 	text string,
-	notificationSound *bool,
+	settings *appSettings,
 ) notify.Notification {
-	if *notificationSound {
+	if settings.sound {
 		playSendNotificationSound()
 	}
 
@@ -93,15 +93,14 @@ func sendNotification(
 
 func cancelNotificationAfter(
 	notification notify.Notification,
-	after *time.Duration,
-	notificationSound *bool,
+	settings *appSettings,
 ) {
 	if notification == nil {
 		return
 	}
-	time.Sleep(*after)
+	time.Sleep(settings.duration)
 
-	if *notificationSound {
+	if settings.sound {
 		playCancelNotificationSound()
 	}
 
@@ -114,11 +113,9 @@ func cancelNotificationAfter(
 func twentyTwentyTwenty(
 	ctx context.Context,
 	notifier notify.Notifier,
-	duration *time.Duration,
-	frequency *time.Duration,
-	notificationSound *bool,
+	settings *appSettings,
 ) {
-	ticker := time.NewTicker(*frequency)
+	ticker := time.NewTicker(settings.frequency)
 	for {
 		select {
 		case <-ticker.C:
@@ -127,10 +124,10 @@ func twentyTwentyTwenty(
 				notification := sendNotification(
 					notifier,
 					"Time to rest your eyes",
-					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", duration.Seconds()),
-					notificationSound,
+					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.duration.Seconds()),
+					settings,
 				)
-				go cancelNotificationAfter(notification, duration, notificationSound)
+				go cancelNotificationAfter(notification, settings)
 			}()
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
@@ -141,45 +138,34 @@ func twentyTwentyTwenty(
 
 func runTwentyTwentyTwenty(
 	notifier notify.Notifier,
-	duration *time.Duration,
-	frequency *time.Duration,
-	notificationSound *bool,
+	settings *appSettings,
 ) {
 	if notificationSoundEnabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
-			frequency.Minutes(),
-			duration.Seconds(),
-			*notificationSound,
+			settings.frequency.Minutes(),
+			settings.duration.Seconds(),
+			settings.sound,
 		)
 	} else {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration...\n",
-			frequency.Minutes(),
-			duration.Seconds(),
+			settings.frequency.Minutes(),
+			settings.duration.Seconds(),
 		)
 	}
 
 	mainCtx, mainCtxCancel = context.WithCancel(context.Background())
-	go twentyTwentyTwenty(mainCtx, notifier, duration, frequency, notificationSound)
+	go twentyTwentyTwenty(mainCtx, notifier, settings)
 }
 
 func main() {
-	flags := parseFlags()
-	if flags.version {
-		fmt.Println(version)
-		os.Exit(0)
-	}
-
-	*duration = time.Duration(flags.durationInSec) * time.Second
-	*frequency = time.Duration(flags.frequencyInSec) * time.Second
-	*pause = time.Duration(flags.pauseInSec) * time.Second
-	*notificationSound = notificationSoundEnabled && !flags.disableSound
+	settings = parseFlags()
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
-	if *notificationSound {
+	if settings.sound {
 		err = initNotification()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
@@ -194,14 +180,14 @@ func main() {
 	notification := sendNotification(
 		notifier,
 		"Starting 20-20-20",
-		fmt.Sprintf("You will see a notification every %.f minutes(s)", frequency.Minutes()),
-		notificationSound,
+		fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.frequency.Minutes()),
+		&settings,
 	)
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go cancelNotificationAfter(notification, duration, notificationSound)
+	go cancelNotificationAfter(notification, &settings)
 
-	runTwentyTwentyTwenty(notifier, duration, frequency, notificationSound)
+	runTwentyTwentyTwenty(notifier, &settings)
 	loop()
 }
