@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"gioui.org/x/notify"
+
+	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 )
 
 type mockNotifier struct {
@@ -46,15 +48,15 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 		t:                 t,
 	}
 
-	settings := appSettings{
-		duration:  time.Millisecond * 50,
-		frequency: time.Millisecond * 100,
-		sound:     false,
+	settings := s.Settings{
+		Duration:  time.Millisecond * 50,
+		Frequency: time.Millisecond * 100,
+		Sound:     false,
 	}
 
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
-	expectCount := int(timeout/settings.frequency) - 1
+	expectCount := int(timeout/settings.Frequency) - 1
 	ctx, ctxCancel := context.WithTimeout(context.Background(), timeout)
 
 	twentyTwentyTwenty(ctx, notifier, &settings)

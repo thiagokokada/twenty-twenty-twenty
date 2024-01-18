@@ -10,6 +10,8 @@ import (
 	"time"
 
 	"fyne.io/systray"
+
+	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 )
 
 const systrayEnabled bool = true
@@ -24,12 +26,12 @@ type menuItems struct {
 func resumeTwentyTwentyTwentyAfter(
 	ctx context.Context,
 	ctxCancel context.CancelFunc,
-	settings *appSettings,
+	settings *s.Settings,
 	menu *menuItems,
 ) {
-	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.pause.Hours())
+	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
 	mainCtxCancel() // cancelling current twenty-twenty-twenty goroutine
-	timer := time.NewTimer(settings.pause)
+	timer := time.NewTimer(settings.Pause)
 	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 
 	select {
@@ -37,13 +39,13 @@ func resumeTwentyTwentyTwentyAfter(
 		notification := sendNotification(
 			notifier,
 			"Resuming 20-20-20",
-			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.frequency.Minutes()),
-			&settings.sound,
+			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
+			&settings.Sound,
 		)
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go cancelNotificationAfter(cancelCtx, &settings.duration, notification)
+		go cancelNotificationAfter(cancelCtx, &settings.Duration, notification)
 		runTwentyTwentyTwenty(notifier, settings)
 
 		menu.mEnabled.Enable()
@@ -59,13 +61,13 @@ func onReady() {
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
 	mPause := systray.AddMenuItemCheckbox(
-		fmt.Sprintf("Pause for %.f hour", settings.pause.Hours()),
-		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", settings.pause.Hours()),
+		fmt.Sprintf("Pause for %.f hour", settings.Pause.Hours()),
+		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", settings.Pause.Hours()),
 		false,
 	)
 	mSound := new(systray.MenuItem)
 	if notificationSoundEnabled {
-		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.sound)
+		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.Sound)
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
@@ -105,7 +107,7 @@ func onReady() {
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
-				settings.sound = false
+				settings.Sound = false
 
 				mSound.Uncheck()
 			} else {
@@ -113,7 +115,7 @@ func onReady() {
 				if err != nil {
 					log.Fatalf("Error while initialising sound: %v\n", err)
 				}
-				settings.sound = true
+				settings.Sound = true
 
 				mSound.Check()
 			}
