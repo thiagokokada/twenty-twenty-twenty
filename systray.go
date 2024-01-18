@@ -5,7 +5,6 @@ package main
 
 import (
 	"context"
-	_ "embed"
 	"fmt"
 	"log"
 	"time"
@@ -14,9 +13,6 @@ import (
 )
 
 const systrayEnabled bool = true
-
-//go:embed assets/eye_light.ico
-var data []byte
 
 type menuItems struct {
 	mEnabled *systray.MenuItem
@@ -59,7 +55,7 @@ func resumeTwentyTwentyTwentyAfter(
 }
 
 func onReady() {
-	systray.SetIcon(data)
+	systray.SetIcon(systrayIcon)
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
 	mPause := systray.AddMenuItemCheckbox(
