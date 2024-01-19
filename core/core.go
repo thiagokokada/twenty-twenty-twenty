@@ -96,7 +96,7 @@ func Start(
 	}
 
 	ctx, Cancel = context.WithCancel(context.Background())
-	go twentyTwentyTwenty(ctx, notifier, settings)
+	go loop(ctx, notifier, settings)
 }
 
 func Pause(
@@ -133,7 +133,7 @@ func Pause(
 	cancelCtxCancel()
 }
 
-func twentyTwentyTwenty(
+func loop(
 	ctx context.Context,
 	notifier notify.Notifier,
 	settings *Settings,

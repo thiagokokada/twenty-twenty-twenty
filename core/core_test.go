@@ -35,7 +35,7 @@ func (n mockNotification) Cancel() error {
 	return nil
 }
 
-func TestTwentyTwentyTwenty(t *testing.T) {
+func TestLoop(t *testing.T) {
 	notificationCount := new(int)
 	cancellationCount := new(int)
 	notifier := mockNotifier{
@@ -55,7 +55,7 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 	expectCount := int(timeout/settings.Frequency) - 1
 	ctx, ctxCancel := context.WithTimeout(context.Background(), timeout)
 
-	twentyTwentyTwenty(ctx, notifier, &settings)
+	loop(ctx, notifier, &settings)
 	ctxCancel()
 
 	if *notificationCount < expectCount {
