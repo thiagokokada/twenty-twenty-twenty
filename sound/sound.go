@@ -1,7 +1,7 @@
 //go:build windows || darwin || cgo
 // +build windows darwin cgo
 
-package main
+package sound
 
 import (
 	"embed"
@@ -13,7 +13,7 @@ import (
 	"github.com/gopxl/beep/vorbis"
 )
 
-const notificationSoundEnabled bool = true
+const Enabled bool = true
 
 // Maximum lag, good enough for this use case and will use lower CPU, but need
 // to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
@@ -30,7 +30,7 @@ var (
 	initialized   bool
 )
 
-func playSendNotificationSound() {
+func PlaySendNotification() {
 	done := make(chan bool)
 	speaker.Play(
 		beep.Seq(buffer1.Streamer(0, buffer1.Len())),
@@ -41,7 +41,7 @@ func playSendNotificationSound() {
 	time.Sleep(lag)
 }
 
-func playCancelNotificationSound() {
+func PlayCancelNotification() {
 	done := make(chan bool)
 	speaker.Play(
 		beep.Seq(buffer2.Streamer(0, buffer2.Len())),
@@ -52,19 +52,19 @@ func playCancelNotificationSound() {
 	time.Sleep(lag)
 }
 
-func initSound() error {
+func Init() error {
 	// should be safe to call multiple times
 	if !initialized {
 		var format beep.Format
 		var err error
 
-		buffer1, format, err = _loadSound("assets/notification_1.ogg")
+		buffer1, format, err = loadSound("assets/notification_1.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 1 sound failed: %w", err)
 		}
 
 		// ignoring format since all audio files should have the same format
-		buffer2, _, err = _loadSound("assets/notification_2.ogg")
+		buffer2, _, err = loadSound("assets/notification_2.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 2 sound failed: %w", err)
 		}
@@ -77,7 +77,7 @@ func initSound() error {
 	return nil
 }
 
-func _loadSound(file string) (*beep.Buffer, beep.Format, error) {
+func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	f, err := notifications.Open(file)
 	if err != nil {
 		return nil, beep.Format{}, fmt.Errorf("load notification %s sound: %w", file, err)
