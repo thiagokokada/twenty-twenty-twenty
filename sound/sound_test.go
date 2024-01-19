@@ -18,7 +18,6 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
-	const wait = 10
 
 	done := make(chan bool)
 	log.Println("You should listen to a sound!")
