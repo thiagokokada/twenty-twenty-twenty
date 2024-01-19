@@ -13,6 +13,7 @@ import (
 
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
+	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 )
 
 const systrayEnabled bool = true
@@ -37,7 +38,7 @@ func resumeTwentyTwentyTwentyAfter(
 
 	select {
 	case <-timer.C:
-		notification := sendNotification(
+		notification := n.Send(
 			notifier,
 			"Resuming 20-20-20",
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
@@ -46,7 +47,7 @@ func resumeTwentyTwentyTwentyAfter(
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go cancelNotificationAfter(cancelCtx, &settings.Duration, notification)
+		go n.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
 		runTwentyTwentyTwenty(notifier, settings)
 
 		menu.mEnabled.Enable()
