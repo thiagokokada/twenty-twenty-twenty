@@ -45,7 +45,7 @@ func main() {
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
+	ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
 
 	go core.Start(notifier, &settings)
 	loop()

@@ -131,7 +131,7 @@ func Pause(
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
+		ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
 		go Start(notifier, settings)
 		timerCallback()
 	case <-ctx.Done():
@@ -156,7 +156,7 @@ func loop(
 					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.Duration.Seconds()),
 					&settings.Sound,
 				)
-				go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
+				ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
 			}()
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")

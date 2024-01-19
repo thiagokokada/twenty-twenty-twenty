@@ -78,7 +78,7 @@ func TestPause(t *testing.T) {
 		t.Error("Callback should have been called")
 	}
 	assertAtLeast(t, *notifier.notificationCount, 1)
-	assertAtLeast(t, *notifier.notificationCancelCount, 0) // bug?
+	assertAtLeast(t, *notifier.notificationCancelCount, 1)
 }
 
 func TestCancelledPause(t *testing.T) {
