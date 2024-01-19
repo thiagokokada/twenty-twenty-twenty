@@ -10,11 +10,12 @@ import (
 	"gioui.org/x/notify"
 )
 
-// The reason those tests exist is to help with development (e.g.: test if
-// notification/sound is working). It is useless outside of development purposes
-// and needs a proper desktop environment to work, and this is the reason why it
-// is not run in CI.
-func TestSendNotification(t *testing.T) {
+// The reason this test exist is to help with development (e.g.: test if
+// notification). It is useless outside of development purposes and needs a
+// proper desktop environment to work, and this is the reason why it is not run
+// in CI.
+// macOS notes: this does not work in macOS because it needs a signed app bundle
+func TestSendAndCancelAfter(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping testing in CI environment")
 	}
