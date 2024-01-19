@@ -52,7 +52,7 @@ func onReady() {
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
 				cancel() // cancel the current pause if it is running
-				core.Start(notifier, &settings)
+				go core.Start(notifier, &settings)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
