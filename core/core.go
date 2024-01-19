@@ -10,7 +10,7 @@ import (
 
 	"gioui.org/x/notify"
 	ntf "github.com/thiagokokada/twenty-twenty-twenty/notification"
-	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
+	"github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 var (
@@ -80,7 +80,7 @@ func Start(
 	notifier notify.Notifier,
 	settings *Settings,
 ) {
-	if snd.Enabled {
+	if sound.Enabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			settings.Frequency.Minutes(),

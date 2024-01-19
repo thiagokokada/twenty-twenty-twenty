@@ -8,8 +8,8 @@ import (
 	"gioui.org/x/notify"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/core"
-	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
-	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
+	ntf "github.com/thiagokokada/twenty-twenty-twenty/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 var (
@@ -19,13 +19,13 @@ var (
 )
 
 func main() {
-	settings = core.ParseFlags(version, systrayEnabled, snd.Enabled)
+	settings = core.ParseFlags(version, systrayEnabled, sound.Enabled)
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if settings.Sound {
-		err = snd.Init()
+		err = sound.Init()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}
@@ -36,7 +36,7 @@ func main() {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 
-	notification := n.Send(
+	notification := ntf.Send(
 		notifier,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
@@ -45,7 +45,7 @@ func main() {
 	if notification == nil {
 		log.Fatalf("Test notification failed, exiting...")
 	}
-	go n.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
+	go ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
 
 	core.Start(notifier, &settings)
 	loop()
