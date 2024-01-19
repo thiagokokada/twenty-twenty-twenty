@@ -6,11 +6,11 @@ package sound
 const Enabled bool = false
 const panicMsg string = "Sound disabled in this build"
 
-func PlaySendNotification() {
+func PlaySendNotification(callback func()) {
 	panic(panicMsg)
 }
 
-func PlayCancelNotification() {
+func PlayCancelNotification(callback func()) {
 	panic(panicMsg)
 }
 
