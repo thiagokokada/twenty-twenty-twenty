@@ -33,7 +33,7 @@ func onReady() {
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 
 	var ctx context.Context
-	var ctxCancel context.CancelFunc
+	var cancel context.CancelFunc
 
 	for {
 		select {
@@ -52,17 +52,20 @@ func onReady() {
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
 				core.Cancel() // make sure the current twenty-twenty-twenty goroutine stopped
-				ctxCancel()   // cancel the current pause if it is running
+				cancel()      // cancel the current pause if it is running
 				core.Start(notifier, &settings)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
 			} else {
-				ctx, ctxCancel = context.WithCancel(context.Background())
-				go core.Pause(ctx, notifier, &settings,
-					func() { mEnabled.Enable(); mPause.Uncheck(); ctxCancel() },
-					func() { ctxCancel() },
-				)
+				ctx, cancel = context.WithCancel(context.Background())
+				go func() {
+					defer cancel()
+					core.Pause(ctx, notifier, &settings, func() {
+						mEnabled.Enable()
+						mPause.Uncheck()
+					})
+				}()
 
 				mEnabled.Disable()
 				mPause.Check()

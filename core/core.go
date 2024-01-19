@@ -104,14 +104,14 @@ func Pause(
 	notifier notify.Notifier,
 	settings *Settings,
 	timerCallback func(),
-	doneCallback func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
 	Cancel() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 	// context to the resuming notification cancellation, since the program
 	// may be paused or disabled again before the notification finishes
-	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
+	cancelCtx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	select {
 	case <-timer.C:
@@ -128,9 +128,7 @@ func Pause(
 		Start(notifier, settings)
 		timerCallback()
 	case <-ctx.Done():
-		doneCallback()
 	}
-	cancelCtxCancel()
 }
 
 func loop(

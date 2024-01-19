@@ -53,10 +53,10 @@ func TestLoop(t *testing.T) {
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
 	expectCount := int(timeout/settings.Frequency) - 1
-	ctx, ctxCancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 
 	loop(ctx, notifier, &settings)
-	ctxCancel()
 
 	if *notificationCount < expectCount {
 		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
