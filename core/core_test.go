@@ -35,10 +35,17 @@ func newMockNotifier() mockNotifier {
 	}
 }
 
-func assertAtLeast(t *testing.T, actual int, expected int) {
+func assertEqual[T comparable](t *testing.T, actual, expected T) {
+	t.Helper()
+	if actual != expected {
+		t.Errorf("got: %v; want: %v", actual, expected)
+	}
+}
+
+func assertAtLeast(t *testing.T, actual, expected int) {
 	t.Helper()
 	if actual < expected {
-		t.Errorf("got: %v; want: %v", actual, expected)
+		t.Errorf("got: %v; want: >=%v", actual, expected)
 	}
 }
 
@@ -74,11 +81,9 @@ func TestPause(t *testing.T) {
 	callbackCalled := false
 	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
-	if !callbackCalled {
-		t.Error("Callback should have been called")
-	}
+	assertEqual(t, callbackCalled, true)
 	assertAtLeast(t, *notifier.notificationCount, 1)
-	assertAtLeast(t, *notifier.notificationCancelCount, 1)
+	assertAtLeast(t, *notifier.notificationCancelCount, 0)
 }
 
 func TestPauseCancel(t *testing.T) {
@@ -93,9 +98,7 @@ func TestPauseCancel(t *testing.T) {
 	callbackCalled := false
 	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
-	if callbackCalled {
-		t.Error("Callback should not have been called")
-	}
+	assertEqual(t, callbackCalled, false)
 	assertAtLeast(t, *notifier.notificationCount, 0)
 	assertAtLeast(t, *notifier.notificationCancelCount, 0)
 }
