@@ -39,7 +39,7 @@ func onReady() {
 		select {
 		case <-mEnabled.ClickedCh:
 			if mEnabled.Checked() {
-				core.Cancel()
+				core.Stop()
 
 				mEnabled.Uncheck()
 				mPause.Disable()
@@ -51,8 +51,7 @@ func onReady() {
 			}
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
-				core.Cancel() // make sure the current twenty-twenty-twenty goroutine stopped
-				cancel()      // cancel the current pause if it is running
+				cancel() // cancel the current pause if it is running
 				core.Start(notifier, &settings)
 
 				mEnabled.Enable()
