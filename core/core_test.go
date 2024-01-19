@@ -42,7 +42,7 @@ func assertEqual[T comparable](t *testing.T, actual, expected T) {
 	}
 }
 
-func assertAtLeast(t *testing.T, actual, expected int) {
+func assertGreaterOrEqual(t *testing.T, actual, expected int) {
 	t.Helper()
 	if actual < expected {
 		t.Errorf("got: %v; want: >=%v", actual, expected)
@@ -60,14 +60,14 @@ func TestStartAndStop(t *testing.T) {
 	notifier := newMockNotifier()
 
 	const timeout = time.Second
-	// the last notification may or may not coming because of timing
+	// the last notification may or may not come because of timing
 	expectCount := int(timeout/testSettings.Frequency) - 1
 
 	go func() { time.Sleep(timeout); Stop() }()
 	Start(notifier, &testSettings)
 
-	assertAtLeast(t, *notifier.notificationCount, expectCount)
-	assertAtLeast(t, *notifier.notificationCancelCount, expectCount)
+	assertGreaterOrEqual(t, *notifier.notificationCount, expectCount)
+	assertGreaterOrEqual(t, *notifier.notificationCancelCount, expectCount)
 }
 
 func TestPause(t *testing.T) {
@@ -82,8 +82,8 @@ func TestPause(t *testing.T) {
 	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
 	assertEqual(t, callbackCalled, true)
-	assertAtLeast(t, *notifier.notificationCount, 1)
-	assertAtLeast(t, *notifier.notificationCancelCount, 0)
+	assertGreaterOrEqual(t, *notifier.notificationCount, 1)
+	assertGreaterOrEqual(t, *notifier.notificationCancelCount, 1)
 }
 
 func TestPauseCancel(t *testing.T) {
@@ -99,6 +99,6 @@ func TestPauseCancel(t *testing.T) {
 	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
 	assertEqual(t, callbackCalled, false)
-	assertAtLeast(t, *notifier.notificationCount, 0)
-	assertAtLeast(t, *notifier.notificationCancelCount, 0)
+	assertGreaterOrEqual(t, *notifier.notificationCount, 0)
+	assertGreaterOrEqual(t, *notifier.notificationCancelCount, 0)
 }
