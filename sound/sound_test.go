@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"testing"
-	"time"
 )
 
 // The reason this test exist is to help with development (e.g.: test if sound
@@ -21,13 +20,12 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 	}
 	const wait = 10
 
+	done := make(chan bool)
 	log.Println("You should listen to a sound!")
-	PlaySendNotification()
-	log.Printf("Waiting %d seconds to ensure that the sound is finished\n", wait)
-	time.Sleep(wait * time.Second)
+	PlaySendNotification(func() { done <- true })
+	<-done
 
 	log.Println("You should listen to another sound!")
-	PlayCancelNotification()
-	log.Printf("Waiting %d seconds to ensure that the sound is finished\n", wait)
-	time.Sleep(wait * time.Second)
+	PlayCancelNotification(func() { done <- true })
+	<-done
 }

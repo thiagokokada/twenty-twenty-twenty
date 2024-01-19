@@ -10,6 +10,8 @@ import (
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
+func callback() {}
+
 func Send(
 	notifier notify.Notifier,
 	title string,
@@ -17,7 +19,7 @@ func Send(
 	sound *bool,
 ) notify.Notification {
 	if *sound {
-		snd.PlaySendNotification()
+		snd.PlaySendNotification(callback)
 	}
 
 	notification, err := notifier.CreateNotification(title, text)
@@ -42,7 +44,7 @@ func CancelAfter(
 	select {
 	case <-timer.C:
 		if *sound {
-			snd.PlayCancelNotification()
+			snd.PlayCancelNotification(callback)
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}

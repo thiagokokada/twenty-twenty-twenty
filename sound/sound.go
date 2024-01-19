@@ -30,24 +30,20 @@ var (
 	initialized   bool
 )
 
-func PlaySendNotification() {
-	done := make(chan bool)
-	speaker.Play(
-		beep.Seq(buffer1.Streamer(0, buffer1.Len())),
-		beep.Callback(func() { done <- true }),
-	)
-	<-done
+func PlaySendNotification(callback func()) {
+	speaker.Play(beep.Seq(
+		buffer1.Streamer(0, buffer1.Len()),
+		beep.Callback(callback),
+	))
 	// compesate the lag
 	time.Sleep(lag)
 }
 
-func PlayCancelNotification() {
-	done := make(chan bool)
-	speaker.Play(
-		beep.Seq(buffer2.Streamer(0, buffer2.Len())),
-		beep.Callback(func() { done <- true }),
-	)
-	<-done
+func PlayCancelNotification(callback func()) {
+	speaker.Play(beep.Seq(
+		buffer2.Streamer(0, buffer2.Len()),
+		beep.Callback(callback),
+	))
 	// compesate the lag
 	time.Sleep(lag)
 }
