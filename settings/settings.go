@@ -17,7 +17,7 @@ type Settings struct {
 func ParseFlags(
 	version string,
 	systrayEnabled bool,
-	notificationSoundEnabled bool,
+	soundEnabled bool,
 ) Settings {
 	durationInSec := flag.Uint(
 		"duration",
@@ -38,7 +38,7 @@ func ParseFlags(
 		)
 	}
 	disableSound := new(bool)
-	if notificationSoundEnabled {
+	if soundEnabled {
 		disableSound = flag.Bool(
 			"disable-sound",
 			false,
@@ -61,6 +61,6 @@ func ParseFlags(
 		Duration:  time.Duration(*durationInSec) * time.Second,
 		Frequency: time.Duration(*frequencyInSec) * time.Second,
 		Pause:     time.Duration(*pauseInSec) * time.Second,
-		Sound:     notificationSoundEnabled && !*disableSound,
+		Sound:     soundEnabled && !*disableSound,
 	}
 }

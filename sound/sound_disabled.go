@@ -1,18 +1,18 @@
 //go:build !windows && !darwin && !cgo
 // +build !windows,!darwin,!cgo
 
-package main
+package sound
 
-const notificationSoundEnabled bool = false
+const Enabled bool = false
 
-func playSendNotificationSound() {
+func PlaySendNotification() {
 	panic("Not implemented")
 }
 
-func playCancelNotificationSound() {
+func PlayCancelNotification() {
 	panic("Not implemented")
 }
 
-func initSound() error {
+func Init() error {
 	panic("Not implemented")
 }

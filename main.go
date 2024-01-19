@@ -9,6 +9,7 @@ import (
 	"gioui.org/x/notify"
 
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
+	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 var (
@@ -26,7 +27,7 @@ func sendNotification(
 	sound *bool,
 ) notify.Notification {
 	if *sound {
-		playSendNotificationSound()
+		snd.PlaySendNotification()
 	}
 
 	notification, err := notifier.CreateNotification(title, text)
@@ -50,7 +51,7 @@ func cancelNotificationAfter(
 	select {
 	case <-timer.C:
 		if settings.Sound {
-			playCancelNotificationSound()
+			snd.PlayCancelNotification()
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
@@ -92,7 +93,7 @@ func runTwentyTwentyTwenty(
 	notifier notify.Notifier,
 	settings *s.Settings,
 ) {
-	if notificationSoundEnabled {
+	if snd.Enabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			settings.Frequency.Minutes(),
@@ -112,13 +113,13 @@ func runTwentyTwentyTwenty(
 }
 
 func main() {
-	settings = s.ParseFlags(version, systrayEnabled, notificationSoundEnabled)
+	settings = s.ParseFlags(version, systrayEnabled, snd.Enabled)
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
 	// unnecessary noise in the speakers (and also increased memory usage)
 	if settings.Sound {
-		err = initSound()
+		err = snd.Init()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}

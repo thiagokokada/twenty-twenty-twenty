@@ -74,28 +74,6 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 // notification/sound is working). It is useless outside of development purposes
 // and needs a proper desktop environment to work, and this is the reason why it
 // is not run in CI.
-func TestPlayNotificationSound(t *testing.T) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping testing in CI environment")
-	}
-
-	err := initSound()
-	if err != nil {
-		t.Fatalf("Error while initialising sound: %v\n", err)
-	}
-	const wait = 10
-
-	log.Println("You should listen to a sound!")
-	playSendNotificationSound()
-	log.Printf("Waiting %d seconds to ensure that the sound is finished\n", wait)
-	time.Sleep(wait * time.Second)
-
-	log.Println("You should listen to another sound!")
-	playCancelNotificationSound()
-	log.Printf("Waiting %d seconds to ensure that the sound is finished\n", wait)
-	time.Sleep(wait * time.Second)
-}
-
 func TestSendNotification(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping testing in CI environment")

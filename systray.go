@@ -12,6 +12,7 @@ import (
 	"fyne.io/systray"
 
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
+	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 const systrayEnabled bool = true
@@ -66,7 +67,7 @@ func onReady() {
 		false,
 	)
 	mSound := new(systray.MenuItem)
-	if notificationSoundEnabled {
+	if snd.Enabled {
 		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.Sound)
 	}
 	systray.AddSeparator()
@@ -111,7 +112,7 @@ func onReady() {
 
 				mSound.Uncheck()
 			} else {
-				err := initSound()
+				err := snd.Init()
 				if err != nil {
 					log.Fatalf("Error while initialising sound: %v\n", err)
 				}
