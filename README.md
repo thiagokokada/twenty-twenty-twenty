@@ -61,7 +61,7 @@ nix run github:thiagokokada/twenty-twenty-twenty
 > For macOS releases, you will need to install Xcode Command-line Tools first
 > to sign the application:
 > ```console
-> $ xcode-select --install
+> xcode-select --install
 > ```
 
 Needs Go 1.21+.
