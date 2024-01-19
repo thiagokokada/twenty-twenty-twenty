@@ -4,15 +4,16 @@
 package sound
 
 const Enabled bool = false
+const panicMsg string = "Sound disabled in this build"
 
 func PlaySendNotification() {
-	panic("Not implemented")
+	panic(panicMsg)
 }
 
 func PlayCancelNotification() {
-	panic("Not implemented")
+	panic(panicMsg)
 }
 
 func Init() error {
-	panic("Not implemented")
+	panic(panicMsg)
 }
