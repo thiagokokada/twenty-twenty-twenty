@@ -99,6 +99,6 @@ func TestPauseCancel(t *testing.T) {
 	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
 	assertEqual(t, callbackCalled, false)
-	assertGreaterOrEqual(t, *notifier.notificationCount, 0)
-	assertGreaterOrEqual(t, *notifier.notificationCancelCount, 0)
+	assertEqual(t, *notifier.notificationCount, 0)
+	assertEqual(t, *notifier.notificationCancelCount, 0)
 }
