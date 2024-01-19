@@ -8,9 +8,9 @@ import (
 
 	"gioui.org/x/notify"
 
+	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
-	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 )
 
 var (

@@ -11,9 +11,9 @@ import (
 
 	"fyne.io/systray"
 
+	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
-	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 )
 
 const systrayEnabled bool = true
