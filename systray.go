@@ -12,8 +12,7 @@ import (
 	"fyne.io/systray"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/core"
-	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
-	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
+	ntf "github.com/thiagokokada/twenty-twenty-twenty/notification"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
@@ -29,7 +28,7 @@ type menuItems struct {
 func resumeTwentyTwentyTwentyAfter(
 	ctx context.Context,
 	ctxCancel context.CancelFunc,
-	settings *s.Settings,
+	settings *core.Settings,
 	menu *menuItems,
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
@@ -39,7 +38,7 @@ func resumeTwentyTwentyTwentyAfter(
 
 	select {
 	case <-timer.C:
-		notification := n.Send(
+		notification := ntf.Send(
 			notifier,
 			"Resuming 20-20-20",
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
@@ -48,7 +47,7 @@ func resumeTwentyTwentyTwentyAfter(
 		if notification == nil {
 			log.Printf("Resume notification failed...")
 		}
-		go n.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
+		go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
 		core.Start(notifier, settings)
 
 		menu.mEnabled.Enable()

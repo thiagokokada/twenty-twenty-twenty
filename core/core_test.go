@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"gioui.org/x/notify"
-
-	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 )
 
 type mockNotifier struct {
@@ -46,7 +44,7 @@ func TestTwentyTwentyTwenty(t *testing.T) {
 		t:                 t,
 	}
 
-	settings := s.Settings{
+	settings := Settings{
 		Duration:  time.Millisecond * 50,
 		Frequency: time.Millisecond * 100,
 		Sound:     false,

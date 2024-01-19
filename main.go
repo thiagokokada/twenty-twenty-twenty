@@ -9,18 +9,17 @@ import (
 
 	"github.com/thiagokokada/twenty-twenty-twenty/core"
 	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
-	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 var (
 	version  = "development"
 	notifier notify.Notifier
-	settings s.Settings
+	settings core.Settings
 )
 
 func main() {
-	settings = s.ParseFlags(version, systrayEnabled, snd.Enabled)
+	settings = core.ParseFlags(version, systrayEnabled, snd.Enabled)
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause
