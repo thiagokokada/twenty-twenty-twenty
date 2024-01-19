@@ -99,6 +99,40 @@ func Start(
 	go twentyTwentyTwenty(Ctx, notifier, settings)
 }
 
+func Pause(
+	ctx context.Context,
+	notifier notify.Notifier,
+	settings *Settings,
+	timerCallback func(),
+	doneCallback func(),
+) {
+	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
+	Cancel() // cancelling current twenty-twenty-twenty goroutine
+	timer := time.NewTimer(settings.Pause)
+	// context to the resuming notification cancellation, since the program
+	// may be paused or disabled again before the notification finishes
+	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
+
+	select {
+	case <-timer.C:
+		notification := ntf.Send(
+			notifier,
+			"Resuming 20-20-20",
+			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
+			&settings.Sound,
+		)
+		if notification == nil {
+			log.Printf("Resume notification failed...")
+		}
+		go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
+		Start(notifier, settings)
+		timerCallback()
+	case <-ctx.Done():
+		doneCallback()
+	}
+	cancelCtxCancel()
+}
+
 func twentyTwentyTwenty(
 	ctx context.Context,
 	notifier notify.Notifier,
