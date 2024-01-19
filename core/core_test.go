@@ -10,8 +10,8 @@ import (
 
 type mockNotifier struct {
 	notify.Notifier
-	cancellationCount *int
-	notificationCount *int
+	notificationCancelCount *int
+	notificationCount       *int
 }
 
 type mockNotification struct {
@@ -24,8 +24,15 @@ func (n mockNotifier) CreateNotification(title, text string) (notify.Notificatio
 }
 
 func (n mockNotification) Cancel() error {
-	*n.mockNotifier.cancellationCount++
+	*n.mockNotifier.notificationCancelCount++
 	return nil
+}
+
+func newMockNotifier() mockNotifier {
+	return mockNotifier{
+		notificationCancelCount: new(int),
+		notificationCount:       new(int),
+	}
 }
 
 var testSettings = Settings{
@@ -36,12 +43,7 @@ var testSettings = Settings{
 }
 
 func TestStartAndStop(t *testing.T) {
-	notificationCount := new(int)
-	cancellationCount := new(int)
-	notifier := mockNotifier{
-		cancellationCount: cancellationCount,
-		notificationCount: notificationCount,
-	}
+	notifier := newMockNotifier()
 
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
@@ -50,21 +52,24 @@ func TestStartAndStop(t *testing.T) {
 	go func() { time.Sleep(timeout); Stop() }()
 	Start(notifier, &testSettings)
 
-	if *notificationCount < expectCount {
-		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
+	if *notifier.notificationCount < expectCount {
+		t.Errorf(
+			"Notification count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCount,
+		)
 	}
-	if *cancellationCount < expectCount {
-		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, *cancellationCount)
+	if *notifier.notificationCancelCount < expectCount {
+		t.Errorf(
+			"Cancellation count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCancelCount,
+		)
 	}
 }
 
 func TestPause(t *testing.T) {
-	notificationCount := new(int)
-	cancellationCount := new(int)
-	notifier := mockNotifier{
-		cancellationCount: cancellationCount,
-		notificationCount: notificationCount,
-	}
+	notifier := newMockNotifier()
 
 	const timeout = 1000 * time.Millisecond
 	// the last notification is unrealiable because of timing
@@ -74,17 +79,55 @@ func TestPause(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, func() {
-		callbackCalled = true
-	})
+	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
 	if !callbackCalled {
 		t.Error("Callback should have been called")
 	}
-	if *notificationCount < expectCount {
-		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
+	if *notifier.notificationCount < expectCount {
+		t.Errorf(
+			"Notification count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCount,
+		)
 	}
-	if *cancellationCount < expectCount {
-		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, *cancellationCount)
+	if *notifier.notificationCancelCount < expectCount {
+		t.Errorf(
+			"Cancellation count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCancelCount,
+		)
+	}
+}
+
+func TestCancelledPause(t *testing.T) {
+	notifier := newMockNotifier()
+
+	const timeout = 1000 * time.Millisecond
+	expectCount := 0
+	go func() { time.Sleep(timeout); Stop() }()
+
+	// will be cancelled before the timeout
+	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
+	defer cancel()
+	callbackCalled := false
+	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
+
+	if callbackCalled {
+		t.Error("Callback should not have been called")
+	}
+	if *notifier.notificationCount < expectCount {
+		t.Errorf(
+			"Notification count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCount,
+		)
+	}
+	if *notifier.notificationCancelCount < expectCount {
+		t.Errorf(
+			"Cancellation count should be at least %d, it was %d",
+			expectCount,
+			notifier.notificationCancelCount,
+		)
 	}
 }
