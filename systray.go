@@ -11,6 +11,7 @@ import (
 
 	"fyne.io/systray"
 
+	"github.com/thiagokokada/twenty-twenty-twenty/core"
 	n "github.com/thiagokokada/twenty-twenty-twenty/notification"
 	s "github.com/thiagokokada/twenty-twenty-twenty/settings"
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
@@ -32,7 +33,7 @@ func resumeTwentyTwentyTwentyAfter(
 	menu *menuItems,
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
-	mainCtxCancel() // cancelling current twenty-twenty-twenty goroutine
+	core.Cancel() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 
@@ -48,7 +49,7 @@ func resumeTwentyTwentyTwentyAfter(
 			log.Printf("Resume notification failed...")
 		}
 		go n.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
-		runTwentyTwentyTwenty(notifier, settings)
+		core.Start(notifier, settings)
 
 		menu.mEnabled.Enable()
 		menu.mPause.Uncheck()
@@ -82,21 +83,21 @@ func onReady() {
 		select {
 		case <-mEnabled.ClickedCh:
 			if mEnabled.Checked() {
-				mainCtxCancel()
+				core.Cancel()
 
 				mEnabled.Uncheck()
 				mPause.Disable()
 			} else {
-				runTwentyTwentyTwenty(notifier, &settings)
+				core.Start(notifier, &settings)
 
 				mEnabled.Check()
 				mPause.Enable()
 			}
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
-				mainCtxCancel() // make sure the current twenty-twenty-twenty goroutine stopped
-				ctxCancel()     // cancel the current pause if it is running
-				runTwentyTwentyTwenty(notifier, &settings)
+				core.Cancel() // make sure the current twenty-twenty-twenty goroutine stopped
+				ctxCancel()   // cancel the current pause if it is running
+				core.Start(notifier, &settings)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
