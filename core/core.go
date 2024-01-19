@@ -99,7 +99,7 @@ func Start(
 		Stop() // make sure we cancel the previous instance
 	}
 	ctx, Stop = context.WithCancel(context.Background())
-	go loop(ctx, notifier, settings)
+	loop(ctx, notifier, settings)
 }
 
 func Pause(
@@ -128,7 +128,7 @@ func Pause(
 			log.Printf("Resume notification failed...")
 		}
 		go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
-		Start(notifier, settings)
+		go Start(notifier, settings)
 		timerCallback()
 	case <-ctx.Done():
 	}

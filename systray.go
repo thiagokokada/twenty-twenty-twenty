@@ -44,7 +44,7 @@ func onReady() {
 				mEnabled.Uncheck()
 				mPause.Disable()
 			} else {
-				core.Start(notifier, &settings)
+				go core.Start(notifier, &settings)
 
 				mEnabled.Check()
 				mPause.Enable()
