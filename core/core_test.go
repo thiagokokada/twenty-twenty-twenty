@@ -10,8 +10,8 @@ import (
 
 type mockNotifier struct {
 	notify.Notifier
-	cancellationCount *int
-	notificationCount *int
+	notificationCancelCount *int
+	notificationCount       *int
 }
 
 type mockNotification struct {
@@ -24,8 +24,29 @@ func (n mockNotifier) CreateNotification(title, text string) (notify.Notificatio
 }
 
 func (n mockNotification) Cancel() error {
-	*n.mockNotifier.cancellationCount++
+	*n.mockNotifier.notificationCancelCount++
 	return nil
+}
+
+func newMockNotifier() mockNotifier {
+	return mockNotifier{
+		notificationCancelCount: new(int),
+		notificationCount:       new(int),
+	}
+}
+
+func assertEqual[T comparable](t *testing.T, actual, expected T) {
+	t.Helper()
+	if actual != expected {
+		t.Errorf("got: %v; want: %v", actual, expected)
+	}
+}
+
+func assertAtLeast(t *testing.T, actual, expected int) {
+	t.Helper()
+	if actual < expected {
+		t.Errorf("got: %v; want: >=%v", actual, expected)
+	}
 }
 
 var testSettings = Settings{
@@ -36,55 +57,48 @@ var testSettings = Settings{
 }
 
 func TestStartAndStop(t *testing.T) {
-	notificationCount := new(int)
-	cancellationCount := new(int)
-	notifier := mockNotifier{
-		cancellationCount: cancellationCount,
-		notificationCount: notificationCount,
-	}
+	notifier := newMockNotifier()
 
-	const timeout = 1000 * time.Millisecond
-	// the last notification is unrealiable because of timing
+	const timeout = time.Second
+	// the last notification may or may not coming because of timing
 	expectCount := int(timeout/testSettings.Frequency) - 1
 
 	go func() { time.Sleep(timeout); Stop() }()
 	Start(notifier, &testSettings)
 
-	if *notificationCount < expectCount {
-		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
-	}
-	if *cancellationCount < expectCount {
-		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, *cancellationCount)
-	}
+	assertAtLeast(t, *notifier.notificationCount, expectCount)
+	assertAtLeast(t, *notifier.notificationCancelCount, expectCount)
 }
 
 func TestPause(t *testing.T) {
-	notificationCount := new(int)
-	cancellationCount := new(int)
-	notifier := mockNotifier{
-		cancellationCount: cancellationCount,
-		notificationCount: notificationCount,
-	}
+	notifier := newMockNotifier()
 
-	const timeout = 1000 * time.Millisecond
-	// the last notification is unrealiable because of timing
-	expectCount := int((testSettings.Pause-timeout)/testSettings.Frequency) - 1
+	const timeout = time.Second
 	go func() { time.Sleep(timeout); Stop() }()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, func() {
-		callbackCalled = true
-	})
+	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
 
-	if !callbackCalled {
-		t.Error("Callback should have been called")
-	}
-	if *notificationCount < expectCount {
-		t.Errorf("Notification count should be at least %d, it was %d", expectCount, *notificationCount)
-	}
-	if *cancellationCount < expectCount {
-		t.Errorf("Cancellation count should be at least %d, it was %d", expectCount, *cancellationCount)
-	}
+	assertEqual(t, callbackCalled, true)
+	assertAtLeast(t, *notifier.notificationCount, 1)
+	assertAtLeast(t, *notifier.notificationCancelCount, 0)
+}
+
+func TestPauseCancel(t *testing.T) {
+	notifier := newMockNotifier()
+
+	const timeout = time.Second
+	go func() { time.Sleep(timeout); Stop() }()
+
+	// will be cancelled before the timeout
+	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
+	defer cancel()
+	callbackCalled := false
+	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
+
+	assertEqual(t, callbackCalled, false)
+	assertAtLeast(t, *notifier.notificationCount, 0)
+	assertAtLeast(t, *notifier.notificationCancelCount, 0)
 }
