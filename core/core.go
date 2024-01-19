@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"gioui.org/x/notify"
@@ -14,8 +15,9 @@ import (
 )
 
 var (
-	ctx  context.Context
 	Stop context.CancelFunc
+	ctx  context.Context
+	mu   sync.Mutex
 )
 
 type Settings struct {
@@ -80,6 +82,9 @@ func Start(
 	notifier notify.Notifier,
 	settings *Settings,
 ) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if sound.Enabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
@@ -94,7 +99,6 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-
 	if ctx != nil {
 		Stop() // make sure we cancel the previous instance
 	}
