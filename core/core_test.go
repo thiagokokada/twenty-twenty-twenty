@@ -81,7 +81,7 @@ func TestPause(t *testing.T) {
 	assertAtLeast(t, *notifier.notificationCancelCount, 1)
 }
 
-func TestCancelledPause(t *testing.T) {
+func TestPauseCancel(t *testing.T) {
 	notifier := newMockNotifier()
 
 	const timeout = time.Second
