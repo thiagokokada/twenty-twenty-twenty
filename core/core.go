@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	Ctx    context.Context
+	ctx    context.Context
 	Cancel context.CancelFunc
 )
 
@@ -95,8 +95,8 @@ func Start(
 		)
 	}
 
-	Ctx, Cancel = context.WithCancel(context.Background())
-	go twentyTwentyTwenty(Ctx, notifier, settings)
+	ctx, Cancel = context.WithCancel(context.Background())
+	go twentyTwentyTwenty(ctx, notifier, settings)
 }
 
 func Pause(
