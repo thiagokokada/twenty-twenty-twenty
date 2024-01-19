@@ -47,6 +47,6 @@ func main() {
 	}
 	go ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
 
-	core.Start(notifier, &settings)
+	go core.Start(notifier, &settings)
 	loop()
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"gioui.org/x/notify"
@@ -14,8 +15,9 @@ import (
 )
 
 var (
-	ctx    context.Context
-	Cancel context.CancelFunc
+	Stop context.CancelFunc
+	ctx  context.Context
+	mu   sync.Mutex
 )
 
 type Settings struct {
@@ -80,6 +82,9 @@ func Start(
 	notifier notify.Notifier,
 	settings *Settings,
 ) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	if sound.Enabled {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
@@ -94,9 +99,11 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-
-	ctx, Cancel = context.WithCancel(context.Background())
-	go loop(ctx, notifier, settings)
+	if ctx != nil {
+		Stop() // make sure we cancel the previous instance
+	}
+	ctx, Stop = context.WithCancel(context.Background())
+	loop(ctx, notifier, settings)
 }
 
 func Pause(
@@ -106,7 +113,7 @@ func Pause(
 	timerCallback func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
-	Cancel() // cancelling current twenty-twenty-twenty goroutine
+	Stop() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 	// context to the resuming notification cancellation, since the program
 	// may be paused or disabled again before the notification finishes
@@ -125,7 +132,7 @@ func Pause(
 			log.Printf("Resume notification failed...")
 		}
 		go ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
-		Start(notifier, settings)
+		go Start(notifier, settings)
 		timerCallback()
 	case <-ctx.Done():
 	}
