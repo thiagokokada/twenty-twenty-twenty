@@ -37,6 +37,12 @@ bin/twenty-twenty-twenty-%: $(DEPS)
 bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
 	go build -v -ldflags="$(LDFLAGS)" -o $@
 
+bin/TwentyTwentyTwenty_arm64.zip: bin/TwentyTwentyTwenty_arm64.app
+	cd bin && zip -rv TwentyTwentyTwenty_arm64.zip TwentyTwentyTwenty_arm64.app
+
+bin/TwentyTwentyTwenty_amd64.zip: bin/TwentyTwentyTwenty_amd64.app
+	cd bin && zip -rv TwentyTwentyTwenty_amd64.zip TwentyTwentyTwenty_amd64.app
+
 bin/TwentyTwentyTwenty_arm64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=arm64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
 	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
