@@ -20,13 +20,8 @@ var (
 )
 
 func main() {
-	settings = core.ParseFlags(
-		os.Args[0],
-		os.Args[1:],
-		version,
-		systrayEnabled,
-		sound.Enabled,
-	)
+	optional := core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
+	settings = core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause

@@ -62,7 +62,7 @@ func TestParseFlags(t *testing.T) {
 	const version = "test"
 
 	// always return false for sound if disabled
-	settings := ParseFlags(progname, []string{}, version, false, false)
+	settings := ParseFlags(progname, []string{}, version, Optional{Sound: false, Systray: false})
 	assertEqual(t, settings.Sound, false)
 
 	var tests = []struct {
@@ -77,7 +77,7 @@ func TestParseFlags(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(strings.Join(tt.args, " "), func(t *testing.T) {
-			settings := ParseFlags(progname, tt.args, version, true, true)
+			settings := ParseFlags(progname, tt.args, version, Optional{Sound: true, Systray: true})
 			assertEqual(t, settings, tt.settings)
 		})
 	}
