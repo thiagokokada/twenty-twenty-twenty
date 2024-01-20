@@ -83,15 +83,16 @@ func TestParseFlags(t *testing.T) {
 	}
 }
 
-func TestStartAndStop(t *testing.T) {
+func TestStart(t *testing.T) {
 	notifier := newMockNotifier()
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
 	expectCount := int(timeout/testSettings.Frequency) - 1
 
-	go func() { time.Sleep(timeout); Stop() }()
 	Start(notifier, &testSettings, Optional{Sound: true})
+	defer Stop()
+	time.Sleep(timeout)
 
 	assertGreaterOrEqual(t, *notifier.notificationCount, expectCount)
 	assertGreaterOrEqual(t, *notifier.notificationCancelCount, expectCount)

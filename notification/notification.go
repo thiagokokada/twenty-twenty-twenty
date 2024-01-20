@@ -10,7 +10,7 @@ import (
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
-func Send(
+func SendWithDuration(
 	ctx context.Context,
 	notifier notify.Notifier,
 	duration *time.Duration,
@@ -18,20 +18,29 @@ func Send(
 	title string,
 	text string,
 ) error {
-	if *sound {
-		snd.PlaySendNotification(sndCallback)
-	}
-	notification, err := notifier.CreateNotification(title, text)
+	notification, err := Send(notifier, sound, title, text)
 	if err != nil {
 		return fmt.Errorf("send notification: %w", err)
 	}
 	if duration != nil {
-		return cancelAfter(ctx, notification, duration, sound)
+		return CancelAfter(ctx, notification, duration, sound)
 	}
 	return nil
 }
 
-func cancelAfter(
+func Send(
+	notifier notify.Notifier,
+	sound *bool,
+	title string,
+	text string,
+) (notify.Notification, error) {
+	if *sound {
+		snd.PlaySendNotification(sndCallback)
+	}
+	return notifier.CreateNotification(title, text)
+}
+
+func CancelAfter(
 	ctx context.Context,
 	notification notify.Notification,
 	after *time.Duration,

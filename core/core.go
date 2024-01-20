@@ -14,9 +14,9 @@ import (
 )
 
 var (
-	Stop    context.CancelFunc
-	loopCtx context.Context
-	mu      sync.Mutex
+	Stop context.CancelFunc
+	Ctx  context.Context
+	mu   sync.Mutex
 )
 
 type Settings struct {
@@ -106,11 +106,11 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-	if loopCtx != nil {
+	if Ctx != nil {
 		Stop() // make sure we cancel the previous instance
 	}
-	loopCtx, Stop = context.WithCancel(context.Background())
-	loop(loopCtx, notifier, settings)
+	Ctx, Stop = context.WithCancel(context.Background())
+	go loop(Ctx, notifier, settings)
 }
 
 func Pause(
@@ -122,19 +122,15 @@ func Pause(
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
 
-	if loopCtx != nil {
+	if Ctx != nil {
 		Stop() // cancelling current twenty-twenty-twenty goroutine
 	}
 	timer := time.NewTimer(settings.Pause)
-	// context to the resuming notification cancellation, since the program
-	// may be paused or disabled again before the notification finishes
-	cancelCtx, cancel := context.WithCancel(context.Background())
-	defer cancel()
 
 	select {
 	case <-timer.C:
-		err := ntf.Send(
-			cancelCtx,
+		err := ntf.SendWithDuration(
+			ctx,
 			notifier,
 			&settings.Duration,
 			&settings.Sound,
@@ -144,7 +140,7 @@ func Pause(
 		if err != nil {
 			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
-		go Start(notifier, settings, optional)
+		Start(notifier, settings, optional)
 		timerCallback()
 	case <-ctx.Done():
 	}
@@ -161,7 +157,7 @@ func loop(
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
-			err := ntf.Send(
+			err := ntf.SendWithDuration(
 				cancelCtx,
 				notifier,
 				&settings.Duration,

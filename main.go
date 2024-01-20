@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"os"
@@ -39,10 +38,8 @@ func main() {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 
-	err = ntf.Send(
-		context.Background(),
+	notification, err := ntf.Send(
 		notifier,
-		&settings.Duration,
 		&settings.Sound,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
@@ -50,7 +47,11 @@ func main() {
 	if err != nil {
 		log.Fatalf("Test notification failed: %v. Exiting...", err)
 	}
+	// we need to start notification cancellation in a goroutine to show the
+	// systray as soon as possible (since it depends on the loop() call), but we
+	// also need to give it access to the core.Ctx to cancel it if necessary
+	core.Start(notifier, &settings, optional)
+	go ntf.CancelAfter(core.Ctx, notification, &settings.Duration, &settings.Sound)
 
-	go core.Start(notifier, &settings, optional)
 	loop()
 }
