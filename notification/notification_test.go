@@ -31,6 +31,19 @@ func TestSendAndCancelAfter(t *testing.T) {
 	after := new(time.Duration)
 	*after = time.Duration(5) * time.Second
 
-	notification := Send(notifier, "Test notification title", "Test notification text", sound)
-	CancelAfter(context.Background(), notification, after, sound)
+	go func() {
+		time.Sleep(*after)
+		log.Println("The notification should have disappeared!")
+	}()
+	err = Send(
+		context.Background(),
+		notifier,
+		after,
+		sound,
+		"Test notification title",
+		"Test notification text",
+	)
+	if err != nil {
+		t.Fatalf("Error while sending notification: %v\n", err)
+	}
 }

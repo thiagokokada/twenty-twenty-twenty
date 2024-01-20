@@ -133,16 +133,17 @@ func Pause(
 
 	select {
 	case <-timer.C:
-		notification := ntf.Send(
+		err := ntf.Send(
+			cancelCtx,
 			notifier,
+			&settings.Duration,
+			&settings.Sound,
 			"Resuming 20-20-20",
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
-			&settings.Sound,
 		)
-		if notification == nil {
-			log.Printf("Resume notification failed...")
+		if err != nil {
+			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
-		ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
 		go Start(notifier, settings, optional)
 		timerCallback()
 	case <-ctx.Done():
@@ -159,16 +160,18 @@ func loop(
 	for {
 		select {
 		case <-ticker.C:
-			go func() {
-				log.Println("Sending notification...")
-				notification := ntf.Send(
-					notifier,
-					"Time to rest your eyes",
-					fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.Duration.Seconds()),
-					&settings.Sound,
-				)
-				ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
-			}()
+			log.Println("Sending notification...")
+			err := ntf.Send(
+				cancelCtx,
+				notifier,
+				&settings.Duration,
+				&settings.Sound,
+				"Time to rest your eyes",
+				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.Duration.Seconds()),
+			)
+			if err != nil {
+				log.Printf("Error while sending notification: %v.\n", err)
+			}
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
 			cancelCtxCancel()

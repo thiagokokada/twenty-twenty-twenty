@@ -39,20 +39,17 @@ func main() {
 		log.Fatalf("Error while creating a notifier: %v\n", err)
 	}
 
-	// need not to be in a goroutine, because in the first run in macOS the user
-	// needs to allow the notification in System Settings
-	notification := ntf.Send(
+	err = ntf.Send(
+		context.Background(),
 		notifier,
+		&settings.Duration,
+		&settings.Sound,
 		"Starting 20-20-20",
 		fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
-		&settings.Sound,
 	)
-	if notification == nil {
-		log.Fatalf("Test notification failed, exiting...")
+	if err != nil {
+		log.Fatalf("Test notification failed: %v. Exiting...", err)
 	}
-	// need to run in a goroutine, because otherwise we block the main loop that
-	// shows the systray
-	go ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
 
 	go core.Start(notifier, &settings, optional)
 	loop()
