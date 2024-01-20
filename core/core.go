@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	Stop context.CancelFunc
-	ctx  context.Context
-	mu   sync.Mutex
+	cancel context.CancelFunc
+	ctx    context.Context
+	mu     sync.Mutex
 )
 
 type Settings struct {
@@ -29,8 +29,6 @@ type Optional struct {
 	Sound   bool
 	Systray bool
 }
-
-func Ctx() context.Context { return ctx }
 
 func ParseFlags(
 	progname string,
@@ -85,6 +83,8 @@ func ParseFlags(
 	}
 }
 
+func Ctx() context.Context { return ctx }
+
 func Start(
 	settings *Settings,
 	optional Optional,
@@ -106,11 +106,15 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-	if ctx != nil {
-		Stop() // make sure we cancel the previous instance
-	}
-	ctx, Stop = context.WithCancel(context.Background())
+	Stop() // make sure we cancel the previous instance
+	ctx, cancel = context.WithCancel(context.Background())
 	go loop(settings)
+}
+
+func Stop() {
+	if ctx != nil {
+		cancel()
+	}
 }
 
 func Pause(
@@ -121,10 +125,7 @@ func Pause(
 	timerCallbackPos func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
-
-	if Ctx() != nil {
-		Stop() // cancelling current twenty-twenty-twenty goroutine
-	}
+	Stop() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 
 	select {
