@@ -124,7 +124,7 @@ func Pause(
 	timerCallbackPre func(),
 	timerCallbackPos func(),
 ) {
-	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
+	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)...\n", settings.Pause.Hours())
 	Stop() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 
