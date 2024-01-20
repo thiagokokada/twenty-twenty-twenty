@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	Stop context.CancelFunc
-	ctx  context.Context
-	mu   sync.Mutex
+	Stop    context.CancelFunc
+	loopCtx context.Context
+	mu      sync.Mutex
 )
 
 type Settings struct {
@@ -27,43 +27,50 @@ type Settings struct {
 	Sound     bool
 }
 
+type Optional struct {
+	Sound   bool
+	Systray bool
+}
+
 func ParseFlags(
+	progname string,
+	args []string,
 	version string,
-	systrayEnabled bool,
-	soundEnabled bool,
+	optional Optional,
 ) Settings {
-	durationInSec := flag.Uint(
+	flags := flag.NewFlagSet(progname, flag.ExitOnError)
+	durationInSec := flags.Uint(
 		"duration",
 		20,
 		"how long each pause should be in seconds",
 	)
-	frequencyInSec := flag.Uint(
+	frequencyInSec := flags.Uint(
 		"frequency",
 		20*60,
 		"how often the pause should be in seconds",
 	)
 	pauseInSec := new(uint)
-	if systrayEnabled {
-		pauseInSec = flag.Uint(
+	if optional.Systray {
+		pauseInSec = flags.Uint(
 			"pause",
 			60*60,
 			"how long the pause (from systray) should be in seconds",
 		)
 	}
 	disableSound := new(bool)
-	if soundEnabled {
-		disableSound = flag.Bool(
+	if optional.Sound {
+		disableSound = flags.Bool(
 			"disable-sound",
 			false,
 			"disable notification sound",
 		)
 	}
-	showVersion := flag.Bool(
+	showVersion := flags.Bool(
 		"version",
 		false,
 		"print program version and exit",
 	)
-	flag.Parse()
+	flags.Parse(args)
 
 	if *showVersion {
 		fmt.Println(version)
@@ -74,7 +81,7 @@ func ParseFlags(
 		Duration:  time.Duration(*durationInSec) * time.Second,
 		Frequency: time.Duration(*frequencyInSec) * time.Second,
 		Pause:     time.Duration(*pauseInSec) * time.Second,
-		Sound:     soundEnabled && !*disableSound,
+		Sound:     optional.Sound && !*disableSound,
 	}
 }
 
@@ -99,11 +106,11 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-	if ctx != nil {
+	if loopCtx != nil {
 		Stop() // make sure we cancel the previous instance
 	}
-	ctx, Stop = context.WithCancel(context.Background())
-	loop(ctx, notifier, settings)
+	loopCtx, Stop = context.WithCancel(context.Background())
+	loop(loopCtx, notifier, settings)
 }
 
 func Pause(
@@ -113,7 +120,10 @@ func Pause(
 	timerCallback func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
-	Stop() // cancelling current twenty-twenty-twenty goroutine
+
+	if loopCtx != nil {
+		Stop() // cancelling current twenty-twenty-twenty goroutine
+	}
 	timer := time.NewTimer(settings.Pause)
 	// context to the resuming notification cancellation, since the program
 	// may be paused or disabled again before the notification finishes

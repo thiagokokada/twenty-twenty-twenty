@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"strings"
 	"testing"
 	"time"
 
@@ -54,6 +55,32 @@ var testSettings = Settings{
 	Frequency: time.Millisecond * 100,
 	Pause:     time.Millisecond * 500,
 	Sound:     false,
+}
+
+func TestParseFlags(t *testing.T) {
+	const progname = "twenty-twenty-twenty"
+	const version = "test"
+
+	// always return false for sound if disabled
+	settings := ParseFlags(progname, []string{}, version, Optional{Sound: false, Systray: false})
+	assertEqual(t, settings.Sound, false)
+
+	var tests = []struct {
+		args     []string
+		settings Settings
+	}{
+		{[]string{},
+			Settings{Duration: time.Second * 20, Frequency: time.Minute * 20, Pause: time.Hour, Sound: true}},
+		{[]string{"-duration", "10", "-frequency", "600", "-pause", "1800", "-disable-sound"},
+			Settings{Duration: time.Second * 10, Frequency: time.Minute * 10, Pause: time.Minute * 30, Sound: false}},
+	}
+
+	for _, tt := range tests {
+		t.Run(strings.Join(tt.args, " "), func(t *testing.T) {
+			settings := ParseFlags(progname, tt.args, version, Optional{Sound: true, Systray: true})
+			assertEqual(t, settings, tt.settings)
+		})
+	}
 }
 
 func TestStartAndStop(t *testing.T) {
