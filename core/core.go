@@ -15,9 +15,9 @@ import (
 )
 
 var (
-	Stop context.CancelFunc
-	ctx  context.Context
-	mu   sync.Mutex
+	Stop    context.CancelFunc
+	loopCtx context.Context
+	mu      sync.Mutex
 )
 
 type Settings struct {
@@ -99,11 +99,11 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-	if ctx != nil {
+	if loopCtx != nil {
 		Stop() // make sure we cancel the previous instance
 	}
-	ctx, Stop = context.WithCancel(context.Background())
-	loop(ctx, notifier, settings)
+	loopCtx, Stop = context.WithCancel(context.Background())
+	loop(loopCtx, notifier, settings)
 }
 
 func Pause(
@@ -113,7 +113,10 @@ func Pause(
 	timerCallback func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
-	Stop() // cancelling current twenty-twenty-twenty goroutine
+
+	if loopCtx != nil {
+		Stop() // cancelling current twenty-twenty-twenty goroutine
+	}
 	timer := time.NewTimer(settings.Pause)
 	// context to the resuming notification cancellation, since the program
 	// may be paused or disabled again before the notification finishes
