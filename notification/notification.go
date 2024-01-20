@@ -2,7 +2,7 @@ package notification
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"time"
 
 	"gioui.org/x/notify"
@@ -10,24 +10,34 @@ import (
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
-func callback() {}
+func SendWithDuration(
+	ctx context.Context,
+	notifier notify.Notifier,
+	duration *time.Duration,
+	sound *bool,
+	title string,
+	text string,
+) error {
+	notification, err := Send(notifier, sound, title, text)
+	if err != nil {
+		return fmt.Errorf("send notification: %w", err)
+	}
+	if duration != nil {
+		return CancelAfter(ctx, notification, duration, sound)
+	}
+	return nil
+}
 
 func Send(
 	notifier notify.Notifier,
+	sound *bool,
 	title string,
 	text string,
-	sound *bool,
-) notify.Notification {
+) (notify.Notification, error) {
 	if *sound {
-		snd.PlaySendNotification(callback)
+		snd.PlaySendNotification(sndCallback)
 	}
-
-	notification, err := notifier.CreateNotification(title, text)
-	if err != nil {
-		log.Printf("Error while sending notification: %v\n", err)
-		return nil
-	}
-	return notification
+	return notifier.CreateNotification(title, text)
 }
 
 func CancelAfter(
@@ -35,21 +45,20 @@ func CancelAfter(
 	notification notify.Notification,
 	after *time.Duration,
 	sound *bool,
-) {
-	if notification == nil {
-		return
-	}
-
+) error {
 	timer := time.NewTimer(*after)
 	select {
 	case <-timer.C:
 		if *sound {
-			snd.PlayCancelNotification(callback)
+			snd.PlayCancelNotification(sndCallback)
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
 	err := notification.Cancel()
 	if err != nil {
-		log.Printf("Error while cancelling notification: %v\n", err)
+		return fmt.Errorf("cancel notification: %w", err)
 	}
+	return nil
 }
+
+func sndCallback() {}

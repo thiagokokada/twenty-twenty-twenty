@@ -15,7 +15,7 @@ import (
 // proper desktop environment to work, and this is the reason why it is not run
 // in CI.
 // macOS notes: this does not work in macOS because it needs a signed app bundle
-func TestSendAndCancelAfter(t *testing.T) {
+func TestSendWithDuration(t *testing.T) {
 	if os.Getenv("CI") != "" {
 		t.Skip("Skipping testing in CI environment")
 	}
@@ -31,6 +31,19 @@ func TestSendAndCancelAfter(t *testing.T) {
 	after := new(time.Duration)
 	*after = time.Duration(5) * time.Second
 
-	notification := Send(notifier, "Test notification title", "Test notification text", sound)
-	CancelAfter(context.Background(), notification, after, sound)
+	go func() {
+		time.Sleep(*after)
+		log.Println("The notification should have disappeared!")
+	}()
+	err = SendWithDuration(
+		context.Background(),
+		notifier,
+		after,
+		sound,
+		"Test notification title",
+		"Test notification text",
+	)
+	if err != nil {
+		t.Fatalf("Error while sending notification: %v\n", err)
+	}
 }
