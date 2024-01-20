@@ -10,15 +10,16 @@ import (
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
+var notifier notify.Notifier
+
 func SendWithDuration(
 	ctx context.Context,
-	notifier notify.Notifier,
 	duration *time.Duration,
 	sound *bool,
 	title string,
 	text string,
 ) error {
-	notification, err := Send(notifier, sound, title, text)
+	notification, err := Send(sound, title, text)
 	if err != nil {
 		return fmt.Errorf("send notification: %w", err)
 	}
@@ -29,13 +30,12 @@ func SendWithDuration(
 }
 
 func Send(
-	notifier notify.Notifier,
 	sound *bool,
 	title string,
 	text string,
 ) (notify.Notification, error) {
 	if *sound {
-		snd.PlaySendNotification(sndCallback)
+		snd.PlaySendNotification(func() {})
 	}
 	return notifier.CreateNotification(title, text)
 }
@@ -50,7 +50,7 @@ func CancelAfter(
 	select {
 	case <-timer.C:
 		if *sound {
-			snd.PlayCancelNotification(sndCallback)
+			snd.PlayCancelNotification(func() {})
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
@@ -61,4 +61,6 @@ func CancelAfter(
 	return nil
 }
 
-func sndCallback() {}
+func Init(n notify.Notifier) {
+	notifier = n
+}

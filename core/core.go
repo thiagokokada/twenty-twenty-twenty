@@ -9,8 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"gioui.org/x/notify"
-	ntf "github.com/thiagokokada/twenty-twenty-twenty/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/notification"
 )
 
 var (
@@ -87,7 +86,6 @@ func ParseFlags(
 }
 
 func Start(
-	notifier notify.Notifier,
 	settings *Settings,
 	optional Optional,
 ) {
@@ -112,12 +110,11 @@ func Start(
 		Stop() // make sure we cancel the previous instance
 	}
 	ctx, Stop = context.WithCancel(context.Background())
-	go loop(notifier, settings)
+	go loop(settings)
 }
 
 func Pause(
 	ctx context.Context,
-	notifier notify.Notifier,
 	settings *Settings,
 	optional Optional,
 	timerCallbackPre func(),
@@ -133,9 +130,8 @@ func Pause(
 	select {
 	case <-timer.C:
 		timerCallbackPre()
-		err := ntf.SendWithDuration(
+		err := notification.SendWithDuration(
 			ctx,
-			notifier,
 			&settings.Duration,
 			&settings.Sound,
 			"Resuming 20-20-20",
@@ -144,22 +140,21 @@ func Pause(
 		if err != nil {
 			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
-		Start(notifier, settings, optional)
+		Start(settings, optional)
 		timerCallbackPos()
 	case <-ctx.Done():
 	}
 }
 
-func loop(notifier notify.Notifier, settings *Settings) {
+func loop(settings *Settings) {
 	ticker := time.NewTicker(settings.Frequency)
 	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 	for {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
-			err := ntf.SendWithDuration(
+			err := notification.SendWithDuration(
 				cancelCtx,
-				notifier,
 				&settings.Duration,
 				&settings.Sound,
 				"Time to rest your eyes",
