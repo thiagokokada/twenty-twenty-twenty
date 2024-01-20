@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"gioui.org/x/notify"
+	"github.com/thiagokokada/twenty-twenty-twenty/notification"
 )
 
 type mockNotifier struct {
@@ -85,12 +86,13 @@ func TestParseFlags(t *testing.T) {
 
 func TestStart(t *testing.T) {
 	notifier := newMockNotifier()
+	notification.Init(notifier)
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
 	expectCount := int(timeout/testSettings.Frequency) - 1
 
-	Start(notifier, &testSettings, Optional{Sound: true})
+	Start(&testSettings, Optional{Sound: true})
 	defer Stop()
 	time.Sleep(timeout)
 
@@ -100,6 +102,7 @@ func TestStart(t *testing.T) {
 
 func TestPause(t *testing.T) {
 	notifier := newMockNotifier()
+	notification.Init(notifier)
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); Stop() }()
@@ -109,7 +112,7 @@ func TestPause(t *testing.T) {
 	callbackPreCalled := false
 	callbackPosCalled := false
 	Pause(
-		ctx, notifier, &testSettings, Optional{},
+		ctx, &testSettings, Optional{},
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
@@ -122,6 +125,7 @@ func TestPause(t *testing.T) {
 
 func TestPauseCancel(t *testing.T) {
 	notifier := newMockNotifier()
+	notification.Init(notifier)
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); Stop() }()
@@ -132,7 +136,7 @@ func TestPauseCancel(t *testing.T) {
 	callbackPreCalled := false
 	callbackPosCalled := false
 	Pause(
-		ctx, notifier, &testSettings, Optional{},
+		ctx, &testSettings, Optional{},
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)

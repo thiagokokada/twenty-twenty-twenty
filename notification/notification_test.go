@@ -24,20 +24,20 @@ func TestSendWithDuration(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error while creating a notifier: %v\n", err)
 	}
-	log.Println("You should see a notification!")
+	Init(notifier)
 
 	sound := new(bool)
 	*sound = false // being tested in sound package
 	after := new(time.Duration)
 	*after = time.Duration(5) * time.Second
 
+	log.Println("You should see a notification!")
 	go func() {
 		time.Sleep(*after)
 		log.Println("The notification should have disappeared!")
 	}()
 	err = SendWithDuration(
 		context.Background(),
-		notifier,
 		after,
 		sound,
 		"Test notification title",
