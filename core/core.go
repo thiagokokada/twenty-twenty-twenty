@@ -15,7 +15,7 @@ import (
 
 var (
 	Stop context.CancelFunc
-	Ctx  context.Context
+	ctx  context.Context
 	mu   sync.Mutex
 )
 
@@ -30,6 +30,8 @@ type Optional struct {
 	Sound   bool
 	Systray bool
 }
+
+func Ctx() context.Context { return ctx }
 
 func ParseFlags(
 	progname string,
@@ -106,11 +108,11 @@ func Start(
 			settings.Duration.Seconds(),
 		)
 	}
-	if Ctx != nil {
+	if ctx != nil {
 		Stop() // make sure we cancel the previous instance
 	}
-	Ctx, Stop = context.WithCancel(context.Background())
-	go loop(Ctx, notifier, settings)
+	ctx, Stop = context.WithCancel(context.Background())
+	go loop(notifier, settings)
 }
 
 func Pause(
@@ -123,7 +125,7 @@ func Pause(
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
 
-	if Ctx != nil {
+	if Ctx() != nil {
 		Stop() // cancelling current twenty-twenty-twenty goroutine
 	}
 	timer := time.NewTimer(settings.Pause)
@@ -148,11 +150,7 @@ func Pause(
 	}
 }
 
-func loop(
-	ctx context.Context,
-	notifier notify.Notifier,
-	settings *Settings,
-) {
+func loop(notifier notify.Notifier, settings *Settings) {
 	ticker := time.NewTicker(settings.Frequency)
 	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
 	for {
@@ -170,7 +168,7 @@ func loop(
 			if err != nil {
 				log.Printf("Error while sending notification: %v.\n", err)
 			}
-		case <-ctx.Done():
+		case <-Ctx().Done():
 			log.Println("Disabling twenty-twenty-twenty...")
 			cancelCtxCancel()
 			return

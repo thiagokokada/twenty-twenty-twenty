@@ -51,7 +51,7 @@ func main() {
 	// systray as soon as possible (since it depends on the loop() call), but we
 	// also need to give it access to the core.Ctx to cancel it if necessary
 	core.Start(notifier, &settings, optional)
-	go ntf.CancelAfter(core.Ctx, notification, &settings.Duration, &settings.Sound)
+	go ntf.CancelAfter(core.Ctx(), notification, &settings.Duration, &settings.Sound)
 
 	loop()
 }
