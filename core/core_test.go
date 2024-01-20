@@ -86,7 +86,7 @@ func TestParseFlags(t *testing.T) {
 
 func TestStart(t *testing.T) {
 	notifier := newMockNotifier()
-	notification.Init(notifier)
+	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
@@ -102,7 +102,7 @@ func TestStart(t *testing.T) {
 
 func TestPause(t *testing.T) {
 	notifier := newMockNotifier()
-	notification.Init(notifier)
+	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); Stop() }()
@@ -125,7 +125,7 @@ func TestPause(t *testing.T) {
 
 func TestPauseCancel(t *testing.T) {
 	notifier := newMockNotifier()
-	notification.Init(notifier)
+	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); Stop() }()

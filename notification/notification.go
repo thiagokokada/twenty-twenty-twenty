@@ -3,6 +3,7 @@ package notification
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"gioui.org/x/notify"
@@ -34,6 +35,7 @@ func Send(
 	title string,
 	text string,
 ) (notify.Notification, error) {
+	initIfNull()
 	if *sound {
 		snd.PlaySendNotification(func() {})
 	}
@@ -61,6 +63,16 @@ func CancelAfter(
 	return nil
 }
 
-func Init(n notify.Notifier) {
+func SetNotifier(n notify.Notifier) {
 	notifier = n
+}
+
+func initIfNull() {
+	if notifier == nil {
+		notifier, err := notify.NewNotifier()
+		if err != nil {
+			log.Fatalf("Error while creating a notifier: %v\n", err)
+		}
+		SetNotifier(notifier)
+	}
 }

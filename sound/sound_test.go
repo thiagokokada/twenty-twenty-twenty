@@ -1,7 +1,6 @@
 package sound
 
 import (
-	"log"
 	"os"
 	"testing"
 )
@@ -20,11 +19,11 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 	}
 
 	done := make(chan bool)
-	log.Println("You should listen to a sound!")
+	t.Log("You should listen to a sound!")
 	PlaySendNotification(func() { done <- true })
 	<-done
 
-	log.Println("You should listen to another sound!")
+	t.Log("You should listen to another sound!")
 	PlayCancelNotification(func() { done <- true })
 	<-done
 }

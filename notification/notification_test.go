@@ -2,12 +2,9 @@ package notification
 
 import (
 	"context"
-	"log"
 	"os"
 	"testing"
 	"time"
-
-	"gioui.org/x/notify"
 )
 
 // The reason this test exist is to help with development (e.g.: test if
@@ -20,23 +17,18 @@ func TestSendWithDuration(t *testing.T) {
 		t.Skip("Skipping testing in CI environment")
 	}
 
-	notifier, err := notify.NewNotifier()
-	if err != nil {
-		t.Fatalf("Error while creating a notifier: %v\n", err)
-	}
-	Init(notifier)
-
 	sound := new(bool)
 	*sound = false // being tested in sound package
 	after := new(time.Duration)
 	*after = time.Duration(5) * time.Second
 
-	log.Println("You should see a notification!")
+	t.Log("You should see a notification!")
 	go func() {
 		time.Sleep(*after)
-		log.Println("The notification should have disappeared!")
+		t.Log("The notification should have disappeared!")
 	}()
-	err = SendWithDuration(
+
+	err := SendWithDuration(
 		context.Background(),
 		after,
 		sound,
