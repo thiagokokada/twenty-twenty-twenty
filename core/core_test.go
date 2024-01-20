@@ -106,10 +106,16 @@ func TestPause(t *testing.T) {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, Optional{}, func() { callbackCalled = true })
+	callbackPreCalled := false
+	callbackPosCalled := false
+	Pause(
+		ctx, notifier, &testSettings, Optional{},
+		func() { callbackPreCalled = true },
+		func() { callbackPosCalled = true },
+	)
 
-	assertEqual(t, callbackCalled, true)
+	assertEqual(t, callbackPreCalled, true)
+	assertEqual(t, callbackPosCalled, true)
 	assertGreaterOrEqual(t, *notifier.notificationCount, 1)
 	assertGreaterOrEqual(t, *notifier.notificationCancelCount, 1)
 }
@@ -123,10 +129,16 @@ func TestPauseCancel(t *testing.T) {
 	// will be cancelled before the timeout
 	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
 	defer cancel()
-	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, Optional{}, func() { callbackCalled = true })
+	callbackPreCalled := false
+	callbackPosCalled := false
+	Pause(
+		ctx, notifier, &testSettings, Optional{},
+		func() { callbackPreCalled = true },
+		func() { callbackPosCalled = true },
+	)
 
-	assertEqual(t, callbackCalled, false)
+	assertEqual(t, callbackPreCalled, false)
+	assertEqual(t, callbackPosCalled, false)
 	assertEqual(t, *notifier.notificationCount, 0)
 	assertEqual(t, *notifier.notificationCancelCount, 0)
 }

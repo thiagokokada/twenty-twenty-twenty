@@ -60,10 +60,11 @@ func onReady() {
 				ctx, cancel = context.WithCancel(context.Background())
 				go func() {
 					defer cancel()
-					core.Pause(ctx, notifier, &settings, optional, func() {
-						mEnabled.Enable()
-						mPause.Uncheck()
-					})
+					core.Pause(
+						ctx, notifier, &settings, optional,
+						func() { mPause.Disable() }, // blocking pause button to avoid concurrency issue
+						func() { mEnabled.Enable(); mPause.Uncheck(); mPause.Enable() },
+					)
 				}()
 
 				mEnabled.Disable()

@@ -118,7 +118,8 @@ func Pause(
 	notifier notify.Notifier,
 	settings *Settings,
 	optional Optional,
-	timerCallback func(),
+	timerCallbackPre func(),
+	timerCallbackPos func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
 
@@ -129,6 +130,7 @@ func Pause(
 
 	select {
 	case <-timer.C:
+		timerCallbackPre()
 		err := ntf.SendWithDuration(
 			ctx,
 			notifier,
@@ -141,7 +143,7 @@ func Pause(
 			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
 		Start(notifier, settings, optional)
-		timerCallback()
+		timerCallbackPos()
 	case <-ctx.Done():
 	}
 }
