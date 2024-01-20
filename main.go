@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"gioui.org/x/notify"
 
@@ -19,7 +20,13 @@ var (
 )
 
 func main() {
-	settings = core.ParseFlags(version, systrayEnabled, sound.Enabled)
+	settings = core.ParseFlags(
+		os.Args[0],
+		os.Args[1:],
+		version,
+		systrayEnabled,
+		sound.Enabled,
+	)
 	var err error
 
 	// only init Beep if notification sound is enabled, otherwise we will cause

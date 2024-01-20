@@ -28,23 +28,26 @@ type Settings struct {
 }
 
 func ParseFlags(
+	progname string,
+	args []string,
 	version string,
 	systrayEnabled bool,
 	soundEnabled bool,
 ) Settings {
-	durationInSec := flag.Uint(
+	flags := flag.NewFlagSet(progname, flag.ExitOnError)
+	durationInSec := flags.Uint(
 		"duration",
 		20,
 		"how long each pause should be in seconds",
 	)
-	frequencyInSec := flag.Uint(
+	frequencyInSec := flags.Uint(
 		"frequency",
 		20*60,
 		"how often the pause should be in seconds",
 	)
 	pauseInSec := new(uint)
 	if systrayEnabled {
-		pauseInSec = flag.Uint(
+		pauseInSec = flags.Uint(
 			"pause",
 			60*60,
 			"how long the pause (from systray) should be in seconds",
@@ -52,18 +55,18 @@ func ParseFlags(
 	}
 	disableSound := new(bool)
 	if soundEnabled {
-		disableSound = flag.Bool(
+		disableSound = flags.Bool(
 			"disable-sound",
 			false,
 			"disable notification sound",
 		)
 	}
-	showVersion := flag.Bool(
+	showVersion := flags.Bool(
 		"version",
 		false,
 		"print program version and exit",
 	)
-	flag.Parse()
+	flags.Parse(args)
 
 	if *showVersion {
 		fmt.Println(version)
