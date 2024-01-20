@@ -5,8 +5,6 @@ import (
 	"log"
 	"os"
 
-	"gioui.org/x/notify"
-
 	"github.com/thiagokokada/twenty-twenty-twenty/core"
 	"github.com/thiagokokada/twenty-twenty-twenty/notification"
 	"github.com/thiagokokada/twenty-twenty-twenty/sound"
@@ -30,12 +28,6 @@ func main() {
 			log.Fatalf("Error while initialising sound: %v\n", err)
 		}
 	}
-
-	notifier, err := notify.NewNotifier()
-	if err != nil {
-		log.Fatalf("Error while creating a notifier: %v\n", err)
-	}
-	notification.Init(notifier)
 
 	sentNotification, err := notification.Send(
 		&settings.Sound,
