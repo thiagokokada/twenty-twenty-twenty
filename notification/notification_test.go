@@ -22,10 +22,10 @@ func TestSendWithDuration(t *testing.T) {
 	after := new(time.Duration)
 	*after = time.Duration(5) * time.Second
 
-	t.Logf("You should see a notification!")
+	t.Log("You should see a notification!")
 	go func() {
 		time.Sleep(*after)
-		t.Logf("The notification should have disappeared!")
+		t.Log("The notification should have disappeared!")
 	}()
 
 	err := SendWithDuration(
