@@ -11,7 +11,6 @@ import (
 
 	"gioui.org/x/notify"
 	ntf "github.com/thiagokokada/twenty-twenty-twenty/notification"
-	"github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
 var (
@@ -88,11 +87,12 @@ func ParseFlags(
 func Start(
 	notifier notify.Notifier,
 	settings *Settings,
+	optional Optional,
 ) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	if sound.Enabled {
+	if optional.Sound {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
 			settings.Frequency.Minutes(),
@@ -117,6 +117,7 @@ func Pause(
 	ctx context.Context,
 	notifier notify.Notifier,
 	settings *Settings,
+	optional Optional,
 	timerCallback func(),
 ) {
 	log.Printf("Pausing twenty-twenty-twenty for %.f hour...\n", settings.Pause.Hours())
@@ -142,7 +143,7 @@ func Pause(
 			log.Printf("Resume notification failed...")
 		}
 		ntf.CancelAfter(cancelCtx, notification, &settings.Duration, &settings.Sound)
-		go Start(notifier, settings)
+		go Start(notifier, settings, optional)
 		timerCallback()
 	case <-ctx.Done():
 	}

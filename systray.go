@@ -44,7 +44,7 @@ func onReady() {
 				mEnabled.Uncheck()
 				mPause.Disable()
 			} else {
-				go core.Start(notifier, &settings)
+				go core.Start(notifier, &settings, optional)
 
 				mEnabled.Check()
 				mPause.Enable()
@@ -52,7 +52,7 @@ func onReady() {
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
 				cancel() // cancel the current pause if it is running
-				go core.Start(notifier, &settings)
+				go core.Start(notifier, &settings, optional)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
@@ -60,7 +60,7 @@ func onReady() {
 				ctx, cancel = context.WithCancel(context.Background())
 				go func() {
 					defer cancel()
-					core.Pause(ctx, notifier, &settings, func() {
+					core.Pause(ctx, notifier, &settings, optional, func() {
 						mEnabled.Enable()
 						mPause.Uncheck()
 					})

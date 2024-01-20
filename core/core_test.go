@@ -91,7 +91,7 @@ func TestStartAndStop(t *testing.T) {
 	expectCount := int(timeout/testSettings.Frequency) - 1
 
 	go func() { time.Sleep(timeout); Stop() }()
-	Start(notifier, &testSettings)
+	Start(notifier, &testSettings, Optional{Sound: true})
 
 	assertGreaterOrEqual(t, *notifier.notificationCount, expectCount)
 	assertGreaterOrEqual(t, *notifier.notificationCancelCount, expectCount)
@@ -106,7 +106,7 @@ func TestPause(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
+	Pause(ctx, notifier, &testSettings, Optional{}, func() { callbackCalled = true })
 
 	assertEqual(t, callbackCalled, true)
 	assertGreaterOrEqual(t, *notifier.notificationCount, 1)
@@ -123,7 +123,7 @@ func TestPauseCancel(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
 	defer cancel()
 	callbackCalled := false
-	Pause(ctx, notifier, &testSettings, func() { callbackCalled = true })
+	Pause(ctx, notifier, &testSettings, Optional{}, func() { callbackCalled = true })
 
 	assertEqual(t, callbackCalled, false)
 	assertEqual(t, *notifier.notificationCount, 0)

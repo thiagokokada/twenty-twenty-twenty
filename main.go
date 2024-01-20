@@ -16,11 +16,12 @@ import (
 var (
 	version  = "development"
 	notifier notify.Notifier
+	optional core.Optional
 	settings core.Settings
 )
 
 func main() {
-	optional := core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
+	optional = core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
 	settings = core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
 	var err error
 
@@ -53,6 +54,6 @@ func main() {
 	// shows the systray
 	go ntf.CancelAfter(context.Background(), notification, &settings.Duration, &settings.Sound)
 
-	go core.Start(notifier, &settings)
+	go core.Start(notifier, &settings, optional)
 	loop()
 }
