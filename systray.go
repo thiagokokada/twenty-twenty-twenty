@@ -32,8 +32,8 @@ func onReady() {
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
 
-	var ctx context.Context
-	var cancel context.CancelFunc
+	var pauseCtx context.Context
+	var cancelPauseCtx context.CancelFunc
 
 	for {
 		select {
@@ -51,17 +51,17 @@ func onReady() {
 			}
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
-				cancel() // cancel the current pause if it is running
+				cancelPauseCtx() // cancel the current pause if it is running
 				core.Start(&settings, optional)
 
 				mEnabled.Enable()
 				mPause.Uncheck()
 			} else {
-				ctx, cancel = context.WithCancel(context.Background())
+				pauseCtx, cancelPauseCtx = context.WithCancel(context.Background())
 				go func() {
-					defer cancel()
+					defer cancelPauseCtx()
 					core.Pause(
-						ctx, &settings, optional,
+						pauseCtx, &settings, optional,
 						func() { mPause.Disable() }, // blocking pause button to avoid concurrency issue
 						func() { mEnabled.Enable(); mPause.Uncheck(); mPause.Enable() },
 					)

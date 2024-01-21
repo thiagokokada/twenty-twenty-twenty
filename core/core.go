@@ -13,9 +13,9 @@ import (
 )
 
 var (
-	cancel context.CancelFunc
-	ctx    context.Context
-	mu     sync.Mutex
+	cancelLoopCtx context.CancelFunc
+	loopCtx       context.Context
+	mu            sync.Mutex
 )
 
 type Settings struct {
@@ -83,7 +83,7 @@ func ParseFlags(
 	}
 }
 
-func Ctx() context.Context { return ctx }
+func Ctx() context.Context { return loopCtx }
 
 func Start(
 	settings *Settings,
@@ -107,13 +107,13 @@ func Start(
 		)
 	}
 	Stop() // make sure we cancel the previous instance
-	ctx, cancel = context.WithCancel(context.Background())
+	loopCtx, cancelLoopCtx = context.WithCancel(context.Background())
 	go loop(settings)
 }
 
 func Stop() {
-	if ctx != nil {
-		cancel()
+	if loopCtx != nil {
+		cancelLoopCtx()
 	}
 }
 
@@ -149,13 +149,13 @@ func Pause(
 
 func loop(settings *Settings) {
 	ticker := time.NewTicker(settings.Frequency)
-	cancelCtx, cancelCtxCancel := context.WithCancel(context.Background())
+	doneCtx, cancelDoneCtx := context.WithCancel(context.Background())
 	for {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
 			err := notification.SendWithDuration(
-				cancelCtx,
+				doneCtx,
 				&settings.Duration,
 				&settings.Sound,
 				"Time to rest your eyes",
@@ -164,9 +164,9 @@ func loop(settings *Settings) {
 			if err != nil {
 				log.Printf("Error while sending notification: %v.\n", err)
 			}
-		case <-Ctx().Done():
+		case <-loopCtx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
-			cancelCtxCancel()
+			cancelDoneCtx()
 			return
 		}
 	}
