@@ -89,9 +89,6 @@ func Start(
 	settings *Settings,
 	optional Optional,
 ) {
-	mu.Lock()
-	defer mu.Unlock()
-
 	if optional.Sound {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
@@ -107,11 +104,16 @@ func Start(
 		)
 	}
 	Stop() // make sure we cancel the previous instance
+
+	mu.Lock()
+	defer mu.Unlock()
 	loopCtx, cancelLoopCtx = context.WithCancel(context.Background())
 	go loop(settings)
 }
 
 func Stop() {
+	mu.Lock()
+	defer mu.Unlock()
 	if loopCtx != nil {
 		cancelLoopCtx()
 	}
