@@ -7,6 +7,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync"
 
 	"fyne.io/systray"
 
@@ -15,6 +16,12 @@ import (
 )
 
 const systrayEnabled bool = true
+
+func withMutex(mu *sync.Mutex, f func()) {
+	mu.Lock()
+	defer mu.Unlock()
+	f()
+}
 
 func onReady() {
 	systray.SetIcon(systrayIcon)
@@ -34,6 +41,7 @@ func onReady() {
 
 	var pauseCtx context.Context
 	var cancelPauseCtx context.CancelFunc
+	var mu sync.Mutex
 
 	for {
 		select {
@@ -41,40 +49,54 @@ func onReady() {
 			if mEnabled.Checked() {
 				core.Stop()
 
-				mEnabled.Uncheck()
-				mPause.Disable()
+				withMutex(&mu, func() {
+					mEnabled.Uncheck()
+					mPause.Disable()
+				})
 			} else {
 				core.Start(&settings, optional)
 
-				mEnabled.Check()
-				mPause.Enable()
+				withMutex(&mu, func() {
+					mEnabled.Check()
+					mPause.Enable()
+				})
 			}
 		case <-mPause.ClickedCh:
 			if mPause.Checked() {
 				cancelPauseCtx() // cancel the current pause if it is running
 				core.Start(&settings, optional)
 
-				mEnabled.Enable()
-				mPause.Uncheck()
+				withMutex(&mu, func() {
+					mEnabled.Enable()
+					mPause.Uncheck()
+				})
 			} else {
 				pauseCtx, cancelPauseCtx = context.WithCancel(context.Background())
 				go func() {
 					defer cancelPauseCtx()
 					core.Pause(
 						pauseCtx, &settings, optional,
-						func() { mPause.Disable() }, // blocking pause button to avoid concurrency issue
-						func() { mEnabled.Enable(); mPause.Uncheck(); mPause.Enable() },
+						func() { withMutex(&mu, func() { mPause.Disable() }) }, // blocking pause button to avoid concurrency issue
+						func() {
+							withMutex(&mu, func() {
+								mEnabled.Enable()
+								mPause.Uncheck()
+								mPause.Enable()
+							})
+						},
 					)
 				}()
 
-				mEnabled.Disable()
-				mPause.Check()
+				withMutex(&mu, func() {
+					mEnabled.Disable()
+					mPause.Check()
+				})
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
 				settings.Sound = false
 
-				mSound.Uncheck()
+				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
 				err := sound.Init()
 				if err != nil {
@@ -82,7 +104,7 @@ func onReady() {
 				}
 				settings.Sound = true
 
-				mSound.Check()
+				withMutex(&mu, func() { mSound.Check() })
 			}
 		case <-mQuit.ClickedCh:
 			systray.Quit()
