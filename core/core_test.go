@@ -3,37 +3,39 @@ package core
 import (
 	"context"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	"gioui.org/x/notify"
 	"github.com/thiagokokada/twenty-twenty-twenty/notification"
+	"golang.org/x/exp/constraints"
 )
 
 type mockNotifier struct {
 	notify.Notifier
-	notificationCancelCount *int
-	notificationCount       *int
+	notificationCancelCount atomic.Int32
+	notificationCount       atomic.Int32
 }
 
 type mockNotification struct {
 	*mockNotifier
 }
 
-func (n mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
-	*n.notificationCount++
-	return &mockNotification{mockNotifier: &n}, nil
+func (n *mockNotifier) CreateNotification(title, text string) (notify.Notification, error) {
+	n.notificationCount.Add(1)
+	return &mockNotification{mockNotifier: n}, nil
 }
 
-func (n mockNotification) Cancel() error {
-	*n.mockNotifier.notificationCancelCount++
+func (n *mockNotification) Cancel() error {
+	n.notificationCancelCount.Add(1)
 	return nil
 }
 
-func newMockNotifier() mockNotifier {
-	return mockNotifier{
-		notificationCancelCount: new(int),
-		notificationCount:       new(int),
+func newMockNotifier() *mockNotifier {
+	return &mockNotifier{
+		notificationCancelCount: atomic.Int32{},
+		notificationCount:       atomic.Int32{},
 	}
 }
 
@@ -44,7 +46,7 @@ func assertEqual[T comparable](t *testing.T, actual, expected T) {
 	}
 }
 
-func assertGreaterOrEqual(t *testing.T, actual, expected int) {
+func assertGreaterOrEqual[T constraints.Ordered](t *testing.T, actual, expected T) {
 	t.Helper()
 	if actual < expected {
 		t.Errorf("got: %v; want: >=%v", actual, expected)
@@ -90,14 +92,14 @@ func TestStart(t *testing.T) {
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
-	expectCount := int(timeout/testSettings.Frequency) - 1
+	expectCount := int32(timeout/testSettings.Frequency) - 1
 
 	Start(&testSettings, Optional{Sound: true})
 	defer Stop()
 	time.Sleep(timeout)
 
-	assertGreaterOrEqual(t, *notifier.notificationCount, expectCount)
-	assertGreaterOrEqual(t, *notifier.notificationCancelCount, expectCount)
+	assertGreaterOrEqual(t, notifier.notificationCount.Load(), expectCount)
+	assertGreaterOrEqual(t, notifier.notificationCancelCount.Load(), expectCount)
 }
 
 func TestPause(t *testing.T) {
@@ -119,8 +121,8 @@ func TestPause(t *testing.T) {
 
 	assertEqual(t, callbackPreCalled, true)
 	assertEqual(t, callbackPosCalled, true)
-	assertGreaterOrEqual(t, *notifier.notificationCount, 1)
-	assertGreaterOrEqual(t, *notifier.notificationCancelCount, 1)
+	assertGreaterOrEqual(t, notifier.notificationCount.Load(), 1)
+	assertGreaterOrEqual(t, notifier.notificationCancelCount.Load(), 1)
 }
 
 func TestPauseCancel(t *testing.T) {
@@ -143,6 +145,6 @@ func TestPauseCancel(t *testing.T) {
 
 	assertEqual(t, callbackPreCalled, false)
 	assertEqual(t, callbackPosCalled, false)
-	assertEqual(t, *notifier.notificationCount, 0)
-	assertEqual(t, *notifier.notificationCancelCount, 0)
+	assertEqual(t, notifier.notificationCount.Load(), 0)
+	assertEqual(t, notifier.notificationCancelCount.Load(), 0)
 }
