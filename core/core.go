@@ -198,13 +198,12 @@ func Pause(
 
 func loop(settings *Settings) {
 	ticker := time.NewTicker(settings.Frequency)
-	doneCtx, cancelDoneCtx := context.WithCancel(context.Background())
 	for {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
 			err := notification.SendWithDuration(
-				doneCtx,
+				loopCtx,
 				&settings.Duration,
 				&settings.Sound,
 				"Time to rest your eyes",
@@ -215,7 +214,6 @@ func loop(settings *Settings) {
 			}
 		case <-loopCtx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
-			cancelDoneCtx()
 			return
 		}
 	}
