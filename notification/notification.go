@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"gioui.org/x/notify"
@@ -11,7 +12,7 @@ import (
 	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
 )
 
-var notifier notify.Notifier
+var notifier atomic.Pointer[notify.Notifier]
 
 func SendWithDuration(
 	ctx context.Context,
@@ -39,7 +40,7 @@ func Send(
 	if *sound {
 		snd.PlaySendNotification(func() {})
 	}
-	return notifier.CreateNotification(title, text)
+	return (*notifier.Load()).CreateNotification(title, text)
 }
 
 func CancelAfter(
@@ -64,11 +65,11 @@ func CancelAfter(
 }
 
 func SetNotifier(n notify.Notifier) {
-	notifier = n
+	notifier.Store(&n)
 }
 
 func initIfNull() {
-	if notifier == nil {
+	if notifier.Load() == nil {
 		notifier, err := notify.NewNotifier()
 		if err != nil {
 			log.Fatalf("Error while creating a notifier: %v\n", err)
