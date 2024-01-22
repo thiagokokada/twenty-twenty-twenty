@@ -18,6 +18,20 @@ var (
 	mu            sync.Mutex
 )
 
+/*
+Settings struct.
+
+'Duration' will be the duration of each notification. For example, if is 20
+seconds, it means that each notification will stay by 20 seconds.
+
+'Frequency' is how often each notification will be shown. For example, if it is
+20 minutes, a new notification will appear at every 20 minutes.
+
+'Pause' is the duration of the pause. For example, if it is 1 hour, we will
+disable notifications for 1 hour.
+
+'Sound' enables or disables sound every time a notification is shown.
+*/
 type Settings struct {
 	Duration  time.Duration
 	Frequency time.Duration
@@ -25,6 +39,12 @@ type Settings struct {
 	Sound     bool
 }
 
+/*
+Optional struct.
+
+This is used for features that are optional in the program, for example if sound
+or systray are permanently disabled.
+*/
 type Optional struct {
 	Sound   bool
 	Systray bool
@@ -83,8 +103,20 @@ func ParseFlags(
 	}
 }
 
+/*
+Returns the current running twenty-twenty-twenty's context.
+
+Can be used to register for context cancellation, so if [Stop] is called the
+context will be done (see [pkg/context] for details).
+*/
 func Ctx() context.Context { return loopCtx }
 
+/*
+Start twenty-twenty-twenty.
+
+This will start the main twenty-twenty-twenty loop in a goroutine, so avoid
+calling this function inside a goroutine.
+*/
 func Start(
 	settings *Settings,
 	optional Optional,
@@ -111,6 +143,9 @@ func Start(
 	go loop(settings)
 }
 
+/*
+Stop twenty-twenty-twenty.
+*/
 func Stop() {
 	mu.Lock()
 	defer mu.Unlock()
@@ -119,6 +154,18 @@ func Stop() {
 	}
 }
 
+/*
+Pause twenty-twenty-twenty.
+
+This will pause the current twenty-twenty-twenty execution by [Settings]'s
+'Pause' duration using [pkg/time.NewTimer].
+
+The callback function in 'timerCallbackPre' parameter will be called once the
+timer finishes.
+
+The callback function in 'timerCallbackPos' parameter will be called once
+twenty-twenty-twenty is resumed.
+*/
 func Pause(
 	ctx context.Context,
 	settings *Settings,
