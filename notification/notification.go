@@ -70,10 +70,13 @@ func SetNotifier(n notify.Notifier) {
 
 func initIfNull() {
 	if notifier.Load() == nil {
-		notifier, err := notify.NewNotifier()
+		newNotifier, err := notify.NewNotifier()
 		if err != nil {
 			log.Fatalf("Error while creating a notifier: %v\n", err)
 		}
-		SetNotifier(notifier)
+		swapped := notifier.CompareAndSwap(nil, &newNotifier)
+		if !swapped {
+			log.Println("Couldn't swap notifier since one is already running")
+		}
 	}
 }
