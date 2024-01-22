@@ -112,4 +112,6 @@ func onReady() {
 	}
 }
 
-func onExit() {}
+func onExit() {
+	core.Stop()
+}
