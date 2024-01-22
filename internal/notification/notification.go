@@ -9,7 +9,7 @@ import (
 
 	"gioui.org/x/notify"
 
-	snd "github.com/thiagokokada/twenty-twenty-twenty/sound"
+	snd "github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 var notifier atomic.Pointer[notify.Notifier]

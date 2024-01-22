@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"gioui.org/x/notify"
-	"github.com/thiagokokada/twenty-twenty-twenty/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 	"golang.org/x/exp/constraints"
 )
 

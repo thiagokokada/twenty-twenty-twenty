@@ -11,8 +11,8 @@ import (
 
 	"fyne.io/systray"
 
-	"github.com/thiagokokada/twenty-twenty-twenty/core"
-	"github.com/thiagokokada/twenty-twenty-twenty/sound"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 const systrayEnabled bool = true

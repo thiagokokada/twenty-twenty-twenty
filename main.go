@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/thiagokokada/twenty-twenty-twenty/core"
-	"github.com/thiagokokada/twenty-twenty-twenty/notification"
-	"github.com/thiagokokada/twenty-twenty-twenty/sound"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 var (

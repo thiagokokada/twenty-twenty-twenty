@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/thiagokokada/twenty-twenty-twenty/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 )
 
 var (
