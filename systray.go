@@ -11,7 +11,6 @@ import (
 	"fyne.io/systray"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
-	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 const systrayEnabled bool = true
@@ -32,7 +31,7 @@ func onReady() {
 		false,
 	)
 	mSound := new(systray.MenuItem)
-	if sound.Enabled {
+	if optional.Sound {
 		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.Sound)
 	}
 	systray.AddSeparator()
