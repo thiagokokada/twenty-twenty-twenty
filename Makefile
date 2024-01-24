@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all lint clean
 
 os := $(shell uname -s)
 arch := $(shell uname -m)
@@ -60,6 +60,11 @@ bin/twenty-twenty-twenty-linux-amd64-static: $(DEPS) *.nix
 
 bin/twenty-twenty-twenty-linux-arm64-static: $(DEPS) *.nix
 	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+
+lint:
+	go vet -v ./...
+	go run github.com/kisielk/errcheck -verbose ./...
+	go run honnef.co/go/tools/cmd/staticcheck ./...
 
 clean:
 	rm -rf bin
