@@ -45,6 +45,8 @@ func PlaySendNotification(endCallback func()) {
 
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
+		// https://github.com/gopxl/beep/issues/137#issuecomment-1908845253
+		beep.Callback(func() { time.Sleep(lag) }),
 		beep.Callback(speakerSuspend),
 		beep.Callback(endCallback),
 	))
@@ -55,6 +57,8 @@ func PlayCancelNotification(callback func()) {
 
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
+		// https://github.com/gopxl/beep/issues/137#issuecomment-1908845253
+		beep.Callback(func() { time.Sleep(lag) }),
 		beep.Callback(speakerSuspend),
 		beep.Callback(callback),
 	))
