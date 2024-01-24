@@ -17,21 +17,19 @@ func TestSendWithDuration(t *testing.T) {
 		t.Skip("Skipping testing in CI environment")
 	}
 
-	sound := new(bool)
-	*sound = false // being tested in sound package
-	after := new(time.Duration)
-	*after = time.Duration(5) * time.Second
+	sound := false // being tested in sound package
+	after := time.Duration(5) * time.Second
 
 	t.Log("You should see a notification!")
 	go func() {
-		time.Sleep(*after)
+		time.Sleep(after)
 		t.Log("The notification should have disappeared!")
 	}()
 
 	err := SendWithDuration(
 		context.Background(),
-		after,
-		sound,
+		&after,
+		&sound,
 		"Test notification title",
 		"Test notification text",
 	)
