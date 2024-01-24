@@ -39,7 +39,12 @@ func main() {
 	// systray as soon as possible (since it depends on the loop() call), but we
 	// also need to give it access to the core.Ctx to cancel it if necessary
 	core.Start(&settings, optional)
-	go notification.CancelAfter(core.Ctx(), sentNotification, &settings.Duration, &settings.Sound)
+	go func() {
+		err := notification.CancelAfter(core.Ctx(), sentNotification, &settings.Duration, &settings.Sound)
+		if err != nil {
+			log.Printf("Test notification cancel failed: %v\n", err)
+		}
+	}()
 
 	loop()
 }
