@@ -6,7 +6,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"sync"
 
 	"fyne.io/systray"
@@ -100,10 +99,6 @@ func onReady() {
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
-				err := sound.Init()
-				if err != nil {
-					log.Fatalf("Error while initialising sound: %v\n", err)
-				}
 				settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })

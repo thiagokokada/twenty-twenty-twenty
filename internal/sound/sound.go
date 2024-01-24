@@ -24,7 +24,6 @@ var (
 	buffer2 *beep.Buffer
 	//go:embed assets/*.ogg
 	notifications embed.FS
-	initialized   bool
 )
 
 func speakerResume() {
@@ -41,13 +40,13 @@ func speakerSuspend() {
 	}
 }
 
-func PlaySendNotification(callback func()) {
+func PlaySendNotification(endCallback func()) {
 	speakerResume()
 
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
 		beep.Callback(speakerSuspend),
-		beep.Callback(callback),
+		beep.Callback(endCallback),
 	))
 }
 
@@ -62,32 +61,27 @@ func PlayCancelNotification(callback func()) {
 }
 
 func Init() (err error) {
-	// should be safe to call multiple times
-	if !initialized {
-		var format beep.Format
+	var format beep.Format
 
-		buffer1, format, err = loadSound("assets/notification_1.ogg")
-		if err != nil {
-			return fmt.Errorf("notification 1 sound failed: %w", err)
-		}
-		// ignoring format since all audio files should have the same format
-		buffer2, _, err = loadSound("assets/notification_2.ogg")
-		if err != nil {
-			return fmt.Errorf("notification 2 sound failed: %w", err)
-		}
-
-		err = speaker.Init(format.SampleRate, format.SampleRate.N(lag))
-		if err != nil {
-			return fmt.Errorf("speaker init: %w", err)
-		}
-		err = speaker.Suspend()
-		if err != nil {
-			return fmt.Errorf("speaker suspend: %w", err)
-		}
-		initialized = true
-
-		return nil
+	buffer1, format, err = loadSound("assets/notification_1.ogg")
+	if err != nil {
+		return fmt.Errorf("notification 1 sound failed: %w", err)
 	}
+	// ignoring format since all audio files should have the same format
+	buffer2, _, err = loadSound("assets/notification_2.ogg")
+	if err != nil {
+		return fmt.Errorf("notification 2 sound failed: %w", err)
+	}
+
+	err = speaker.Init(format.SampleRate, format.SampleRate.N(lag))
+	if err != nil {
+		return fmt.Errorf("speaker init: %w", err)
+	}
+	err = speaker.Suspend()
+	if err != nil {
+		return fmt.Errorf("speaker suspend: %w", err)
+	}
+
 	return nil
 }
 

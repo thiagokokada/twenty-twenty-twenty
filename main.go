@@ -20,9 +20,7 @@ func main() {
 	optional = core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
 	settings = core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
 
-	// only init Beep if notification sound is enabled, otherwise we will cause
-	// unnecessary noise in the speakers (and also increased memory usage)
-	if settings.Sound {
+	if optional.Sound {
 		err := sound.Init()
 		if err != nil {
 			log.Fatalf("Error while initialising sound: %v\n", err)
