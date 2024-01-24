@@ -14,8 +14,10 @@ all: bin/twenty-twenty-twenty
 endif
 
 LDFLAGS := -X 'main.Version=$(shell git describe --tags --dirty)' -s -w
-# icon.icns is always updated so ignore it from dependencies
-DEPS := $(shell find assets/* -type f ! -name icon.icns) *.go go.mod go.sum
+# https://stackoverflow.com/a/52534636
+DEPS := $(wildcard assets/* */assets/* */*/assets/*) \
+				$(wildcard *.go */*.go */*/*.go */*/*/*.go) \
+				go.mod go.sum
 
 # Cross-build target for Windows:
 # - bin/twenty-twenty-twenty-windows-386
@@ -34,7 +36,7 @@ bin/twenty-twenty-twenty-%: $(DEPS)
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
 			 go build -v -ldflags="$(LDFLAGS)" -o $@
 
-bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
+bin/twenty-twenty-twenty: $(DEPS)
 	go build -v -ldflags="$(LDFLAGS)" -o $@
 
 bin/TwentyTwentyTwenty_arm64.zip: bin/TwentyTwentyTwenty_arm64.app
