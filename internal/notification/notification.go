@@ -38,7 +38,7 @@ func Send(
 ) (notify.Notification, error) {
 	initIfNull()
 	if *sound {
-		snd.PlaySendNotification(func() {})
+		snd.PlaySendNotification(nil)
 	}
 	return (*notifier.Load()).CreateNotification(title, text)
 }
@@ -53,7 +53,7 @@ func CancelAfter(
 	select {
 	case <-timer.C:
 		if *sound {
-			snd.PlayCancelNotification(func() {})
+			snd.PlayCancelNotification(nil)
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
