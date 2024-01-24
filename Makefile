@@ -54,7 +54,7 @@ bin/TwentyTwentyTwenty_arm64.app: $(DEPS)
 
 bin/TwentyTwentyTwenty_amd64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=amd64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
-	cp $@/Contents/Resources.icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
+	cp $@/Contents/Resources/icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
 	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
 	mv $@/Contents/MacOS/TwentyTwentyTwenty_amd64 $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
