@@ -179,6 +179,7 @@ func Pause(
 
 	select {
 	case <-timer.C:
+		log.Println("Resuming twenty-twenty-twenty...")
 		timerCallbackPre()
 		err := notification.SendWithDuration(
 			ctx,
@@ -193,6 +194,7 @@ func Pause(
 		Start(settings, optional)
 		timerCallbackPos()
 	case <-ctx.Done():
+		log.Println("Cancelling twenty-twenty-twenty pause...")
 	}
 }
 
