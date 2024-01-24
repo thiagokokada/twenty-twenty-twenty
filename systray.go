@@ -76,14 +76,13 @@ func onReady() {
 					defer cancelPauseCtx()
 					core.Pause(
 						pauseCtx, &settings, optional,
-						func() { withMutex(&mu, func() { mPause.Disable() }) }, // blocking pause button to avoid concurrency issue
 						func() {
 							withMutex(&mu, func() {
 								mEnabled.Enable()
 								mPause.Uncheck()
-								mPause.Enable()
 							})
 						},
+						func() {},
 					)
 				}()
 

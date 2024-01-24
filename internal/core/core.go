@@ -140,7 +140,7 @@ func Start(
 	mu.Lock()
 	defer mu.Unlock()
 	loopCtx, cancelLoopCtx = context.WithCancel(context.Background())
-	go loop(settings)
+	go loop(loopCtx, settings)
 }
 
 /*
@@ -181,6 +181,10 @@ func Pause(
 	case <-timer.C:
 		log.Println("Resuming twenty-twenty-twenty...")
 		timerCallbackPre()
+		// need to start a new instance before calling the blocking
+		// SendWithDuration(), otherwise if the user call Pause() again,
+		// we are going to call Stop() in the previous loop
+		Start(settings, optional)
 		err := notification.SendWithDuration(
 			ctx,
 			&settings.Duration,
@@ -191,14 +195,13 @@ func Pause(
 		if err != nil {
 			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
-		Start(settings, optional)
 		timerCallbackPos()
 	case <-ctx.Done():
 		log.Println("Cancelling twenty-twenty-twenty pause...")
 	}
 }
 
-func loop(settings *Settings) {
+func loop(ctx context.Context, settings *Settings) {
 	ticker := time.NewTicker(settings.Frequency)
 	for {
 		select {
@@ -214,7 +217,7 @@ func loop(settings *Settings) {
 			if err != nil {
 				log.Printf("Error while sending notification: %v.\n", err)
 			}
-		case <-loopCtx.Done():
+		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
 			return
 		}
