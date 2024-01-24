@@ -5,13 +5,18 @@ arch := $(shell uname -m)
 # doesn't work
 .PHONY: all
 ifeq ($(os),Darwin)
-ifeq ($(arch),arm64)
-all: bin/TwentyTwentyTwenty_arm64.app
-else
-all: bin/TwentyTwentyTwenty_amd64.app
-endif
+all: bin/TwentyTwentyTwenty_$(arch).app
 else
 all: bin/twenty-twenty-twenty
+endif
+
+.PHONY: run
+ifeq ($(os),Darwin)
+run: bin/TwentyTwentyTwenty_$(arch).app
+		bin/TwentyTwentyTwenty_$(arch).app/Contents/MacOS/TwentyTwentyTwenty
+else
+run: bin/twenty-twenty-twenty
+		bin/twenty-twenty-twenty
 endif
 
 .PHONY: lint
