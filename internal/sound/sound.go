@@ -6,6 +6,7 @@ package sound
 import (
 	"embed"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/gopxl/beep"
@@ -15,12 +16,8 @@ import (
 
 const Enabled bool = true
 
-// Maximum lag, good enough for this use case and will use lower CPU, but need
-// to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
-// notifications because the sound comes too late).
-// About as good we can get of CPU usage for now, until this issue is fixed:
-// https://github.com/gopxl/beep/issues/137.
-const lag time.Duration = time.Second
+// Maximum sound notification lag, 1000ms / 10 = 100ms
+const lag time.Duration = time.Second / 10
 
 var (
 	buffer1 *beep.Buffer
@@ -30,42 +27,63 @@ var (
 	initialized   bool
 )
 
+func speakerResume() {
+	err := speaker.Resume()
+	if err != nil {
+		log.Printf("Error while resuming speaker: %v\n", err)
+	}
+}
+
+func speakerSuspend() {
+	err := speaker.Suspend()
+	if err != nil {
+		log.Printf("Error while suspending speaker: %v\n", err)
+	}
+}
+
 func PlaySendNotification(callback func()) {
+	speakerResume()
+
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
+		beep.Callback(speakerSuspend),
 		beep.Callback(callback),
 	))
-	// compesate the lag
-	time.Sleep(lag)
 }
 
 func PlayCancelNotification(callback func()) {
+	speakerResume()
+
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
+		beep.Callback(speakerSuspend),
 		beep.Callback(callback),
 	))
-	// compesate the lag
-	time.Sleep(lag)
 }
 
-func Init() error {
+func Init() (err error) {
 	// should be safe to call multiple times
 	if !initialized {
 		var format beep.Format
-		var err error
 
 		buffer1, format, err = loadSound("assets/notification_1.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 1 sound failed: %w", err)
 		}
-
 		// ignoring format since all audio files should have the same format
 		buffer2, _, err = loadSound("assets/notification_2.ogg")
 		if err != nil {
 			return fmt.Errorf("notification 2 sound failed: %w", err)
 		}
 
-		speaker.Init(format.SampleRate, format.SampleRate.N(lag))
+		err = speaker.Init(format.SampleRate, format.SampleRate.N(lag))
+		if err != nil {
+			return fmt.Errorf("speaker init: %w", err)
+		}
+		err = speaker.Suspend()
+		if err != nil {
+			return fmt.Errorf("speaker suspend: %w", err)
+		}
 		initialized = true
 
 		return nil
@@ -84,5 +102,6 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	}
 	buffer := beep.NewBuffer(format)
 	buffer.Append(streamer)
+
 	return buffer, format, nil
 }

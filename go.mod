@@ -8,7 +8,7 @@ require (
 	fyne.io/systray v1.10.0
 	gioui.org/cmd v0.0.0-20240115171100-84ca391d514b
 	gioui.org/x v0.4.0
-	github.com/gopxl/beep v1.3.0
+	github.com/gopxl/beep v1.3.1-0.20240124160239-28ff2edb5cdf
 	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 )
 
