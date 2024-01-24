@@ -60,10 +60,14 @@ bin/TwentyTwentyTwenty_amd64.app: $(DEPS)
 	codesign -s - $@
 
 bin/twenty-twenty-twenty-linux-amd64-static: $(DEPS) *.nix
+	mkdir -p bin
 	cp $(shell nix build '.#packages.x86_64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+	chmod +rwx $@
 
 bin/twenty-twenty-twenty-linux-arm64-static: $(DEPS) *.nix
+	mkdir -p bin
 	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+	chmod +rwx $@
 
 lint:
 	test -z $(shell gofmt -l .)
