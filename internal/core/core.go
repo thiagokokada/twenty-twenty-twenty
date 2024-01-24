@@ -88,7 +88,8 @@ func ParseFlags(
 		false,
 		"print program version and exit",
 	)
-	flags.Parse(args)
+	// using flag.ExitOnError, so no error will ever be returned
+	_ = flags.Parse(args)
 
 	if *showVersion {
 		fmt.Println(version)

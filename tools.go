@@ -6,4 +6,6 @@ package main
 
 import (
 	_ "gioui.org/cmd/gogio"
+	_ "github.com/kisielk/errcheck"
+	_ "honnef.co/go/tools/cmd/staticcheck"
 )

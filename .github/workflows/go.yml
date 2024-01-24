@@ -27,8 +27,7 @@ jobs:
 
     - name: Lint
       run: |
-        go vet -v ./...
-        go run honnef.co/go/tools/cmd/staticcheck@2023.1.6 ./...
+        make lint
 
     - name: Test
       run: go test -race -v ./...

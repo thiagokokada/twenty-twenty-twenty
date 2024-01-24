@@ -59,6 +59,11 @@
               alsa-lib
               gcc
               pkg-config
+            ] ++
+            lib.optionals stdenv.hostPlatform.isDarwin [
+              darwin.apple_sdk_11_0.frameworks.Cocoa
+              darwin.apple_sdk_11_0.frameworks.MetalKit
+              darwin.apple_sdk_11_0.frameworks.UserNotifications
             ];
 
             # Keep the current user shell (e.g.: zsh instead of bash)

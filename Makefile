@@ -1,4 +1,4 @@
-.PHONY: all
+.PHONY: all lint clean
 
 os := $(shell uname -s)
 arch := $(shell uname -m)
@@ -14,8 +14,10 @@ all: bin/twenty-twenty-twenty
 endif
 
 LDFLAGS := -X 'main.Version=$(shell git describe --tags --dirty)' -s -w
-# icon.icns is always updated so ignore it from dependencies
-DEPS := $(shell find assets/* -type f ! -name icon.icns) *.go go.mod go.sum
+# https://stackoverflow.com/a/52534636
+DEPS := $(wildcard assets/* */assets/* */*/assets/*) \
+				$(wildcard *.go */*.go */*/*.go */*/*/*.go) \
+				go.mod go.sum
 
 # Cross-build target for Windows:
 # - bin/twenty-twenty-twenty-windows-386
@@ -34,7 +36,7 @@ bin/twenty-twenty-twenty-%: $(DEPS)
 	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
 			 go build -v -ldflags="$(LDFLAGS)" -o $@
 
-bin/twenty-twenty-twenty: assets/* *.go go.mod go.sum
+bin/twenty-twenty-twenty: $(DEPS)
 	go build -v -ldflags="$(LDFLAGS)" -o $@
 
 bin/TwentyTwentyTwenty_arm64.zip: bin/TwentyTwentyTwenty_arm64.app
@@ -45,12 +47,14 @@ bin/TwentyTwentyTwenty_amd64.zip: bin/TwentyTwentyTwenty_amd64.app
 
 bin/TwentyTwentyTwenty_arm64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=arm64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
+	cp $@/Contents/Resources/icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
 	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
 	mv $@/Contents/MacOS/TwentyTwentyTwenty_arm64 $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
 
 bin/TwentyTwentyTwenty_amd64.app: $(DEPS)
 	go run gioui.org/cmd/gogio -arch=amd64 -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
+	cp $@/Contents/Resources.icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
 	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
 	mv $@/Contents/MacOS/TwentyTwentyTwenty_amd64 $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
@@ -60,6 +64,12 @@ bin/twenty-twenty-twenty-linux-amd64-static: $(DEPS) *.nix
 
 bin/twenty-twenty-twenty-linux-arm64-static: $(DEPS) *.nix
 	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+
+lint:
+	test -z $(shell gofmt -l .)
+	go vet -v ./...
+	go run github.com/kisielk/errcheck -verbose ./...
+	go run honnef.co/go/tools/cmd/staticcheck ./...
 
 clean:
 	rm -rf bin
