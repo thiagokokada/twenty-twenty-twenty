@@ -62,8 +62,11 @@ func onReady() {
 				})
 			}
 		case <-mPause.ClickedCh:
+			if pauseCtx != nil {
+				// cancel the current pause if it is running
+				cancelPauseCtx()
+			}
 			if mPause.Checked() {
-				cancelPauseCtx() // cancel the current pause if it is running
 				core.Start(&settings, optional)
 
 				withMutex(&mu, func() {
