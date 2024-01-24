@@ -23,7 +23,10 @@ func main() {
 	if optional.Sound {
 		err := sound.Init()
 		if err != nil {
-			log.Fatalf("Error while initialising sound: %v\n", err)
+			log.Printf("Error while initialising sound: %v.\n", err)
+			log.Println("Disabling sound...")
+			optional.Sound = false
+			settings.Sound = false
 		}
 	}
 
