@@ -84,7 +84,7 @@ func onReady() {
 								mPause.Uncheck()
 							})
 						},
-						func() {},
+						nil,
 					)
 				}()
 

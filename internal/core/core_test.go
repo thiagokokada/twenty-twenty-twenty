@@ -148,3 +148,18 @@ func TestPauseCancel(t *testing.T) {
 	assertEqual(t, notifier.notificationCount.Load(), 0)
 	assertEqual(t, notifier.notificationCancelCount.Load(), 0)
 }
+
+func TestPauseNilCallbacks(t *testing.T) {
+	notifier := newMockNotifier()
+	notification.SetNotifier(notifier)
+
+	const timeout = time.Second
+	go func() { time.Sleep(timeout); Stop() }()
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	Pause(ctx, &testSettings, Optional{}, nil, nil)
+
+	assertEqual(t, notifier.notificationCount.Load(), 1)
+	assertEqual(t, notifier.notificationCancelCount.Load(), 1)
+}

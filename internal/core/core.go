@@ -180,7 +180,9 @@ func Pause(
 	select {
 	case <-timer.C:
 		log.Println("Resuming twenty-twenty-twenty...")
-		timerCallbackPre()
+		if timerCallbackPre != nil {
+			timerCallbackPre()
+		}
 		// need to start a new instance before calling the blocking
 		// SendWithDuration(), otherwise if the user call Pause() again,
 		// we are going to call Stop() in the previous loop
@@ -195,7 +197,9 @@ func Pause(
 		if err != nil {
 			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
 		}
-		timerCallbackPos()
+		if timerCallbackPos != nil {
+			timerCallbackPos()
+		}
 	case <-ctx.Done():
 		log.Println("Cancelling twenty-twenty-twenty pause...")
 	}
