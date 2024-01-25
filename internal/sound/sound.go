@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gopxl/beep"
@@ -22,25 +23,43 @@ const Enabled bool = true
 const lag time.Duration = time.Second
 
 var (
-	buffer1 *beep.Buffer
-	buffer2 *beep.Buffer
+	buffer1   *beep.Buffer
+	buffer2   *beep.Buffer
+	mu        sync.Mutex
+	suspended bool
 	//go:embed assets/*.ogg
 	notifications embed.FS
 )
 
-func Resume() {
-	err := speaker.Resume()
-	if err != nil {
-		log.Printf("Error while resuming speaker: %v\n", err)
+func Resume() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if suspended {
+		log.Println("Resuming sound...")
+		suspended = false
+		return speaker.Resume()
 	}
+	return nil
 }
 
-func Suspend() {
-	speaker.Clear()
-	err := speaker.Suspend()
-	if err != nil {
-		log.Printf("Error while suspending speaker: %v\n", err)
+func Suspend() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if !suspended {
+		log.Println("Suspending sound to reduce CPU usage...")
+		suspended = true
+		speaker.Clear()
+		return speaker.Suspend()
 	}
+	return nil
+}
+
+func SuspendAfter(after time.Duration) error {
+	timer := time.NewTicker(after)
+	<-timer.C
+	return Suspend()
 }
 
 func PlaySendNotification(endCallback func()) {
@@ -79,7 +98,7 @@ func Init(suspend bool) (err error) {
 		return fmt.Errorf("speaker init: %w", err)
 	}
 	if suspend {
-		err = speaker.Suspend()
+		err = Suspend()
 		if err != nil {
 			return fmt.Errorf("speaker suspend: %w", err)
 		}

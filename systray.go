@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"sync"
 
 	"fyne.io/systray"
@@ -95,12 +96,18 @@ func onReady() {
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
-				sound.Suspend()
+				err := sound.Suspend()
+				if err != nil {
+					log.Printf("Error while suspending speaker: %v\n", err)
+				}
 				settings.Sound = false
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
-				sound.Resume()
+				err := sound.Resume()
+				if err != nil {
+					log.Printf("Error while resuming speaker: %v\n", err)
+				}
 				settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })

@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 var (
@@ -212,7 +213,11 @@ func loop(ctx context.Context, settings *Settings) {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
-			err := notification.SendWithDuration(
+			err := sound.Resume()
+			if err != nil {
+				log.Printf("Error while resuming speaker: %v\n", err)
+			}
+			err = notification.SendWithDuration(
 				loopCtx,
 				&settings.Duration,
 				&settings.Sound,
@@ -222,6 +227,12 @@ func loop(ctx context.Context, settings *Settings) {
 			if err != nil {
 				log.Printf("Error while sending notification: %v.\n", err)
 			}
+			go func() {
+				err := sound.SuspendAfter(settings.Duration * 2)
+				if err != nil {
+					log.Printf("Error while suspending speaker: %v\n", err)
+				}
+			}()
 		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty...")
 			return
