@@ -3,6 +3,7 @@ package sound
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 // The reason this test exist is to help with development (e.g.: test if sound
@@ -17,6 +18,8 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
+	// this shouldn't cut the sound during playback
+	go SuspendAfter(time.Second)
 
 	done := make(chan bool)
 	t.Log("You should listen to a sound!")
