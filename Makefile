@@ -4,16 +4,21 @@ arch := $(shell uname -m)
 # Default to .app bundle in macOS since without a bundle the application
 # doesn't work
 .PHONY: all
-ifeq ($(os),Darwin)
-all: bin/TwentyTwentyTwenty_$(arch).app
+ifeq ($(os)-$(arch),Darwin-arm64)
+all: bin/TwentyTwentyTwenty_arm64.app
+else ifeq ($(os)-$(arch),Darwin-x86_64)
+all: bin/TwentyTwentyTwenty_amd64.app
 else
 all: bin/twenty-twenty-twenty
 endif
 
 .PHONY: run
-ifeq ($(os),Darwin)
-run: bin/TwentyTwentyTwenty_$(arch).app
-		bin/TwentyTwentyTwenty_$(arch).app/Contents/MacOS/TwentyTwentyTwenty
+ifeq ($(os)-$(arch),Darwin-arm64)
+run: bin/TwentyTwentyTwenty_arm64.app
+		bin/TwentyTwentyTwenty_arm64.app/Contents/MacOS/TwentyTwentyTwenty
+else ifeq ($(os)-$(arch),Darwin-x86_64)
+run: bin/TwentyTwentyTwenty_amd64.app
+		bin/TwentyTwentyTwenty_amd64.app/Contents/MacOS/TwentyTwentyTwenty
 else
 run: bin/twenty-twenty-twenty
 		bin/twenty-twenty-twenty
