@@ -23,11 +23,12 @@ const Enabled bool = true
 const lag time.Duration = time.Second / 4
 
 var (
-	buffer1   *beep.Buffer
-	buffer2   *beep.Buffer
-	mu        sync.Mutex
-	wg        sync.WaitGroup
-	suspended bool
+	buffer1     *beep.Buffer
+	buffer2     *beep.Buffer
+	mu          sync.Mutex
+	wg          sync.WaitGroup
+	initialised bool
+	suspended   bool
 	//go:embed assets/*.ogg
 	notifications embed.FS
 )
@@ -44,6 +45,10 @@ func SuspendAfter(after time.Duration) {
 }
 
 func speakerResume() error {
+	if !initialised {
+		return nil
+	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -59,6 +64,10 @@ func speakerResume() error {
 }
 
 func speakerSuspend() error {
+	if !initialised {
+		return nil
+	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -125,6 +134,7 @@ func Init(suspend bool) (err error) {
 			return fmt.Errorf("speaker suspend: %w", err)
 		}
 	}
+	initialised = true
 
 	return nil
 }
