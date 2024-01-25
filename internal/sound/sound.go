@@ -16,8 +16,10 @@ import (
 
 const Enabled bool = true
 
-// Maximum sound notification lag, 1000ms / 10 = 100ms
-const lag time.Duration = time.Second / 10
+// Maximum lag, good enough for this use case and will use lower CPU, but need
+// to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
+// notifications because the sound comes too late).
+const lag time.Duration = time.Second
 
 var (
 	buffer1 *beep.Buffer
@@ -26,14 +28,15 @@ var (
 	notifications embed.FS
 )
 
-func speakerResume() {
+func Resume() {
 	err := speaker.Resume()
 	if err != nil {
 		log.Printf("Error while resuming speaker: %v\n", err)
 	}
 }
 
-func speakerSuspend() {
+func Suspend() {
+	speaker.Clear()
 	err := speaker.Suspend()
 	if err != nil {
 		log.Printf("Error while suspending speaker: %v\n", err)
@@ -41,30 +44,24 @@ func speakerSuspend() {
 }
 
 func PlaySendNotification(endCallback func()) {
-	speakerResume()
-
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
-		// https://github.com/gopxl/beep/issues/137#issuecomment-1908845253
-		beep.Callback(func() { time.Sleep(lag) }),
-		beep.Callback(speakerSuspend),
 		beep.Callback(endCallback),
 	))
+	// compesate the lag
+	time.Sleep(lag)
 }
 
-func PlayCancelNotification(callback func()) {
-	speakerResume()
-
+func PlayCancelNotification(endCallback func()) {
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
-		// https://github.com/gopxl/beep/issues/137#issuecomment-1908845253
-		beep.Callback(func() { time.Sleep(lag) }),
-		beep.Callback(speakerSuspend),
-		beep.Callback(callback),
+		beep.Callback(endCallback),
 	))
+	// compesate the lag
+	time.Sleep(lag)
 }
 
-func Init() (err error) {
+func Init(suspend bool) (err error) {
 	var format beep.Format
 
 	buffer1, format, err = loadSound("assets/notification_1.ogg")
@@ -81,9 +78,11 @@ func Init() (err error) {
 	if err != nil {
 		return fmt.Errorf("speaker init: %w", err)
 	}
-	err = speaker.Suspend()
-	if err != nil {
-		return fmt.Errorf("speaker suspend: %w", err)
+	if suspend {
+		err = speaker.Suspend()
+		if err != nil {
+			return fmt.Errorf("speaker suspend: %w", err)
+		}
 	}
 
 	return nil
