@@ -228,6 +228,8 @@ func loop(ctx context.Context, settings *Settings) {
 				log.Printf("Error while sending notification: %v.\n", err)
 			}
 			go func() {
+				// wait the double of duration so we can make sure every sound
+				// finished playing
 				err := sound.SuspendAfter(settings.Duration * 2)
 				if err != nil {
 					log.Printf("Error while suspending speaker: %v\n", err)

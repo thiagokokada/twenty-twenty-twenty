@@ -48,6 +48,8 @@ func main() {
 			log.Printf("Test notification cancel failed: %v\n", err)
 		}
 
+		// wait the double of duration so we can make sure every sound finished
+		// playing
 		err = sound.SuspendAfter(settings.Duration * 2)
 		if err != nil {
 			log.Printf("Error while suspending speaker: %v\n", err)

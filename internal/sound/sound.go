@@ -20,7 +20,7 @@ const Enabled bool = true
 // Maximum lag, good enough for this use case and will use lower CPU, but need
 // to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
 // notifications because the sound comes too late).
-const lag time.Duration = time.Second
+const lag time.Duration = time.Second / 4
 
 var (
 	buffer1   *beep.Buffer
