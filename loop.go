@@ -1,5 +1,5 @@
-//go:build !nosystray && !darwin
-// +build !nosystray,!darwin
+//go:build !nosystray
+// +build !nosystray
 
 //go:generate go vet ./...
 //go:generate sh -c "go build -v -ldflags=\"-X 'main.version=$(git describe --tags --dirty)'\" -o bin/twenty-twenty-twenty"
