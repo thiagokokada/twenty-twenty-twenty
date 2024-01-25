@@ -31,6 +31,14 @@ lint:
 	go run github.com/kisielk/errcheck -verbose ./...
 	go run honnef.co/go/tools/cmd/staticcheck ./...
 
+.PHONY: test
+test:
+	go test -v ./...
+
+.PHONY: test-ci
+test-ci:
+	CI=1 go test -race -v ./...
+
 .PHONY: clean
 clean:
 	rm -rf bin cover.*
