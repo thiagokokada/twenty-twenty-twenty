@@ -142,7 +142,7 @@ func Start(
 	mu.Lock()
 	defer mu.Unlock()
 	loopCtx, cancelLoopCtx = context.WithCancel(context.Background())
-	go loop(loopCtx, settings)
+	go loop(loopCtx, settings, optional)
 }
 
 /*
@@ -207,7 +207,7 @@ func Pause(
 	}
 }
 
-func loop(ctx context.Context, settings *Settings) {
+func loop(ctx context.Context, settings *Settings, optional Optional) {
 	ticker := time.NewTicker(settings.Frequency)
 	for {
 		select {
@@ -215,7 +215,9 @@ func loop(ctx context.Context, settings *Settings) {
 			log.Println("Sending notification...")
 			// wait 1.5x the duration so we have some time for the sounds to
 			// finish playing
-			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
+			if optional.Sound {
+				go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
+			}
 			err := notification.SendWithDuration(
 				ctx,
 				&settings.Duration,
