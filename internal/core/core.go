@@ -213,7 +213,9 @@ func loop(ctx context.Context, settings *Settings) {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
-			go sound.SuspendAfter(min(settings.Duration*2, settings.Frequency))
+			// wait 1.5x the duration so we have some time for the sounds to
+			// finish playing
+			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
 			err := notification.SendWithDuration(
 				loopCtx,
 				&settings.Duration,
