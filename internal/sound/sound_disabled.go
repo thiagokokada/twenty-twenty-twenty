@@ -8,15 +8,15 @@ import "time"
 const Enabled bool = false
 const panicMsg string = "Sound disabled in this build"
 
-func Resume() {
+func Resume() error {
 	panic(panicMsg)
 }
 
-func Suspend() {
+func Suspend() error {
 	panic(panicMsg)
 }
 
-func SuspendAfter(time.Duration) {
+func SuspendAfter(time.Duration) error {
 	panic(panicMsg)
 }
 
