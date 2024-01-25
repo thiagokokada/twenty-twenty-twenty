@@ -21,7 +21,7 @@ func main() {
 	settings = core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
 
 	if optional.Sound {
-		err := sound.Init()
+		err := sound.Init(!settings.Sound)
 		if err != nil {
 			log.Printf("Error while initialising sound: %v.\n", err)
 			log.Println("Disabling sound...")

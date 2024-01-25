@@ -13,7 +13,7 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 		t.Skip("Skipping testing in CI environment")
 	}
 
-	err := Init()
+	err := Init(false)
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}

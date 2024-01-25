@@ -11,6 +11,7 @@ import (
 	"fyne.io/systray"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 const systrayEnabled bool = true
@@ -94,10 +95,12 @@ func onReady() {
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
+				sound.Suspend()
 				settings.Sound = false
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
+				sound.Resume()
 				settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })
