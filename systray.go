@@ -104,10 +104,6 @@ func onReady() {
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
-				err := sound.Resume()
-				if err != nil {
-					log.Printf("Error while resuming speaker: %v\n", err)
-				}
 				settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })

@@ -213,11 +213,7 @@ func loop(ctx context.Context, settings *Settings) {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
-			err := sound.Resume()
-			if err != nil {
-				log.Printf("Error while resuming speaker: %v\n", err)
-			}
-			err = notification.SendWithDuration(
+			err := notification.SendWithDuration(
 				loopCtx,
 				&settings.Duration,
 				&settings.Sound,

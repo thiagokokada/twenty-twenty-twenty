@@ -38,7 +38,12 @@ func Send(
 ) (notify.Notification, error) {
 	initIfNull()
 	if *sound {
-		snd.PlaySendNotification(nil)
+		err := snd.Resume()
+		if err != nil {
+			log.Printf("Error while resuming speaker: %v\n", err)
+		} else {
+			snd.PlaySendNotification(nil)
+		}
 	}
 	return (*notifier.Load()).CreateNotification(title, text)
 }
@@ -53,7 +58,12 @@ func CancelAfter(
 	select {
 	case <-timer.C:
 		if *sound {
-			snd.PlayCancelNotification(nil)
+			err := snd.Resume()
+			if err != nil {
+				log.Printf("Error while resuming speaker: %v\n", err)
+			} else {
+				snd.PlayCancelNotification(nil)
+			}
 		}
 	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
 	}
