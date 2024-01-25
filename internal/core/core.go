@@ -217,7 +217,7 @@ func loop(ctx context.Context, settings *Settings) {
 			// finish playing
 			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
 			err := notification.SendWithDuration(
-				loopCtx,
+				ctx,
 				&settings.Duration,
 				&settings.Sound,
 				"Time to rest your eyes",
