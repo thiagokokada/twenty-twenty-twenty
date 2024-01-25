@@ -45,7 +45,7 @@ func main() {
 	go func() {
 		// wait the double of duration so we have some time for the sounds to
 		// finish playing
-		go sound.SuspendAfter(settings.Duration * 2)
+		go sound.SuspendAfter(min(settings.Duration*2, settings.Frequency))
 		err := notification.CancelAfter(core.Ctx(), sentNotification, &settings.Duration, &settings.Sound)
 		if err != nil {
 			log.Printf("Test notification cancel failed: %v\n", err)
