@@ -1,6 +1,7 @@
 package core
 
 import (
+	"cmp"
 	"context"
 	"strings"
 	"sync/atomic"
@@ -9,7 +10,6 @@ import (
 
 	"gioui.org/x/notify"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
-	"golang.org/x/exp/constraints"
 )
 
 type mockNotifier struct {
@@ -46,7 +46,7 @@ func assertEqual[T comparable](t *testing.T, actual, expected T) {
 	}
 }
 
-func assertGreaterOrEqual[T constraints.Ordered](t *testing.T, actual, expected T) {
+func assertGreaterOrEqual[T cmp.Ordered](t *testing.T, actual, expected T) {
 	t.Helper()
 	if actual < expected {
 		t.Errorf("got: %v; want: >=%v", actual, expected)

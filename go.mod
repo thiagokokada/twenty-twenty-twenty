@@ -10,7 +10,6 @@ require (
 	gioui.org/x v0.4.0
 	github.com/gopxl/beep v1.3.1-0.20240124160239-28ff2edb5cdf
 	github.com/kisielk/errcheck v1.6.3
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
 	honnef.co/go/tools v0.4.6
 )
 
@@ -32,6 +31,7 @@ require (
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
+	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3 // indirect
 	golang.org/x/exp/shiny v0.0.0-20240112132812-db7319d0e0e3 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20221208152030-732eee02a75a // indirect
 	golang.org/x/image v0.15.0 // indirect
