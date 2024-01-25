@@ -118,6 +118,7 @@ func TestPause(t *testing.T) {
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
+	<-Ctx().Done()
 
 	assertEqual(t, callbackPreCalled, true)
 	assertEqual(t, callbackPosCalled, true)
@@ -142,6 +143,7 @@ func TestPauseCancel(t *testing.T) {
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
+	<-Ctx().Done()
 
 	assertEqual(t, callbackPreCalled, false)
 	assertEqual(t, callbackPosCalled, false)
