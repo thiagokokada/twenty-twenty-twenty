@@ -33,56 +33,6 @@ var (
 	notifications embed.FS
 )
 
-func SuspendAfter(after time.Duration) {
-	time.Sleep(after)
-
-	// make sure that no sound is playing before suspending
-	wg.Wait()
-	err := speakerSuspend()
-	if err != nil {
-		log.Printf("Error while suspending speaker: %v\n", err)
-	}
-}
-
-func speakerResume() error {
-	if !initialised {
-		return nil
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	if suspended {
-		log.Printf("Resuming sound...")
-		err := speaker.Resume()
-		if err != nil {
-			return fmt.Errorf("resuming speaker: %w", err)
-		}
-		suspended = false
-	}
-	return nil
-}
-
-func speakerSuspend() error {
-	if !initialised {
-		return nil
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-
-	if !suspended {
-		log.Printf("Suspending sound to reduce CPU usage...")
-		speaker.Clear()
-		err := speaker.Suspend()
-		if err != nil {
-			return fmt.Errorf("suspending speaker: %w", err)
-		}
-		suspended = true
-	}
-	return nil
-}
-
 func PlaySendNotification(endCallback func()) {
 	wg.Add(1)
 	speakerResume()
@@ -139,6 +89,17 @@ func Init(suspend bool) (err error) {
 	return nil
 }
 
+func SuspendAfter(after time.Duration) {
+	time.Sleep(after)
+
+	// make sure that no sound is playing before suspending
+	wg.Wait()
+	err := speakerSuspend()
+	if err != nil {
+		log.Printf("Error while suspending speaker: %v\n", err)
+	}
+}
+
 func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	f, err := notifications.Open(file)
 	if err != nil {
@@ -152,4 +113,43 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	buffer.Append(streamer)
 
 	return buffer, format, nil
+}
+
+func speakerResume() error {
+	if !initialised {
+		return nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	if suspended {
+		log.Printf("Resuming sound...")
+		err := speaker.Resume()
+		if err != nil {
+			return fmt.Errorf("resuming speaker: %w", err)
+		}
+		suspended = false
+	}
+	return nil
+}
+
+func speakerSuspend() error {
+	if !initialised {
+		return nil
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+
+	if !suspended {
+		log.Printf("Suspending sound to reduce CPU usage...")
+		speaker.Clear()
+		err := speaker.Suspend()
+		if err != nil {
+			return fmt.Errorf("suspending speaker: %w", err)
+		}
+		suspended = true
+	}
+	return nil
 }
