@@ -14,19 +14,25 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 		t.Skip("Skipping testing in CI environment")
 	}
 
-	err := Init(false)
+	err := Init(true)
 	if err != nil {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
 	// this shouldn't cut the sound during playback
-	go SuspendAfter(time.Second * 10)
+	suspendDone := make(chan bool)
+	go func() {
+		SuspendAfter(time.Second * 10)
+		suspendDone <- true
+	}()
 
-	done := make(chan bool)
+	soundDone := make(chan bool)
 	t.Log("You should listen to a sound!")
-	PlaySendNotification(func() { done <- true })
-	<-done
+	PlaySendNotification(func() { soundDone <- true })
+	<-soundDone
 
 	t.Log("You should listen to another sound!")
-	PlayCancelNotification(func() { done <- true })
-	<-done
+	PlayCancelNotification(func() { soundDone <- true })
+	<-soundDone
+
+	<-suspendDone
 }

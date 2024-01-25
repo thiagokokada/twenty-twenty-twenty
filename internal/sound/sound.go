@@ -95,13 +95,13 @@ func Init(suspend bool) (err error) {
 	if err != nil {
 		return fmt.Errorf("speaker init: %w", err)
 	}
+	initialised = true
 	if suspend {
 		err = speakerSuspend()
 		if err != nil {
 			return fmt.Errorf("speaker suspend: %w", err)
 		}
 	}
-	initialised = true
 
 	return nil
 }
