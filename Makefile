@@ -36,25 +36,26 @@ LDFLAGS := -X 'main.Version=$(shell git describe --tags --dirty)' -s -w
 bin/twenty-twenty-twenty:
 	go build -v -ldflags="$(LDFLAGS)" -o $@
 
-# Cross-build target for Windows:
-# - bin/twenty-twenty-twenty-windows-386
-# - bin/twenty-twenty-twenty-windows-arm64
-# - bin/twenty-twenty-twenty-windows-amd64
-bin/twenty-twenty-twenty-%.exe: PHONY_TARGET
-	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
-			 go build -v -ldflags="-H=windowsgui $(LDFLAGS)" -o $@
+# Cross-build target for Windows
+bin/twenty-twenty-twenty-windows-%.exe: PHONY_TARGET
+	GOOS=windows GOARCH=$* CGO_ENABLED=0 go build -v -ldflags="-H=windowsgui $(LDFLAGS)" -o $@
+
+bin/twenty-twenty-twenty-windows-386.exe:
+bin/twenty-twenty-twenty-windows-amd64.exe:
+bin/twenty-twenty-twenty-windows-arm64.exe:
 
 # Cross-build target, use as e.g.: `make bin/twenty-twenty-twenty-linux-arm64`
-# Some valid targets:
-# - bin/twenty-twenty-twenty-linux-amd64
-# - bin/twenty-twenty-twenty-linux-arm64
-# Since we set CGO_ENABLED=0, some features may be missing (e.g.: sound)
+# Since we set CGO_ENABLED=0, some features may be missing (e.g.: sound), but
+# the binaries are static
 bin/twenty-twenty-twenty-%: PHONY_TARGET
-	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 \
-			 go build -v -ldflags="$(LDFLAGS)" -o $@
+	GOOS=$(word 1,$(subst -, ,$*)) GOARCH=$(word 2,$(subst -, ,$*)) CGO_ENABLED=0 go build -v -ldflags="$(LDFLAGS)" -o $@
 
-# Nix target for static binaries in Linux
-# Needs to be run from the same host that the binaries will be built
+bin/twenty-twenty-twenty-linux-amd64:
+bin/twenty-twenty-twenty-linux-arm64:
+
+# Nix target for static binaries in Linux with CGO_ENABLED
+# Needs to have nix installed and to be run from the same host that the
+# binaries will be built
 .PHONY: bin/twenty-twenty-twenty-linux-amd64-static
 bin/twenty-twenty-twenty-linux-amd64-static:
 	mkdir -p bin
@@ -66,7 +67,8 @@ bin/twenty-twenty-twenty-linux-arm64-static:
 	mkdir -p bin
 	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
 
-# macOS builds needs an .app bundle and (adhoc) signature to work
+# macOS builds needs an .app bundle and (adhoc) signature to work, and only
+# work in macOS itself (since it needs CGO_ENABLED and codesign)
 bin/TwentyTwentyTwenty_%.app: PHONY_TARGET
 	go run gioui.org/cmd/gogio -x -arch=$* -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
 	cp $@/Contents/Resources/icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
@@ -74,8 +76,14 @@ bin/TwentyTwentyTwenty_%.app: PHONY_TARGET
 	mv $@/Contents/MacOS/TwentyTwentyTwenty_$* $@/Contents/MacOS/TwentyTwentyTwenty
 	codesign -s - $@
 
+bin/TwentyTwentyTwenty_arm64.app:
+bin/TwentyTwentyTwenty_amd64.app:
+
 bin/TwentyTwentyTwenty_%.zip: bin/TwentyTwentyTwenty_%.app
 	cd bin && zip -rv TwentyTwentyTwenty_$*.zip TwentyTwentyTwenty_$*.app
+
+bin/TwentyTwentyTwenty_arm64.zip:
+bin/TwentyTwentyTwenty_amd64.zip:
 
 # To be used for targets with pattern (e.g.: %) since Makefile doesn't
 # understand patterns in PHONY targets
