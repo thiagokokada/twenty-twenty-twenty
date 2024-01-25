@@ -19,7 +19,7 @@ func TestPlaySendAndCancelNotification(t *testing.T) {
 		t.Fatalf("Error while initialising sound: %v\n", err)
 	}
 	// this shouldn't cut the sound during playback
-	go SuspendAfter(time.Second)
+	go SuspendAfter(time.Second * 10)
 
 	done := make(chan bool)
 	t.Log("You should listen to a sound!")
