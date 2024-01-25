@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
 var (
@@ -212,6 +213,7 @@ func loop(ctx context.Context, settings *Settings) {
 		select {
 		case <-ticker.C:
 			log.Println("Sending notification...")
+			go sound.SuspendAfter(settings.Duration * 2)
 			err := notification.SendWithDuration(
 				loopCtx,
 				&settings.Duration,

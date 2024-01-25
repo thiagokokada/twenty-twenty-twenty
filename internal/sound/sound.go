@@ -7,6 +7,7 @@ import (
 	"embed"
 	"fmt"
 	"log"
+	"sync"
 	"time"
 
 	"github.com/gopxl/beep"
@@ -19,44 +20,84 @@ const Enabled bool = true
 // Maximum lag, good enough for this use case and will use lower CPU, but need
 // to compesate the lag with time.Sleep() to not feel "strange" (e.g.: "floaty"
 // notifications because the sound comes too late).
-const lag time.Duration = time.Second
+const lag time.Duration = time.Second / 4
 
 var (
-	buffer1 *beep.Buffer
-	buffer2 *beep.Buffer
+	buffer1   *beep.Buffer
+	buffer2   *beep.Buffer
+	mu        sync.Mutex
+	wg        sync.WaitGroup
+	suspended bool
 	//go:embed assets/*.ogg
 	notifications embed.FS
 )
 
-func Resume() {
-	err := speaker.Resume()
-	if err != nil {
-		log.Printf("Error while resuming speaker: %v\n", err)
-	}
-}
+func SuspendAfter(after time.Duration) {
+	time.Sleep(after)
 
-func Suspend() {
-	speaker.Clear()
-	err := speaker.Suspend()
+	// make sure that no sound is playing before suspending
+	wg.Wait()
+	err := speakerSuspend()
 	if err != nil {
 		log.Printf("Error while suspending speaker: %v\n", err)
 	}
 }
 
+func speakerResume() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if suspended {
+		log.Printf("Resuming sound...")
+		err := speaker.Resume()
+		if err != nil {
+			return fmt.Errorf("resuming speaker: %w", err)
+		}
+		suspended = false
+	}
+	return nil
+}
+
+func speakerSuspend() error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if !suspended {
+		log.Printf("Suspending sound to reduce CPU usage...")
+		speaker.Clear()
+		err := speaker.Suspend()
+		if err != nil {
+			return fmt.Errorf("suspending speaker: %w", err)
+		}
+		suspended = true
+	}
+	return nil
+}
+
 func PlaySendNotification(endCallback func()) {
+	wg.Add(1)
+	speakerResume()
+
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
+		beep.Callback(func() { wg.Done() }),
 		beep.Callback(endCallback),
 	))
+
 	// compesate the lag
 	time.Sleep(lag)
 }
 
 func PlayCancelNotification(endCallback func()) {
+	wg.Add(1)
+	speakerResume()
+
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
+		beep.Callback(func() { wg.Done() }),
 		beep.Callback(endCallback),
 	))
+
 	// compesate the lag
 	time.Sleep(lag)
 }
@@ -79,7 +120,7 @@ func Init(suspend bool) (err error) {
 		return fmt.Errorf("speaker init: %w", err)
 	}
 	if suspend {
-		err = speaker.Suspend()
+		err = speakerSuspend()
 		if err != nil {
 			return fmt.Errorf("speaker suspend: %w", err)
 		}
