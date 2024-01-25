@@ -34,6 +34,9 @@ var (
 )
 
 func PlaySendNotification(endCallback func()) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	wg.Add(1)
 	speakerResume()
 
@@ -48,6 +51,9 @@ func PlaySendNotification(endCallback func()) {
 }
 
 func PlayCancelNotification(endCallback func()) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	wg.Add(1)
 	speakerResume()
 
@@ -62,6 +68,9 @@ func PlayCancelNotification(endCallback func()) {
 }
 
 func Init(suspend bool) (err error) {
+	mu.Lock()
+	defer mu.Unlock()
+
 	var format beep.Format
 
 	buffer1, format, err = loadSound("assets/notification_1.ogg")
@@ -92,6 +101,9 @@ func Init(suspend bool) (err error) {
 func SuspendAfter(after time.Duration) {
 	time.Sleep(after)
 
+	mu.Lock()
+	defer mu.Unlock()
+
 	// make sure that no sound is playing before suspending
 	wg.Wait()
 	err := speakerSuspend()
@@ -115,13 +127,11 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	return buffer, format, nil
 }
 
+// WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerResume() error {
 	if !initialised {
 		return nil
 	}
-
-	mu.Lock()
-	defer mu.Unlock()
 
 	if suspended {
 		log.Printf("Resuming sound...")
@@ -134,13 +144,11 @@ func speakerResume() error {
 	return nil
 }
 
+// WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerSuspend() error {
 	if !initialised {
 		return nil
 	}
-
-	mu.Lock()
-	defer mu.Unlock()
 
 	if !suspended {
 		log.Printf("Suspending sound to reduce CPU usage...")
