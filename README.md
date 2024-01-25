@@ -91,7 +91,8 @@ You can enable/disable optional features by passing the following build tags
 - `cgo`: [CGO](https://pkg.go.dev/cmd/cgo) is necessary for some features in
 some platforms. It is required for `darwin`, not used in `windows`, and
 enables/disables sound support in `linux` (and other *nix systems)
-- `nosystray`: disable system tray support. Not supported in `darwin`
+- `nosound`: disable sound support.
+- `nosystray`: disable system tray support.
 
 ## Credits
 
