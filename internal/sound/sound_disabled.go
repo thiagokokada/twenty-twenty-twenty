@@ -1,5 +1,5 @@
-//go:build !windows && !darwin && !cgo
-// +build !windows,!darwin,!cgo
+//go:build nosound || !cgo
+// +build nosound !cgo
 
 package sound
 
