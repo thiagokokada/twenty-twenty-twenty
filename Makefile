@@ -19,6 +19,11 @@ run: bin/twenty-twenty-twenty
 		bin/twenty-twenty-twenty
 endif
 
+.PHONY: coverage
+coverage:
+	go test -v -coverprofile cover.out ./...
+	go tool cover -html cover.out -o cover.html
+
 .PHONY: lint
 lint:
 	test -z $(shell gofmt -l .)
@@ -28,7 +33,7 @@ lint:
 
 .PHONY: clean
 clean:
-	rm -rf bin
+	rm -rf bin cover.*
 
 LDFLAGS := -X 'main.Version=$(shell git describe --tags --dirty)' -s -w
 
