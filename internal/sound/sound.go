@@ -38,7 +38,11 @@ func PlaySendNotification(endCallback func()) {
 	defer mu.Unlock()
 
 	wg.Add(1)
-	speakerResume()
+	err := speakerResume()
+	if err != nil {
+		log.Println("Error while resuming speaker...")
+		return
+	}
 
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
@@ -55,7 +59,11 @@ func PlayCancelNotification(endCallback func()) {
 	defer mu.Unlock()
 
 	wg.Add(1)
-	speakerResume()
+	err := speakerResume()
+	if err != nil {
+		log.Println("Error while resuming speaker...")
+		return
+	}
 
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
