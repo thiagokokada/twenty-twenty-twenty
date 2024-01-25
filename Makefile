@@ -55,10 +55,16 @@ bin/twenty-twenty-twenty-%: PHONY_TARGET
 
 # Nix target for static binaries in Linux
 # Needs to be run from the same host that the binaries will be built
-bin/twenty-twenty-twenty-linux-%-static: PHONY_TARGET
+.PHONY: bin/twenty-twenty-twenty-linux-amd64-static
+bin/twenty-twenty-twenty-linux-amd64-static:
 	mkdir -p bin
-	cp $(shell nix build '.#packages.$*-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
+	cp $(shell nix build '.#packages.x86_64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
 	chmod +rwx $@
+
+.PHONY: bin/twenty-twenty-twenty-linux-arm64-static
+bin/twenty-twenty-twenty-linux-arm64-static:
+	mkdir -p bin
+	cp $(shell nix build '.#packages.aarch64-linux.twenty-twenty-twenty-static' --no-link --json | jq -r .[].outputs.out)/bin/twenty-twenty-twenty $@
 
 # macOS builds needs an .app bundle and (adhoc) signature to work
 bin/TwentyTwentyTwenty_%.app: PHONY_TARGET
