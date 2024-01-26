@@ -35,7 +35,7 @@ var (
 )
 
 func PlaySendNotification(endCallback func()) {
-	slog.Debug("Playing send notification sound...")
+	slog.Debug("Playing send notification sound")
 
 	mu.Lock()
 	wg.Add(1)
@@ -58,7 +58,7 @@ func PlaySendNotification(endCallback func()) {
 }
 
 func PlayCancelNotification(endCallback func()) {
-	slog.Debug("Playing cancel notification sound...")
+	slog.Debug("Playing cancel notification sound")
 
 	mu.Lock()
 	wg.Add(1)
@@ -96,11 +96,11 @@ func Init(suspend bool) (err error) {
 		return fmt.Errorf("notification 2 sound failed: %w", err)
 	}
 
-	slog.Debug(fmt.Sprintf(
-		"Initialising speaker with sampleRate=%d bufferSize=%d",
-		format.SampleRate,
-		format.SampleRate.N(lag),
-	))
+	slog.Debug(
+		"Initialising speaker",
+		"sampleRate", format.SampleRate,
+		"bufferSize", format.SampleRate.N(lag),
+	)
 	err = speaker.Init(format.SampleRate, format.SampleRate.N(lag))
 	if err != nil {
 		return fmt.Errorf("speaker init: %w", err)
@@ -118,7 +118,7 @@ func Init(suspend bool) (err error) {
 }
 
 func SuspendAfter(after time.Duration) {
-	slog.Debug(fmt.Sprintf("Suspending sound after %.f second(s)...", after.Seconds()))
+	slog.Debug("Suspending sound", "afterSeconds", after.Seconds())
 	time.Sleep(after)
 
 	mu.Lock()
@@ -133,7 +133,7 @@ func SuspendAfter(after time.Duration) {
 }
 
 func loadSound(file string) (*beep.Buffer, beep.Format, error) {
-	slog.Debug(fmt.Sprintf("Loading sound %s...", file))
+	slog.Debug("Loading sound", "file", file)
 
 	f, err := notifications.Open(file)
 	if err != nil {
@@ -152,19 +152,19 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 // WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerResume() error {
 	if !initialised {
-		slog.Debug("Ignoring speaker resume call since it is not initialised yet.")
+		slog.Debug("Ignoring speaker resume call since it is not initialised yet")
 		return nil
 	}
 
 	if suspended {
-		slog.Debug("Resuming speaker...")
+		slog.Debug("Resuming speaker")
 		err := speaker.Resume()
 		if err != nil {
 			return fmt.Errorf("resuming speaker: %w", err)
 		}
 		suspended = false
 	} else {
-		slog.Debug("Speaker already resumed.")
+		slog.Debug("Speaker already resumed")
 	}
 	return nil
 }
@@ -172,12 +172,12 @@ func speakerResume() error {
 // WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerSuspend() error {
 	if !initialised {
-		slog.Debug("Ignoring speaker suspend call since it is not initialised yet.")
+		slog.Debug("Ignoring speaker suspend call since it is not initialised yet")
 		return nil
 	}
 
 	if !suspended {
-		slog.Debug("Suspending speaker to reduce CPU usage...")
+		slog.Debug("Suspending speaker to reduce CPU usage")
 		speaker.Clear()
 		err := speaker.Suspend()
 		if err != nil {
@@ -185,7 +185,7 @@ func speakerSuspend() error {
 		}
 		suspended = true
 	} else {
-		slog.Debug("Speaker already suspended.")
+		slog.Debug("Speaker already suspended")
 	}
 	return nil
 }

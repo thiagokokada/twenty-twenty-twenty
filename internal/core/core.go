@@ -132,14 +132,14 @@ func Start(
 ) {
 	if optional.Sound {
 		log.Printf(
-			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t...\n",
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t\n",
 			settings.Frequency.Minutes(),
 			settings.Duration.Seconds(),
 			settings.Sound,
 		)
 	} else {
 		log.Printf(
-			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration...\n",
+			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration\n",
 			settings.Frequency.Minutes(),
 			settings.Duration.Seconds(),
 		)
@@ -182,13 +182,13 @@ func Pause(
 	timerCallbackPre func(),
 	timerCallbackPos func(),
 ) {
-	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)...\n", settings.Pause.Hours())
+	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)\n", settings.Pause.Hours())
 	Stop() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
 
 	select {
 	case <-timer.C:
-		log.Println("Resuming twenty-twenty-twenty...")
+		log.Println("Resuming twenty-twenty-twenty")
 		if timerCallbackPre != nil {
 			timerCallbackPre()
 		}
@@ -204,13 +204,13 @@ func Pause(
 			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
 		)
 		if err != nil {
-			log.Fatalf("Error while resuming notification: %v. Exiting...\n", err)
+			log.Fatalf("Error while resuming notification: %v. Exiting\n", err)
 		}
 		if timerCallbackPos != nil {
 			timerCallbackPos()
 		}
 	case <-ctx.Done():
-		log.Println("Cancelling twenty-twenty-twenty pause...")
+		log.Println("Cancelling twenty-twenty-twenty pause")
 	}
 }
 
@@ -219,7 +219,7 @@ func loop(ctx context.Context, settings *Settings, optional Optional) {
 	for {
 		select {
 		case <-ticker.C:
-			log.Println("Sending notification...")
+			log.Printf("Showing notification for %.f second(s)\n", settings.Duration.Seconds())
 			// wait 1.5x the duration so we have some time for the sounds to
 			// finish playing
 			if optional.Sound {
@@ -233,10 +233,10 @@ func loop(ctx context.Context, settings *Settings, optional Optional) {
 				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.Duration.Seconds()),
 			)
 			if err != nil {
-				log.Printf("Error while sending notification: %v.\n", err)
+				log.Printf("Error while sending notification: %v\n", err)
 			}
 		case <-ctx.Done():
-			log.Println("Disabling twenty-twenty-twenty...")
+			log.Println("Disabling twenty-twenty-twenty")
 			return
 		}
 	}
