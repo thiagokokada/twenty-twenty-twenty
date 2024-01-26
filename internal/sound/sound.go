@@ -35,7 +35,7 @@ var (
 )
 
 func PlaySendNotification(endCallback func()) {
-	slog.Debug("Playing send notification sound")
+	slog.Debug("Playing send notification sound", "wg", &wg)
 
 	mu.Lock()
 	wg.Add(1)
@@ -49,7 +49,10 @@ func PlaySendNotification(endCallback func()) {
 
 	speaker.Play(beep.Seq(
 		buffer1.Streamer(0, buffer1.Len()),
-		beep.Callback(func() { wg.Done() }),
+		beep.Callback(func() {
+			wg.Done()
+			slog.Debug("Send notification sound done", "wg", &wg)
+		}),
 		beep.Callback(endCallback),
 	))
 
@@ -58,7 +61,7 @@ func PlaySendNotification(endCallback func()) {
 }
 
 func PlayCancelNotification(endCallback func()) {
-	slog.Debug("Playing cancel notification sound")
+	slog.Debug("Playing cancel notification sound", "wg", &wg)
 
 	mu.Lock()
 	wg.Add(1)
@@ -72,7 +75,10 @@ func PlayCancelNotification(endCallback func()) {
 
 	speaker.Play(beep.Seq(
 		buffer2.Streamer(0, buffer2.Len()),
-		beep.Callback(func() { wg.Done() }),
+		beep.Callback(func() {
+			wg.Done()
+			slog.Debug("Cancel notification sound done", "wg", &wg)
+		}),
 		beep.Callback(endCallback),
 	))
 
@@ -125,7 +131,10 @@ func SuspendAfter(after time.Duration) {
 	defer mu.Unlock()
 
 	// make sure that no sound is playing before suspending
+	slog.Debug("Waiting suspend workgroup", "wg", &wg)
 	wg.Wait()
+	slog.Debug("Got suspend workgroup", "wg", &wg)
+
 	err := speakerSuspend()
 	if err != nil {
 		log.Printf("Error while suspending speaker: %v\n", err)
