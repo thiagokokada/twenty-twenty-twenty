@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
+	"github.com/jba/slog/handlers/loghandler"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
@@ -17,8 +19,20 @@ var (
 )
 
 func main() {
+	lvl := new(slog.LevelVar)
+	lvl.Set(slog.LevelInfo)
+	logger := slog.New(loghandler.New(
+		os.Stdout,
+		&slog.HandlerOptions{Level: lvl},
+	))
+	slog.SetDefault(logger)
+
 	optional = core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
 	settings = core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
+
+	if settings.Verbose {
+		lvl.Set(slog.LevelDebug)
+	}
 
 	if optional.Sound {
 		err := sound.Init(!settings.Sound)

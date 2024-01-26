@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -39,6 +38,7 @@ type Settings struct {
 	Frequency time.Duration
 	Pause     time.Duration
 	Sound     bool
+	Verbose   bool
 }
 
 /*
@@ -103,20 +103,12 @@ func ParseFlags(
 		os.Exit(0)
 	}
 
-	if *verbose {
-		log := slog.New(
-			slog.NewTextHandler(
-				os.Stdout,
-				&slog.HandlerOptions{Level: slog.LevelDebug}),
-		)
-		slog.SetDefault(log)
-	}
-
 	return Settings{
 		Duration:  time.Duration(*durationInSec) * time.Second,
 		Frequency: time.Duration(*frequencyInSec) * time.Second,
 		Pause:     time.Duration(*pauseInSec) * time.Second,
 		Sound:     optional.Sound && !*disableSound,
+		Verbose:   *verbose,
 	}
 }
 
