@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"sync/atomic"
 	"time"
 
@@ -55,8 +56,10 @@ func CancelAfter(
 		if *sound {
 			snd.PlayCancelNotification(nil)
 		}
-	case <-ctx.Done(): // avoid playing notification sound if we cancel the context
+	case <-ctx.Done():
+		slog.DebugContext(ctx, "Skipping cancel notification sound...")
 	}
+	slog.DebugContext(ctx, "Cancelling notification...")
 	err := notification.Cancel()
 	if err != nil {
 		return fmt.Errorf("cancel notification: %w", err)
@@ -70,6 +73,7 @@ func SetNotifier(n notify.Notifier) {
 
 func initIfNull() {
 	if notifier.Load() == nil {
+		slog.Debug("Initialising notifier...")
 		newNotifier, err := notify.NewNotifier()
 		if err != nil {
 			log.Fatalf("Error while creating a notifier: %v\n", err)

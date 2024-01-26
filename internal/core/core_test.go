@@ -74,7 +74,7 @@ func TestParseFlags(t *testing.T) {
 	}{
 		{[]string{},
 			Settings{Duration: time.Second * 20, Frequency: time.Minute * 20, Pause: time.Hour, Sound: true}},
-		{[]string{"-duration", "10", "-frequency", "600", "-pause", "1800", "-disable-sound"},
+		{[]string{"-duration", "10", "-frequency", "600", "-pause", "1800", "-disable-sound", "-verbose"},
 			Settings{Duration: time.Second * 10, Frequency: time.Minute * 10, Pause: time.Minute * 30, Sound: false}},
 	}
 

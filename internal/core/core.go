@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -89,12 +90,26 @@ func ParseFlags(
 		false,
 		"print program version and exit",
 	)
+	verbose := flags.Bool(
+		"verbose",
+		false,
+		"enable verbose logging",
+	)
 	// using flag.ExitOnError, so no error will ever be returned
 	_ = flags.Parse(args)
 
 	if *showVersion {
 		fmt.Println(version)
 		os.Exit(0)
+	}
+
+	if *verbose {
+		log := slog.New(
+			slog.NewTextHandler(
+				os.Stdout,
+				&slog.HandlerOptions{Level: slog.LevelDebug}),
+		)
+		slog.SetDefault(log)
 	}
 
 	return Settings{
