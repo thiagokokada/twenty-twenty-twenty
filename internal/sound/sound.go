@@ -132,7 +132,7 @@ func SuspendAfter(after time.Duration) {
 
 	slog.Debug("Waiting sounds to finish playing before suspending", "wg", wg.count())
 	wg.Wait()
-	slog.Debug("Sounds finished playing, calling speaker suspend", "wg", wg.count())
+	slog.Debug("Finished playing sound, calling speaker suspend", "wg", wg.count())
 
 	err := speakerSuspend()
 	if err != nil {
