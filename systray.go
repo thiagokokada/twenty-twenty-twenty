@@ -6,6 +6,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"sync"
 
 	"fyne.io/systray"
@@ -45,6 +46,7 @@ func onReady() {
 		select {
 		case <-mEnabled.ClickedCh:
 			if mEnabled.Checked() {
+				slog.DebugContext(core.Ctx(), "Enable button unchecked")
 				core.Stop()
 
 				withMutex(&mu, func() {
@@ -52,6 +54,7 @@ func onReady() {
 					mPause.Disable()
 				})
 			} else {
+				slog.DebugContext(core.Ctx(), "Enable button checked")
 				core.Start(&settings, optional)
 
 				withMutex(&mu, func() {
@@ -61,10 +64,11 @@ func onReady() {
 			}
 		case <-mPause.ClickedCh:
 			if pauseCtx != nil {
-				// cancel the current pause if it is running
+				slog.DebugContext(core.Ctx(), "Cancelling current pause")
 				cancelPauseCtx()
 			}
 			if mPause.Checked() {
+				slog.DebugContext(core.Ctx(), "Pause button unchecked")
 				core.Start(&settings, optional)
 
 				withMutex(&mu, func() {
@@ -72,6 +76,7 @@ func onReady() {
 					mPause.Uncheck()
 				})
 			} else {
+				slog.DebugContext(core.Ctx(), "Pause button checked")
 				pauseCtx, cancelPauseCtx = context.WithCancel(context.Background())
 				go func() {
 					defer cancelPauseCtx()
@@ -79,6 +84,7 @@ func onReady() {
 						pauseCtx, &settings, optional,
 						func() {
 							withMutex(&mu, func() {
+								slog.DebugContext(core.Ctx(), "Calling pause callback")
 								mEnabled.Enable()
 								mPause.Uncheck()
 							})
@@ -94,15 +100,18 @@ func onReady() {
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
+				slog.DebugContext(core.Ctx(), "Sound button unchecked")
 				settings.Sound = false
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
+				slog.DebugContext(core.Ctx(), "Sound button checked")
 				settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })
 			}
 		case <-mQuit.ClickedCh:
+			slog.DebugContext(core.Ctx(), "Quit button clicked")
 			systray.Quit()
 		}
 	}
