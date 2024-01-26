@@ -37,24 +37,10 @@ var (
 func PlaySendNotification(endCallback func()) {
 	slog.Debug("Playing send notification sound", "wg", wg.count())
 
-	mu.Lock()
-	wg.add(1)
-	err := speakerResume()
-	mu.Unlock()
-
+	err := playSound(buffer1, endCallback)
 	if err != nil {
-		log.Printf("Error while resuming speaker: %v\n", err)
-		return
+		log.Printf("Error while playing send notification sound: %v\n", err)
 	}
-
-	speaker.Play(beep.Seq(
-		buffer1.Streamer(0, buffer1.Len()),
-		beep.Callback(func() {
-			wg.done()
-			slog.Debug("Send notification sound done", "wg", wg.count())
-		}),
-		beep.Callback(endCallback),
-	))
 
 	// compesate the lag
 	time.Sleep(lag)
@@ -63,24 +49,10 @@ func PlaySendNotification(endCallback func()) {
 func PlayCancelNotification(endCallback func()) {
 	slog.Debug("Playing cancel notification sound", "wg", wg.count())
 
-	mu.Lock()
-	wg.add(1)
-	err := speakerResume()
-	mu.Unlock()
-
+	err := playSound(buffer2, endCallback)
 	if err != nil {
-		log.Printf("Error while resuming speaker: %v\n", err)
-		return
+		log.Printf("Error while playing cancel notification sound: %v\n", err)
 	}
-
-	speaker.Play(beep.Seq(
-		buffer2.Streamer(0, buffer2.Len()),
-		beep.Callback(func() {
-			wg.done()
-			slog.Debug("Cancel notification sound done", "wg", wg.count())
-		}),
-		beep.Callback(endCallback),
-	))
 
 	// compesate the lag
 	time.Sleep(lag)
@@ -155,6 +127,27 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	buffer.Append(streamer)
 
 	return buffer, format, nil
+}
+
+func playSound(buffer *beep.Buffer, endCallback func()) error {
+	mu.Lock()
+	defer mu.Unlock()
+	wg.add(1)
+
+	err := speakerResume()
+	if err != nil {
+		return fmt.Errorf("play sound resume: %w", err)
+	}
+
+	speaker.Play(beep.Seq(
+		buffer.Streamer(0, buffer.Len()),
+		beep.Callback(func() {
+			wg.done()
+			slog.Debug("Notification sound done", "wg", wg.count())
+		}),
+		beep.Callback(endCallback),
+	))
+	return nil
 }
 
 // WARN: this function is not thread safe, call it inside a mu.Lock()
