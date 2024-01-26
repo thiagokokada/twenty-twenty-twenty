@@ -1,13 +1,13 @@
 package core
 
 import (
-	"cmp"
 	"context"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"gioui.org/x/notify"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/assert"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 )
 
@@ -38,20 +38,6 @@ func newMockNotifier() *mockNotifier {
 	}
 }
 
-func assertEqual[T comparable](t *testing.T, actual, expected T) {
-	t.Helper()
-	if actual != expected {
-		t.Errorf("got: %v; want: %v", actual, expected)
-	}
-}
-
-func assertGreaterOrEqual[T cmp.Ordered](t *testing.T, actual, expected T) {
-	t.Helper()
-	if actual < expected {
-		t.Errorf("got: %v; want: >=%v", actual, expected)
-	}
-}
-
 var testSettings = Settings{
 	Duration:  time.Millisecond * 50,
 	Frequency: time.Millisecond * 100,
@@ -71,8 +57,8 @@ func TestStart(t *testing.T) {
 	defer Stop()
 	time.Sleep(timeout)
 
-	assertGreaterOrEqual(t, notifier.notificationCount.Load(), expectCount)
-	assertGreaterOrEqual(t, notifier.notificationCancelCount.Load(), expectCount)
+	assert.GreaterOrEqual(t, notifier.notificationCount.Load(), expectCount)
+	assert.GreaterOrEqual(t, notifier.notificationCancelCount.Load(), expectCount)
 }
 
 func TestPause(t *testing.T) {
@@ -93,10 +79,10 @@ func TestPause(t *testing.T) {
 	)
 	<-Ctx().Done()
 
-	assertEqual(t, callbackPreCalled, true)
-	assertEqual(t, callbackPosCalled, true)
-	assertGreaterOrEqual(t, notifier.notificationCount.Load(), 1)
-	assertGreaterOrEqual(t, notifier.notificationCancelCount.Load(), 1)
+	assert.Equal(t, callbackPreCalled, true)
+	assert.Equal(t, callbackPosCalled, true)
+	assert.GreaterOrEqual(t, notifier.notificationCount.Load(), 1)
+	assert.GreaterOrEqual(t, notifier.notificationCancelCount.Load(), 1)
 }
 
 func TestPauseCancel(t *testing.T) {
@@ -118,10 +104,10 @@ func TestPauseCancel(t *testing.T) {
 	)
 	<-Ctx().Done()
 
-	assertEqual(t, callbackPreCalled, false)
-	assertEqual(t, callbackPosCalled, false)
-	assertEqual(t, notifier.notificationCount.Load(), 0)
-	assertEqual(t, notifier.notificationCancelCount.Load(), 0)
+	assert.Equal(t, callbackPreCalled, false)
+	assert.Equal(t, callbackPosCalled, false)
+	assert.Equal(t, notifier.notificationCount.Load(), 0)
+	assert.Equal(t, notifier.notificationCancelCount.Load(), 0)
 }
 
 func TestPauseNilCallbacks(t *testing.T) {
@@ -135,6 +121,6 @@ func TestPauseNilCallbacks(t *testing.T) {
 	defer cancel()
 	Pause(ctx, &testSettings, Optional{}, nil, nil)
 
-	assertEqual(t, notifier.notificationCount.Load(), 1)
-	assertEqual(t, notifier.notificationCancelCount.Load(), 1)
+	assert.Equal(t, notifier.notificationCount.Load(), 1)
+	assert.Equal(t, notifier.notificationCancelCount.Load(), 1)
 }

@@ -4,6 +4,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/assert"
 )
 
 func TestParseFlags(t *testing.T) {
@@ -12,7 +14,7 @@ func TestParseFlags(t *testing.T) {
 
 	// always return false for sound if disabled
 	settings := ParseFlags(progname, []string{}, version, Optional{Sound: false, Systray: false})
-	assertEqual(t, settings.Sound, false)
+	assert.Equal(t, settings.Sound, false)
 
 	var tests = []struct {
 		args     []string
@@ -27,7 +29,7 @@ func TestParseFlags(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(strings.Join(tt.args, " "), func(t *testing.T) {
 			settings := ParseFlags(progname, tt.args, version, Optional{Sound: true, Systray: true})
-			assertEqual(t, settings, tt.settings)
+			assert.Equal(t, settings, tt.settings)
 		})
 	}
 }
