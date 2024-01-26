@@ -38,6 +38,7 @@ type Settings struct {
 	Frequency time.Duration
 	Pause     time.Duration
 	Sound     bool
+	Verbose   bool
 }
 
 /*
@@ -89,6 +90,11 @@ func ParseFlags(
 		false,
 		"print program version and exit",
 	)
+	verbose := flags.Bool(
+		"verbose",
+		false,
+		"enable verbose logging",
+	)
 	// using flag.ExitOnError, so no error will ever be returned
 	_ = flags.Parse(args)
 
@@ -102,6 +108,7 @@ func ParseFlags(
 		Frequency: time.Duration(*frequencyInSec) * time.Second,
 		Pause:     time.Duration(*pauseInSec) * time.Second,
 		Sound:     optional.Sound && !*disableSound,
+		Verbose:   *verbose,
 	}
 }
 

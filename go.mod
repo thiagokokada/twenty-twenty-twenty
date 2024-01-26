@@ -9,6 +9,7 @@ require (
 	gioui.org/cmd v0.0.0-20240115171100-84ca391d514b
 	gioui.org/x v0.4.0
 	github.com/gopxl/beep v1.3.1-0.20240124160239-28ff2edb5cdf
+	github.com/jba/slog v0.1.1-0.20230901123115-b5eef75b0896
 	github.com/kisielk/errcheck v1.6.3
 	honnef.co/go/tools v0.4.6
 )
