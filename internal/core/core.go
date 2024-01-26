@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"sync"
 	"time"
@@ -210,11 +211,12 @@ func Pause(
 			timerCallbackPos()
 		}
 	case <-ctx.Done():
-		log.Println("Cancelling twenty-twenty-twenty pause")
+		slog.DebugContext(ctx, "Cancelling twenty-twenty-twenty pause")
 	}
 }
 
 func loop(ctx context.Context, settings *Settings, optional Optional) {
+	slog.DebugContext(ctx, "Starting new loop")
 	ticker := time.NewTicker(settings.Frequency)
 	for {
 		select {
