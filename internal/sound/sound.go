@@ -40,7 +40,7 @@ func PlaySendNotification(endCallback func()) {
 	wg.Add(1)
 	err := speakerResume()
 	if err != nil {
-		log.Println("Error while resuming speaker...")
+		log.Printf("Error while resuming speaker: %v\n", err)
 		return
 	}
 
@@ -61,7 +61,7 @@ func PlayCancelNotification(endCallback func()) {
 	wg.Add(1)
 	err := speakerResume()
 	if err != nil {
-		log.Println("Error while resuming speaker...")
+		log.Printf("Error while resuming speaker: %v\n", err)
 		return
 	}
 
