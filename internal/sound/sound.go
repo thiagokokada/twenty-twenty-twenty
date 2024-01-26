@@ -38,10 +38,10 @@ func PlaySendNotification(endCallback func()) {
 	slog.Debug("Playing send notification sound...")
 
 	mu.Lock()
-	defer mu.Unlock()
-
 	wg.Add(1)
 	err := speakerResume()
+	mu.Unlock()
+
 	if err != nil {
 		log.Printf("Error while resuming speaker: %v\n", err)
 		return
@@ -61,10 +61,10 @@ func PlayCancelNotification(endCallback func()) {
 	slog.Debug("Playing cancel notification sound...")
 
 	mu.Lock()
-	defer mu.Unlock()
-
 	wg.Add(1)
 	err := speakerResume()
+	mu.Unlock()
+
 	if err != nil {
 		log.Printf("Error while resuming speaker: %v\n", err)
 		return
