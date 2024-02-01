@@ -24,12 +24,12 @@ const Enabled bool = true
 const lag time.Duration = time.Second / 4
 
 var (
-	buffer1     *beep.Buffer
-	buffer2     *beep.Buffer
-	mu          sync.Mutex
-	wg          wgCount
 	initialised bool
+	mu          sync.Mutex
+	sound1      sound
+	sound2      sound
 	suspended   bool
+	wg          wgCount
 	//go:embed assets/*.ogg
 	notifications embed.FS
 )
@@ -37,7 +37,7 @@ var (
 func PlaySendNotification(endCallback func()) {
 	slog.Debug("Playing send notification sound", "wg", wg.count())
 
-	err := playSound(buffer1, endCallback)
+	err := playSound(sound1, endCallback)
 	if err != nil {
 		log.Printf("Error while playing send notification sound: %v\n", err)
 	}
@@ -49,7 +49,7 @@ func PlaySendNotification(endCallback func()) {
 func PlayCancelNotification(endCallback func()) {
 	slog.Debug("Playing cancel notification sound", "wg", wg.count())
 
-	err := playSound(buffer2, endCallback)
+	err := playSound(sound2, endCallback)
 	if err != nil {
 		log.Printf("Error while playing cancel notification sound: %v\n", err)
 	}
@@ -62,17 +62,21 @@ func Init(suspend bool) (err error) {
 	mu.Lock()
 	defer mu.Unlock()
 
+	var buffer *beep.Buffer
 	var format beep.Format
 
-	buffer1, format, err = loadSound("assets/notification_1.ogg")
+	buffer, format, err = loadSound("assets/notification_1.ogg")
 	if err != nil {
 		return fmt.Errorf("notification 1 sound failed: %w", err)
 	}
+	sound1 = sound{buffer: buffer, name: "send"}
+
 	// ignoring format since all audio files should have the same format
-	buffer2, _, err = loadSound("assets/notification_2.ogg")
+	buffer, _, err = loadSound("assets/notification_2.ogg")
 	if err != nil {
 		return fmt.Errorf("notification 2 sound failed: %w", err)
 	}
+	sound2 = sound{buffer: buffer, name: "cancel"}
 
 	slog.Debug(
 		"Initialising speaker",
@@ -129,7 +133,7 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 	return buffer, format, nil
 }
 
-func playSound(buffer *beep.Buffer, endCallback func()) error {
+func playSound(s sound, endCallback func()) error {
 	mu.Lock()
 	defer mu.Unlock()
 	wg.add(1)
@@ -140,10 +144,10 @@ func playSound(buffer *beep.Buffer, endCallback func()) error {
 	}
 
 	speaker.Play(beep.Seq(
-		buffer.Streamer(0, buffer.Len()),
+		s.buffer.Streamer(0, s.buffer.Len()),
 		beep.Callback(func() {
 			wg.done()
-			slog.Debug("Notification sound done", "wg", wg.count())
+			slog.Debug("Notification sound done", "sound", s, "wg", wg.count())
 		}),
 		beep.Callback(endCallback),
 	))
