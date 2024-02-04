@@ -76,6 +76,7 @@ func Stop() {
 	mu.Lock()
 	defer mu.Unlock()
 	if loopCtx != nil {
+		slog.Debug("Cancelling main loop context")
 		cancelLoopCtx()
 	}
 }
