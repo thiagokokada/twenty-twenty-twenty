@@ -53,7 +53,7 @@ func TestStart(t *testing.T) {
 	// the last notification may or may not come because of timing
 	expectCount := int32(timeout/testSettings.Frequency) - 1
 
-	Start(&testSettings, Optional{Sound: true})
+	Start(&testSettings, Optional{})
 	defer Stop()
 	time.Sleep(timeout)
 
