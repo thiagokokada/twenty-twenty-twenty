@@ -103,6 +103,7 @@ func Pause(
 	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)\n", settings.Pause.Hours())
 	Stop() // cancelling current twenty-twenty-twenty goroutine
 	timer := time.NewTimer(settings.Pause)
+	defer timer.Stop()
 
 	select {
 	case <-timer.C:
@@ -135,6 +136,8 @@ func Pause(
 func loop(ctx context.Context, settings *Settings, optional Optional) {
 	slog.DebugContext(ctx, "Starting new loop")
 	ticker := time.NewTicker(settings.Frequency)
+	defer ticker.Stop()
+
 	for {
 		select {
 		case <-ticker.C:

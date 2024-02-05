@@ -51,6 +51,8 @@ func CancelAfter(
 	sound *bool,
 ) error {
 	timer := time.NewTimer(*after)
+	defer timer.Stop()
+
 	select {
 	case <-timer.C:
 		if *sound {
