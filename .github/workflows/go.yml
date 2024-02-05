@@ -27,15 +27,21 @@ jobs:
     - name: Lint
       run: make lint
 
-    - name: Test
-      run: make test-ci
-
     - name: Build
       run: make
 
+    - name: Test
+      run: make test-ci
+
     - name: Build with CGO_ENABLED=0
-      run: go generate
+      run: make
       env:
+        CGO_ENABLED: 0
+
+    - name: Test with CGO_ENABLED=0
+      run: make test
+      env:
+        CI: 1
         CGO_ENABLED: 0
 
     - name: Cross-platform build
