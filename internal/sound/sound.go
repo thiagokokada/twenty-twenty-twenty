@@ -59,6 +59,11 @@ func PlayCancelNotification(endCallback func()) {
 }
 
 func Init(suspend bool) (err error) {
+	if initialised {
+		slog.Debug("Sound already initialised")
+		return nil
+	}
+
 	mu.Lock()
 	defer mu.Unlock()
 
