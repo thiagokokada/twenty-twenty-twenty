@@ -58,7 +58,7 @@ func PlayCancelNotification(endCallback func()) {
 	time.Sleep(lag)
 }
 
-func Init(suspend bool) (err error) {
+func Init(suspend bool) error {
 	if initialised {
 		slog.Debug("Sound already initialised")
 		return nil
@@ -67,10 +67,7 @@ func Init(suspend bool) (err error) {
 	mu.Lock()
 	defer mu.Unlock()
 
-	var buffer *beep.Buffer
-	var format beep.Format
-
-	buffer, format, err = loadSound("assets/notification_1.ogg")
+	buffer, format, err := loadSound("assets/notification_1.ogg")
 	if err != nil {
 		return fmt.Errorf("notification 1 sound failed: %w", err)
 	}
