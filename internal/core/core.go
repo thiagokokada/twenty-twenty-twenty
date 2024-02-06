@@ -159,15 +159,18 @@ func (t *TwentyTwentyTwenty) loop() {
 // sleeping for less than the canary. If time.Now() after sleeping is after the
 // canary, it means the computer slept, so we restart the ticker.
 func (t *TwentyTwentyTwenty) detectSleep(ticker *time.Ticker) {
+	// create a copy of ctx to make sure we are listening to the correct events
+	ctx := t.loopCtx
 	for {
-		if t.loopCtx.Err() != nil {
+		if ctx.Err() != nil {
+			slog.DebugContext(ctx, "Quiting detect sleep since main context is done")
 			return
 		}
 		canary := time.Now().Add(t.Settings.Frequency / 2)
 		time.Sleep(time.Duration(5) * time.Second)
 		if time.Now().After(canary) {
 			slog.DebugContext(
-				t.loopCtx,
+				ctx,
 				"Detected that the computer slept, restarting ticker",
 				"canary", canary,
 			)
