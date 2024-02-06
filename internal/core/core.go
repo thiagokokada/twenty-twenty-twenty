@@ -127,11 +127,15 @@ func (t *TwentyTwentyTwenty) loop(ctx context.Context) {
 	slog.DebugContext(ctx, "Starting new loop")
 	ticker := time.NewTicker(t.Settings.Frequency)
 	defer ticker.Stop()
-	go t.detectSleep(ctx, ticker)
+
+	lastTickCh := make(chan time.Time, 1)
+	lastTickCh <- time.Now()
+	go t.detectSleep(ctx, lastTickCh, ticker)
 
 	for {
 		select {
-		case <-ticker.C:
+		case lastTick := <-ticker.C:
+			lastTickCh <- lastTick
 			log.Printf("Showing notification for %.f second(s)\n", t.Settings.Duration.Seconds())
 			// wait 1.5x the duration so we have some time for the sounds to
 			// finish playing
@@ -155,24 +159,26 @@ func (t *TwentyTwentyTwenty) loop(ctx context.Context) {
 	}
 }
 
-// Detect when the computer sleeps by setting a canary time in the future and
-// sleeping for less than the canary. If time.Now() after sleeping is after the
-// canary, it means the computer slept, so we restart the ticker.
-func (t *TwentyTwentyTwenty) detectSleep(ctx context.Context, ticker *time.Ticker) {
+func (t *TwentyTwentyTwenty) detectSleep(
+	ctx context.Context,
+	lastTickCh chan time.Time,
+	ticker *time.Ticker,
+) {
+	var lastTick time.Time
 	for {
-		if ctx.Err() != nil {
+		select {
+		case <-lastTickCh:
+			lastTick = <-lastTickCh
+		case <-time.After(5 * time.Second):
+			// if lastTick+Frequency > current time, it means the computer
+			// slept, so we reset the ticker
+			if lastTick.Add(t.Settings.Frequency).After(time.Now()) {
+				slog.DebugContext(ctx, "Detected that the computer slept, restarting ticker")
+				ticker.Reset(t.Settings.Frequency)
+			}
+		case <-ctx.Done():
 			slog.DebugContext(ctx, "Quiting detect sleep since main context is done")
 			return
-		}
-		canary := time.Now().Add(t.Settings.Frequency / 2)
-		time.Sleep(time.Duration(5) * time.Second)
-		if time.Now().After(canary) {
-			slog.DebugContext(
-				ctx,
-				"Detected that the computer slept, restarting ticker",
-				"canary", canary,
-			)
-			ticker.Reset(t.Settings.Frequency)
 		}
 	}
 }
