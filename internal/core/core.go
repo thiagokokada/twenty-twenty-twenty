@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
-	"sync"
 	"time"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
@@ -13,35 +12,10 @@ import (
 )
 
 /*
-TwentyTwentyTwenty struct.
-
-Keeps the main state of the program.
+Create a new TwentyTwentyTwenty struct.
 */
-type TwentyTwentyTwenty struct {
-	Optional Optional
-	Settings Settings
-
-	cancelLoopCtx context.CancelFunc
-	loopCtx       context.Context
-	mu            sync.Mutex
-}
-
 func New(optional Optional, settings Settings) *TwentyTwentyTwenty {
-	return &TwentyTwentyTwenty{
-		Optional: optional,
-		Settings: settings,
-	}
-}
-
-/*
-Optional struct.
-
-This is used for features that are optional in the program, for example if sound
-or systray are permanently disabled.
-*/
-type Optional struct {
-	Sound   bool
-	Systray bool
+	return &TwentyTwentyTwenty{Optional: optional, Settings: settings}
 }
 
 /*
