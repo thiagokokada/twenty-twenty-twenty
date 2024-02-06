@@ -84,6 +84,7 @@ func Init(suspend bool) error {
 		"Initialising speaker",
 		"sampleRate", format.SampleRate,
 		"bufferSize", format.SampleRate.N(lag),
+		"lag", lag,
 	)
 	err = speaker.Init(format.SampleRate, format.SampleRate.N(lag))
 	if err != nil {
