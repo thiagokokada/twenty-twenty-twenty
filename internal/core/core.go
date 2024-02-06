@@ -58,7 +58,7 @@ func (t *TwentyTwentyTwenty) Start() {
 	t.loopCtx, t.cancelLoopCtx = context.WithCancel(
 		ctxlog.AppendCtx(context.Background(), slog.Int("loop", loop)),
 	)
-	go t.loop()
+	go t.loop(t.loopCtx)
 }
 
 /*
@@ -123,11 +123,11 @@ func (t *TwentyTwentyTwenty) Pause(
 	}
 }
 
-func (t *TwentyTwentyTwenty) loop() {
-	slog.DebugContext(t.loopCtx, "Starting new loop")
+func (t *TwentyTwentyTwenty) loop(ctx context.Context) {
+	slog.DebugContext(ctx, "Starting new loop")
 	ticker := time.NewTicker(t.Settings.Frequency)
 	defer ticker.Stop()
-	go t.detectSleep(ticker)
+	go t.detectSleep(ctx, ticker)
 
 	for {
 		select {
@@ -139,7 +139,7 @@ func (t *TwentyTwentyTwenty) loop() {
 				go sound.SuspendAfter(min(t.Settings.Duration*3/2, t.Settings.Frequency))
 			}
 			err := notification.SendWithDuration(
-				t.loopCtx,
+				ctx,
 				&t.Settings.Duration,
 				&t.Settings.Sound,
 				"Time to rest your eyes",
@@ -148,7 +148,7 @@ func (t *TwentyTwentyTwenty) loop() {
 			if err != nil {
 				log.Printf("Error while sending notification: %v\n", err)
 			}
-		case <-t.loopCtx.Done():
+		case <-ctx.Done():
 			log.Println("Disabling twenty-twenty-twenty")
 			return
 		}
@@ -158,9 +158,7 @@ func (t *TwentyTwentyTwenty) loop() {
 // Detect when the computer sleeps by setting a canary time in the future and
 // sleeping for less than the canary. If time.Now() after sleeping is after the
 // canary, it means the computer slept, so we restart the ticker.
-func (t *TwentyTwentyTwenty) detectSleep(ticker *time.Ticker) {
-	// create a copy of ctx to make sure we are listening to the correct events
-	ctx := t.loopCtx
+func (t *TwentyTwentyTwenty) detectSleep(ctx context.Context, ticker *time.Ticker) {
 	for {
 		if ctx.Err() != nil {
 			slog.DebugContext(ctx, "Quiting detect sleep since main context is done")
