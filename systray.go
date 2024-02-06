@@ -10,8 +10,6 @@ import (
 	"sync"
 
 	"fyne.io/systray"
-
-	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
 )
 
 const systrayEnabled bool = true
@@ -27,13 +25,13 @@ func onReady() {
 	systray.SetTooltip("TwentyTwentyTwenty")
 	mEnabled := systray.AddMenuItemCheckbox("Enabled", "Enable twenty-twenty-twenty", true)
 	mPause := systray.AddMenuItemCheckbox(
-		fmt.Sprintf("Pause for %.f hour", settings.Pause.Hours()),
-		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", settings.Pause.Hours()),
+		fmt.Sprintf("Pause for %.f hour", twenty.Settings.Pause.Hours()),
+		fmt.Sprintf("Pause twenty-twenty-twenty for %.f hour", twenty.Settings.Pause.Hours()),
 		false,
 	)
 	mSound := new(systray.MenuItem)
-	if optional.Sound {
-		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", settings.Sound)
+	if twenty.Optional.Sound {
+		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", twenty.Settings.Sound)
 	}
 	systray.AddSeparator()
 	mQuit := systray.AddMenuItem("Quit", "Quit the whole app")
@@ -46,16 +44,16 @@ func onReady() {
 		select {
 		case <-mEnabled.ClickedCh:
 			if mEnabled.Checked() {
-				slog.DebugContext(core.Ctx(), "Enable button unchecked")
-				core.Stop()
+				slog.DebugContext(twenty.Ctx(), "Enable button unchecked")
+				twenty.Stop()
 
 				withMutex(&mu, func() {
 					mEnabled.Uncheck()
 					mPause.Disable()
 				})
 			} else {
-				slog.DebugContext(core.Ctx(), "Enable button checked")
-				core.Start(&settings, optional)
+				slog.DebugContext(twenty.Ctx(), "Enable button checked")
+				twenty.Start()
 
 				withMutex(&mu, func() {
 					mEnabled.Check()
@@ -64,27 +62,27 @@ func onReady() {
 			}
 		case <-mPause.ClickedCh:
 			if pauseCtx != nil {
-				slog.DebugContext(core.Ctx(), "Cancelling current pause")
+				slog.DebugContext(twenty.Ctx(), "Cancelling current pause")
 				cancelPauseCtx()
 			}
 			if mPause.Checked() {
-				slog.DebugContext(core.Ctx(), "Pause button unchecked")
-				core.Start(&settings, optional)
+				slog.DebugContext(twenty.Ctx(), "Pause button unchecked")
+				twenty.Start()
 
 				withMutex(&mu, func() {
 					mEnabled.Enable()
 					mPause.Uncheck()
 				})
 			} else {
-				slog.DebugContext(core.Ctx(), "Pause button checked")
+				slog.DebugContext(twenty.Ctx(), "Pause button checked")
 				pauseCtx, cancelPauseCtx = context.WithCancel(context.Background())
 				go func() {
 					defer cancelPauseCtx()
-					core.Pause(
-						pauseCtx, &settings, optional,
+					twenty.Pause(
+						pauseCtx,
 						func() {
 							withMutex(&mu, func() {
-								slog.DebugContext(core.Ctx(), "Calling pause callback")
+								slog.DebugContext(twenty.Ctx(), "Calling pause callback")
 								mEnabled.Enable()
 								mPause.Uncheck()
 							})
@@ -100,23 +98,23 @@ func onReady() {
 			}
 		case <-mSound.ClickedCh:
 			if mSound.Checked() {
-				slog.DebugContext(core.Ctx(), "Sound button unchecked")
-				settings.Sound = false
+				slog.DebugContext(twenty.Ctx(), "Sound button unchecked")
+				twenty.Settings.Sound = false
 
 				withMutex(&mu, func() { mSound.Uncheck() })
 			} else {
-				slog.DebugContext(core.Ctx(), "Sound button checked")
-				settings.Sound = true
+				slog.DebugContext(twenty.Ctx(), "Sound button checked")
+				twenty.Settings.Sound = true
 
 				withMutex(&mu, func() { mSound.Check() })
 			}
 		case <-mQuit.ClickedCh:
-			slog.DebugContext(core.Ctx(), "Quit button clicked")
+			slog.DebugContext(twenty.Ctx(), "Quit button clicked")
 			systray.Quit()
 		}
 	}
 }
 
 func onExit() {
-	core.Stop()
+	twenty.Stop()
 }
