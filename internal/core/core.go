@@ -127,6 +127,7 @@ func (t *TwentyTwentyTwenty) loop() {
 	slog.DebugContext(t.loopCtx, "Starting new loop")
 	ticker := time.NewTicker(t.Settings.Frequency)
 	defer ticker.Stop()
+	go t.detectSleep(ticker)
 
 	for {
 		select {
@@ -150,6 +151,27 @@ func (t *TwentyTwentyTwenty) loop() {
 		case <-t.loopCtx.Done():
 			log.Println("Disabling twenty-twenty-twenty")
 			return
+		}
+	}
+}
+
+// Detect when the computer sleeps by setting a canary time in the future and
+// sleeping for less than the canary. If time.Now() after sleeping is after the
+// canary, it means the computer slept, so we restart the ticker.
+func (t *TwentyTwentyTwenty) detectSleep(ticker *time.Ticker) {
+	for {
+		if t.loopCtx.Err() != nil {
+			return
+		}
+		canary := time.Now().Add(t.Settings.Frequency / 2)
+		time.Sleep(time.Duration(5) * time.Second)
+		if time.Now().After(canary) {
+			slog.DebugContext(
+				t.loopCtx,
+				"Detected that the computer slept, restarting ticker",
+				"canary", canary,
+			)
+			ticker.Reset(t.Settings.Frequency)
 		}
 	}
 }
