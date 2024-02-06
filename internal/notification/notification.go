@@ -69,8 +69,11 @@ func CancelAfter(
 	return nil
 }
 
-func SetNotifier(n notify.Notifier) {
-	notifier.Store(&n)
+func Init(newNotifier notify.Notifier) {
+	swapped := notifier.CompareAndSwap(nil, &newNotifier)
+	if !swapped {
+		slog.Debug("Couldn't swap notifier since one is already running")
+	}
 }
 
 func initIfNull() {
@@ -80,9 +83,6 @@ func initIfNull() {
 		if err != nil {
 			log.Fatalf("Error while creating a notifier: %v\n", err)
 		}
-		swapped := notifier.CompareAndSwap(nil, &newNotifier)
-		if !swapped {
-			log.Println("Couldn't swap notifier since one is already running")
-		}
+		Init(newNotifier)
 	}
 }

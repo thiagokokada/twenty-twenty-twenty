@@ -38,21 +38,34 @@ func newMockNotifier() *mockNotifier {
 	}
 }
 
-var twenty = New(
-	Optional{
-		Sound: false, Systray: false,
-	},
-	Settings{
-		Duration:  time.Millisecond * 50,
-		Frequency: time.Millisecond * 100,
-		Pause:     time.Millisecond * 500,
-		Sound:     false,
-	},
+var (
+	notifier *mockNotifier
+	twenty   = New(
+		Optional{
+			Sound:   false,
+			Systray: false,
+		},
+		Settings{
+			Duration:  time.Millisecond * 50,
+			Frequency: time.Millisecond * 100,
+			Pause:     time.Millisecond * 500,
+			Sound:     false,
+		},
+	)
 )
 
+func init() {
+	notifier = newMockNotifier()
+	notification.Init(notifier)
+}
+
+func resetCounters() {
+	notifier.notificationCount.Store(0)
+	notifier.notificationCancelCount.Store(0)
+}
+
 func TestStart(t *testing.T) {
-	notifier := newMockNotifier()
-	notification.SetNotifier(notifier)
+	resetCounters()
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
@@ -67,8 +80,7 @@ func TestStart(t *testing.T) {
 }
 
 func TestPause(t *testing.T) {
-	notifier := newMockNotifier()
-	notification.SetNotifier(notifier)
+	resetCounters()
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); twenty.Stop() }()
@@ -91,8 +103,7 @@ func TestPause(t *testing.T) {
 }
 
 func TestPauseCancel(t *testing.T) {
-	notifier := newMockNotifier()
-	notification.SetNotifier(notifier)
+	resetCounters()
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); twenty.Stop() }()
@@ -116,8 +127,7 @@ func TestPauseCancel(t *testing.T) {
 }
 
 func TestPauseNilCallbacks(t *testing.T) {
-	notifier := newMockNotifier()
-	notification.SetNotifier(notifier)
+	resetCounters()
 
 	const timeout = time.Second
 	go func() { time.Sleep(timeout); twenty.Stop() }()
