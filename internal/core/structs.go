@@ -12,8 +12,8 @@ TwentyTwentyTwenty struct.
 Keeps the main state of the program.
 */
 type TwentyTwentyTwenty struct {
-	Optional Optional
-	Settings Settings
+	Features
+	Settings
 
 	cancelLoopCtx context.CancelFunc
 	loopCtx       context.Context
@@ -21,12 +21,12 @@ type TwentyTwentyTwenty struct {
 }
 
 /*
-Optional struct.
+Features struct.
 
 This is used for features that are optional in the program, for example if sound
 or systray are permanently disabled.
 */
-type Optional struct {
+type Features struct {
 	Sound   bool
 	Systray bool
 }

@@ -30,19 +30,19 @@ func main() {
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
-	optional := core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
-	settings := core.ParseFlags(os.Args[0], os.Args[1:], version, optional)
+	features := core.Features{Sound: sound.Enabled, Systray: systrayEnabled}
+	settings := core.ParseFlags(os.Args[0], os.Args[1:], version, features)
 
 	if settings.Verbose {
 		lvl.Set(slog.LevelDebug)
 	}
 
-	if optional.Sound {
+	if features.Sound {
 		err := sound.Init(!settings.Sound)
 		if err != nil {
 			log.Printf("Error while initialising sound: %v\n", err)
 			log.Println("Disabling sound")
-			optional.Sound = false
+			features.Sound = false
 			settings.Sound = false
 		}
 	}
@@ -55,13 +55,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("Test notification failed: %v. Exiting...", err)
 	}
-	twenty = core.New(optional, settings)
+	twenty = core.New(features, settings)
 	// we need to start notification cancellation in a goroutine to show the
 	// systray as soon as possible (since it depends on the loop() call), but we
 	// also need to give it access to the core.Ctx to cancel it if necessary
 	twenty.Start()
 	go func() {
-		if optional.Sound {
+		if features.Sound {
 			// wait the 1.5x of duration so we have some time for the sounds to
 			// finish playing
 			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))

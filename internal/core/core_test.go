@@ -41,7 +41,7 @@ func newMockNotifier() *mockNotifier {
 var (
 	notifier *mockNotifier
 	twenty   = New(
-		Optional{
+		Features{
 			Sound:   false,
 			Systray: false,
 		},

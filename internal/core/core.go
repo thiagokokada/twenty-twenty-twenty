@@ -17,8 +17,8 @@ var loop int
 /*
 Create a new TwentyTwentyTwenty struct.
 */
-func New(optional Optional, settings Settings) *TwentyTwentyTwenty {
-	return &TwentyTwentyTwenty{Optional: optional, Settings: settings}
+func New(features Features, settings Settings) *TwentyTwentyTwenty {
+	return &TwentyTwentyTwenty{Features: features, Settings: settings}
 }
 
 /*
@@ -36,7 +36,7 @@ This will start the main twenty-twenty-twenty loop in a goroutine, so avoid
 calling this function inside a goroutine.
 */
 func (t *TwentyTwentyTwenty) Start() {
-	if t.Optional.Sound {
+	if t.Features.Sound {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t\n",
 			t.Settings.Frequency.Minutes(),
@@ -134,7 +134,7 @@ func (t *TwentyTwentyTwenty) loop() {
 			log.Printf("Showing notification for %.f second(s)\n", t.Settings.Duration.Seconds())
 			// wait 1.5x the duration so we have some time for the sounds to
 			// finish playing
-			if t.Optional.Sound {
+			if t.Features.Sound {
 				go sound.SuspendAfter(min(t.Settings.Duration*3/2, t.Settings.Frequency))
 			}
 			err := notification.SendWithDuration(

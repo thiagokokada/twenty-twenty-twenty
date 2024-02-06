@@ -11,7 +11,7 @@ func ParseFlags(
 	progname string,
 	args []string,
 	version string,
-	optional Optional,
+	features Features,
 ) Settings {
 	flags := flag.NewFlagSet(progname, flag.ExitOnError)
 	durationInSec := flags.Uint(
@@ -25,7 +25,7 @@ func ParseFlags(
 		"how often the pause should be in seconds",
 	)
 	pauseInSec := new(uint)
-	if optional.Systray {
+	if features.Systray {
 		pauseInSec = flags.Uint(
 			"pause",
 			60*60,
@@ -33,7 +33,7 @@ func ParseFlags(
 		)
 	}
 	disableSound := new(bool)
-	if optional.Sound {
+	if features.Sound {
 		disableSound = flags.Bool(
 			"disable-sound",
 			false,
@@ -62,7 +62,7 @@ func ParseFlags(
 		Duration:  time.Duration(*durationInSec) * time.Second,
 		Frequency: time.Duration(*frequencyInSec) * time.Second,
 		Pause:     time.Duration(*pauseInSec) * time.Second,
-		Sound:     optional.Sound && !*disableSound,
+		Sound:     features.Sound && !*disableSound,
 		Verbose:   *verbose,
 	}
 }

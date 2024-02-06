@@ -30,7 +30,7 @@ func onReady() {
 		false,
 	)
 	mSound := new(systray.MenuItem)
-	if twenty.Optional.Sound {
+	if twenty.Features.Sound {
 		mSound = systray.AddMenuItemCheckbox("Sound", "Enable notification sound", twenty.Settings.Sound)
 	}
 	systray.AddSeparator()
