@@ -7,9 +7,12 @@ import (
 	"log/slog"
 	"time"
 
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/ctxlog"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
+
+var loop int
 
 /*
 Create a new TwentyTwentyTwenty struct.
@@ -51,7 +54,10 @@ func (t *TwentyTwentyTwenty) Start() {
 
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	t.loopCtx, t.cancelLoopCtx = context.WithCancel(context.Background())
+	loop++
+	t.loopCtx, t.cancelLoopCtx = context.WithCancel(
+		ctxlog.AppendCtx(context.Background(), slog.Int("loop", loop)),
+	)
 	go t.loop()
 }
 
@@ -62,7 +68,7 @@ func (t *TwentyTwentyTwenty) Stop() {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	if t.loopCtx != nil {
-		slog.Debug("Cancelling main loop context")
+		slog.DebugContext(t.loopCtx, "Cancelling main loop context")
 		t.cancelLoopCtx()
 	}
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/jba/slog/handlers/loghandler"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
+	"github.com/thiagokokada/twenty-twenty-twenty/internal/ctxlog"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
@@ -20,10 +21,13 @@ var (
 func main() {
 	lvl := new(slog.LevelVar)
 	lvl.Set(slog.LevelInfo)
-	logger := slog.New(loghandler.New(
-		os.Stdout,
-		&slog.HandlerOptions{Level: lvl},
-	))
+	handler := &ctxlog.ContextHandler{
+		Handler: loghandler.New(
+			os.Stdout,
+			&slog.HandlerOptions{Level: lvl},
+		),
+	}
+	logger := slog.New(handler)
 	slog.SetDefault(logger)
 
 	optional := core.Optional{Sound: sound.Enabled, Systray: systrayEnabled}
