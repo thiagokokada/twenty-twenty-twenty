@@ -62,7 +62,12 @@ func main() {
 			// finish playing
 			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
 		}
-		err := notification.CancelAfter(twenty.Ctx(), sentNotification, &settings.Duration, &settings.Sound)
+		err := notification.CancelAfter(
+			twenty.Ctx(),
+			sentNotification,
+			&twenty.Settings.Duration,
+			&twenty.Settings.Sound,
+		)
 		if err != nil {
 			log.Printf("Test notification cancel failed: %v\n", err)
 		}
