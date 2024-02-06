@@ -38,12 +38,17 @@ func newMockNotifier() *mockNotifier {
 	}
 }
 
-var testSettings = Settings{
-	Duration:  time.Millisecond * 50,
-	Frequency: time.Millisecond * 100,
-	Pause:     time.Millisecond * 500,
-	Sound:     false,
-}
+var twenty = New(
+	Optional{
+		Sound: false, Systray: false,
+	},
+	Settings{
+		Duration:  time.Millisecond * 50,
+		Frequency: time.Millisecond * 100,
+		Pause:     time.Millisecond * 500,
+		Sound:     false,
+	},
+)
 
 func TestStart(t *testing.T) {
 	notifier := newMockNotifier()
@@ -51,10 +56,10 @@ func TestStart(t *testing.T) {
 
 	const timeout = time.Second
 	// the last notification may or may not come because of timing
-	expectCount := int32(timeout/testSettings.Frequency) - 1
+	expectCount := int32(timeout/twenty.Settings.Frequency) - 1
 
-	Start(&testSettings, Optional{})
-	defer Stop()
+	twenty.Start()
+	defer twenty.Stop()
 	time.Sleep(timeout)
 
 	assert.GreaterOrEqual(t, notifier.notificationCount.Load(), expectCount)
@@ -66,18 +71,18 @@ func TestPause(t *testing.T) {
 	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
-	go func() { time.Sleep(timeout); Stop() }()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	callbackPreCalled := false
 	callbackPosCalled := false
-	Pause(
-		ctx, &testSettings, Optional{},
+	twenty.Pause(
+		ctx,
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
-	<-Ctx().Done()
+	<-twenty.Ctx().Done()
 
 	assert.Equal(t, callbackPreCalled, true)
 	assert.Equal(t, callbackPosCalled, true)
@@ -90,19 +95,19 @@ func TestPauseCancel(t *testing.T) {
 	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
-	go func() { time.Sleep(timeout); Stop() }()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
 	// will be cancelled before the timeout
 	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
 	defer cancel()
 	callbackPreCalled := false
 	callbackPosCalled := false
-	Pause(
-		ctx, &testSettings, Optional{},
+	twenty.Pause(
+		ctx,
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
-	<-Ctx().Done()
+	<-twenty.Ctx().Done()
 
 	assert.Equal(t, callbackPreCalled, false)
 	assert.Equal(t, callbackPosCalled, false)
@@ -115,11 +120,11 @@ func TestPauseNilCallbacks(t *testing.T) {
 	notification.SetNotifier(notifier)
 
 	const timeout = time.Second
-	go func() { time.Sleep(timeout); Stop() }()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	Pause(ctx, &testSettings, Optional{}, nil, nil)
+	twenty.Pause(ctx, nil, nil)
 
 	assert.Equal(t, notifier.notificationCount.Load(), 1)
 	assert.Equal(t, notifier.notificationCancelCount.Load(), 1)

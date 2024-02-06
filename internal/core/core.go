@@ -12,11 +12,26 @@ import (
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
-var (
+/*
+TwentyTwentyTwenty struct.
+
+Keeps the main state of the program.
+*/
+type TwentyTwentyTwenty struct {
+	Optional Optional
+	Settings Settings
+
 	cancelLoopCtx context.CancelFunc
 	loopCtx       context.Context
 	mu            sync.Mutex
-)
+}
+
+func New(optional Optional, settings Settings) *TwentyTwentyTwenty {
+	return &TwentyTwentyTwenty{
+		Optional: optional,
+		Settings: settings,
+	}
+}
 
 /*
 Optional struct.
@@ -35,7 +50,7 @@ Returns the current running twenty-twenty-twenty's context.
 Can be used to register for context cancellation, so if [Stop] is called the
 context will be done (see [pkg/context] for details).
 */
-func Ctx() context.Context { return loopCtx }
+func (t *TwentyTwentyTwenty) Ctx() context.Context { return t.loopCtx }
 
 /*
 Start twenty-twenty-twenty.
@@ -43,41 +58,38 @@ Start twenty-twenty-twenty.
 This will start the main twenty-twenty-twenty loop in a goroutine, so avoid
 calling this function inside a goroutine.
 */
-func Start(
-	settings *Settings,
-	optional Optional,
-) {
-	if optional.Sound {
+func (t *TwentyTwentyTwenty) Start() {
+	if t.Optional.Sound {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration and sound set to %t\n",
-			settings.Frequency.Minutes(),
-			settings.Duration.Seconds(),
-			settings.Sound,
+			t.Settings.Frequency.Minutes(),
+			t.Settings.Duration.Seconds(),
+			t.Settings.Sound,
 		)
 	} else {
 		log.Printf(
 			"Running twenty-twenty-twenty every %.1f minute(s), with %.f second(s) duration\n",
-			settings.Frequency.Minutes(),
-			settings.Duration.Seconds(),
+			t.Settings.Frequency.Minutes(),
+			t.Settings.Duration.Seconds(),
 		)
 	}
-	Stop() // make sure we cancel the previous instance
+	t.Stop() // make sure we cancel the previous instance
 
-	mu.Lock()
-	defer mu.Unlock()
-	loopCtx, cancelLoopCtx = context.WithCancel(context.Background())
-	go loop(loopCtx, settings, optional)
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	t.loopCtx, t.cancelLoopCtx = context.WithCancel(context.Background())
+	go t.loop()
 }
 
 /*
 Stop twenty-twenty-twenty.
 */
-func Stop() {
-	mu.Lock()
-	defer mu.Unlock()
-	if loopCtx != nil {
+func (t *TwentyTwentyTwenty) Stop() {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	if t.loopCtx != nil {
 		slog.Debug("Cancelling main loop context")
-		cancelLoopCtx()
+		t.cancelLoopCtx()
 	}
 }
 
@@ -93,16 +105,14 @@ timer finishes.
 The callback function in 'timerCallbackPos' parameter will be called once
 twenty-twenty-twenty is resumed.
 */
-func Pause(
+func (t *TwentyTwentyTwenty) Pause(
 	ctx context.Context,
-	settings *Settings,
-	optional Optional,
 	timerCallbackPre func(),
 	timerCallbackPos func(),
 ) {
-	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)\n", settings.Pause.Hours())
-	Stop() // cancelling current twenty-twenty-twenty goroutine
-	timer := time.NewTimer(settings.Pause)
+	log.Printf("Pausing twenty-twenty-twenty for %.2f hour(s)\n", t.Settings.Pause.Hours())
+	t.Stop() // cancelling current twenty-twenty-twenty goroutine
+	timer := time.NewTimer(t.Settings.Pause)
 	defer timer.Stop()
 
 	select {
@@ -114,13 +124,13 @@ func Pause(
 		// need to start a new instance before calling the blocking
 		// SendWithDuration(), otherwise if the user call Pause() again,
 		// we are going to call Stop() in the previous loop
-		Start(settings, optional)
+		t.Start()
 		err := notification.SendWithDuration(
 			ctx,
-			&settings.Duration,
-			&settings.Sound,
+			&t.Settings.Duration,
+			&t.Settings.Sound,
 			"Resuming 20-20-20",
-			fmt.Sprintf("You will see a notification every %.f minutes(s)", settings.Frequency.Minutes()),
+			fmt.Sprintf("You will see a notification every %.f minutes(s)", t.Settings.Frequency.Minutes()),
 		)
 		if err != nil {
 			log.Fatalf("Error while resuming notification: %v. Exiting\n", err)
@@ -133,31 +143,31 @@ func Pause(
 	}
 }
 
-func loop(ctx context.Context, settings *Settings, optional Optional) {
-	slog.DebugContext(ctx, "Starting new loop")
-	ticker := time.NewTicker(settings.Frequency)
+func (t *TwentyTwentyTwenty) loop() {
+	slog.DebugContext(t.loopCtx, "Starting new loop")
+	ticker := time.NewTicker(t.Settings.Frequency)
 	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ticker.C:
-			log.Printf("Showing notification for %.f second(s)\n", settings.Duration.Seconds())
+			log.Printf("Showing notification for %.f second(s)\n", t.Settings.Duration.Seconds())
 			// wait 1.5x the duration so we have some time for the sounds to
 			// finish playing
-			if optional.Sound {
-				go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
+			if t.Optional.Sound {
+				go sound.SuspendAfter(min(t.Settings.Duration*3/2, t.Settings.Frequency))
 			}
 			err := notification.SendWithDuration(
-				ctx,
-				&settings.Duration,
-				&settings.Sound,
+				t.loopCtx,
+				&t.Settings.Duration,
+				&t.Settings.Sound,
 				"Time to rest your eyes",
-				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", settings.Duration.Seconds()),
+				fmt.Sprintf("Look at 20 feet (~6 meters) away for %.f seconds", t.Settings.Duration.Seconds()),
 			)
 			if err != nil {
 				log.Printf("Error while sending notification: %v\n", err)
 			}
-		case <-ctx.Done():
+		case <-t.loopCtx.Done():
 			log.Println("Disabling twenty-twenty-twenty")
 			return
 		}
