@@ -170,9 +170,9 @@ func (t *TwentyTwentyTwenty) detectSleep(
 		case <-lastTickCh:
 			lastTick = <-lastTickCh
 		case <-time.After(5 * time.Second):
-			// if lastTick+Frequency > current time, it means the computer
+			// if lastTick+(Frequency*1.5) > current time, it means the computer
 			// slept, so we reset the ticker
-			if lastTick.Add(t.Settings.Frequency).After(time.Now()) {
+			if lastTick.Add(t.Settings.Frequency * 3 / 2).After(time.Now()) {
 				slog.DebugContext(ctx, "Detected that the computer slept, restarting ticker")
 				ticker.Reset(t.Settings.Frequency)
 				lastTickCh <- time.Now()
