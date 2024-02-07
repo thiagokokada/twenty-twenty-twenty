@@ -175,6 +175,7 @@ func (t *TwentyTwentyTwenty) detectSleep(
 			if lastTick.Add(t.Settings.Frequency).After(time.Now()) {
 				slog.DebugContext(ctx, "Detected that the computer slept, restarting ticker")
 				ticker.Reset(t.Settings.Frequency)
+				lastTickCh <- time.Now()
 			}
 		case <-ctx.Done():
 			slog.DebugContext(ctx, "Quiting detect sleep since main context is done")
