@@ -49,6 +49,12 @@ Usage of ./twenty-twenty-twenty:
         print program version and exit
 ```
 
+If you have Go installed, you can run (doesn't work in macOS though):
+
+```console
+go run github.com/thiagokokada/twenty-twenty-twenty@latest
+```
+
 If you have [`nix`](https://nixos.org/download) installed, you can run:
 
 ```console
