@@ -165,11 +165,14 @@ func (t *TwentyTwentyTwenty) detectSleep(
 	ticker *time.Ticker,
 ) {
 	var lastTick time.Time
+	sleepTickCh := make(chan bool, 1)
+	go sleepTick(ctx, sleepTickCh)
+
 	for {
 		select {
 		case <-lastTickCh:
 			lastTick = <-lastTickCh
-		case <-time.After(5 * time.Second):
+		case <-sleepTickCh:
 			// if lastTick+(Frequency*1.5) > current time, it means the computer
 			// slept, so we reset the ticker
 			if lastTick.Add(t.Settings.Frequency * 3 / 2).After(time.Now()) {
@@ -181,5 +184,15 @@ func (t *TwentyTwentyTwenty) detectSleep(
 			slog.DebugContext(ctx, "Quiting detect sleep since main context is done")
 			return
 		}
+	}
+}
+
+func sleepTick(ctx context.Context, ch chan bool) {
+	for {
+		if ctx.Err() != nil {
+			return
+		}
+		time.Sleep(5 * time.Second)
+		ch <- true
 	}
 }
