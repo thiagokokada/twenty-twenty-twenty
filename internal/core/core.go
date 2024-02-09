@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/ctxlog"
@@ -12,7 +13,7 @@ import (
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
-var loop int
+var loop atomic.Int64
 
 /*
 Create a new TwentyTwentyTwenty struct.
@@ -43,8 +44,7 @@ func (t *TwentyTwentyTwenty) Start(ctx context.Context) {
 		)
 	}
 
-	loop++
-	t.loop(ctxlog.AppendCtx(ctx, slog.Int("loop", loop)))
+	t.loop(ctxlog.AppendCtx(ctx, slog.Int64("loop", loop.Add(1))))
 }
 
 /*
