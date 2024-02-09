@@ -106,7 +106,7 @@ func TestPauseCancel(t *testing.T) {
 
 	const timeout = time.Second
 	// will be cancelled before the timeout
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout/10)
+	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout/20)
 	defer cancelCtx()
 
 	callbackPreCalled := false
