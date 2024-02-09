@@ -35,9 +35,10 @@ func onReady() {
 	for {
 		select {
 		case <-mEnabled.ClickedCh:
+			// make sure that we cancel the current loop
+			ctxCancel()
 			if mEnabled.Checked() {
 				slog.DebugContext(ctx, "Enable button unchecked")
-				ctxCancel()
 
 				mEnabled.Uncheck()
 				mPause.Disable()
@@ -50,7 +51,7 @@ func onReady() {
 				mPause.Enable()
 			}
 		case <-mPause.ClickedCh:
-			slog.DebugContext(ctx, "Cancelling current pause")
+			// make sure that we cancel the current loop
 			ctxCancel()
 			if mPause.Checked() {
 				slog.DebugContext(ctx, "Pause button unchecked")
