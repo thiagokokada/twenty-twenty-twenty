@@ -104,10 +104,8 @@ func TestPause(t *testing.T) {
 func TestPauseCancel(t *testing.T) {
 	resetCounters()
 
-	const timeout = time.Second
-	// will be cancelled before the timeout
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout/10)
-	defer cancelCtx()
+	ctx, cancelCtx := context.WithCancel(context.Background())
+	cancelCtx()
 
 	callbackPreCalled := false
 	callbackPosCalled := false
@@ -120,9 +118,7 @@ func TestPauseCancel(t *testing.T) {
 	assert.Equal(t, callbackPreCalled, false)
 	assert.Equal(t, callbackPosCalled, false)
 	assert.Equal(t, notifier.notificationCount.Load(), 0)
-	// this may be called or not, because we are using the same ctx for the main
-	// loop and the pause
-	assert.GreaterOrEqual(t, notifier.notificationCancelCount.Load(), 0)
+	assert.Equal(t, notifier.notificationCancelCount.Load(), 0)
 }
 
 func TestPauseNilCallbacks(t *testing.T) {
