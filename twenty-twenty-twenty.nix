@@ -21,7 +21,7 @@ buildGoModule {
   pname = "twenty-twenty-twenty";
   inherit version;
   src = lib.cleanSource ./.;
-  vendorHash = "sha256-NzDhpJRogIfL2IYoqAUHoPh/ZdNnvnhEQ+kn8A+ZyBw=";
+  vendorHash = "sha256-4lbLosbJij620fgAsO1DEJTsvo1+8pn02Junz/vb2H8=";
 
   CGO_ENABLED = if withSound then "1" else "0";
 
