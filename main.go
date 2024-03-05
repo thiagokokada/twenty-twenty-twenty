@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"log/slog"
@@ -15,10 +14,8 @@ import (
 )
 
 var (
-	ctx       context.Context
-	ctxCancel context.CancelFunc
-	twenty    *core.TwentyTwentyTwenty
-	version   = "development"
+	version = "development"
+	twenty  *core.TwentyTwentyTwenty
 )
 
 func main() {
@@ -58,18 +55,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("Test notification failed: %v. Exiting...", err)
 	}
-
 	twenty = core.New(features, settings)
-	ctx, ctxCancel = context.WithCancel(context.Background())
+	// we need to start notification cancellation in a goroutine to show the
+	// systray as soon as possible (since it depends on the loop() call), but we
+	// also need to give it access to the core.Ctx to cancel it if necessary
+	twenty.Start()
 	go func() {
-		twenty.Start(ctx)
 		if features.Sound {
 			// wait the 1.5x of duration so we have some time for the sounds to
 			// finish playing
 			go sound.SuspendAfter(min(settings.Duration*3/2, settings.Frequency))
 		}
 		err := notification.CancelAfter(
-			ctx,
+			twenty.Ctx(),
 			sentNotification,
 			&twenty.Settings.Duration,
 			&twenty.Settings.Sound,

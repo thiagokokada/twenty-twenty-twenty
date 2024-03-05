@@ -1,6 +1,8 @@
 package core
 
 import (
+	"context"
+	"sync"
 	"time"
 )
 
@@ -12,6 +14,10 @@ Keeps the main state of the program.
 type TwentyTwentyTwenty struct {
 	Features
 	Settings
+
+	cancelLoopCtx context.CancelFunc
+	loopCtx       context.Context
+	mu            sync.Mutex
 }
 
 /*

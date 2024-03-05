@@ -71,9 +71,9 @@ func TestStart(t *testing.T) {
 	// the last notification may or may not come because of timing
 	expectCount := int32(timeout/twenty.Settings.Frequency) - 1
 
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout)
-	defer cancelCtx()
-	twenty.Start(ctx)
+	twenty.Start()
+	defer twenty.Stop()
+	time.Sleep(timeout)
 
 	assert.GreaterOrEqual(t, notifier.notificationCount.Load(), expectCount)
 	assert.GreaterOrEqual(t, notifier.notificationCancelCount.Load(), expectCount)
@@ -83,9 +83,10 @@ func TestPause(t *testing.T) {
 	resetCounters()
 
 	const timeout = time.Second
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout)
-	defer cancelCtx()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	callbackPreCalled := false
 	callbackPosCalled := false
 	twenty.Pause(
@@ -93,7 +94,7 @@ func TestPause(t *testing.T) {
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
-	<-ctx.Done()
+	<-twenty.Ctx().Done()
 
 	assert.Equal(t, callbackPreCalled, true)
 	assert.Equal(t, callbackPosCalled, true)
@@ -105,10 +106,11 @@ func TestPauseCancel(t *testing.T) {
 	resetCounters()
 
 	const timeout = time.Second
-	// will be cancelled before the timeout
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout/20)
-	defer cancelCtx()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
+	// will be cancelled before the timeout
+	ctx, cancel := context.WithTimeout(context.Background(), timeout/10)
+	defer cancel()
 	callbackPreCalled := false
 	callbackPosCalled := false
 	twenty.Pause(
@@ -116,6 +118,7 @@ func TestPauseCancel(t *testing.T) {
 		func() { callbackPreCalled = true },
 		func() { callbackPosCalled = true },
 	)
+	<-twenty.Ctx().Done()
 
 	assert.Equal(t, callbackPreCalled, false)
 	assert.Equal(t, callbackPosCalled, false)
@@ -127,9 +130,10 @@ func TestPauseNilCallbacks(t *testing.T) {
 	resetCounters()
 
 	const timeout = time.Second
-	ctx, cancelCtx := context.WithTimeout(context.Background(), timeout)
-	defer cancelCtx()
+	go func() { time.Sleep(timeout); twenty.Stop() }()
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	twenty.Pause(ctx, nil, nil)
 
 	assert.Equal(t, notifier.notificationCount.Load(), 1)
