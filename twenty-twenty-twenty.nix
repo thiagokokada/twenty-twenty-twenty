@@ -1,14 +1,15 @@
-{ lib
-, stdenv
-, alsa-lib
-, buildGoModule
-, darwin
-, pkg-config
-, rcodesign
-, version ? "unknown"
-, withSound ? true
-, withStatic ? false
-, withSystray ? true
+{
+  lib,
+  stdenv,
+  alsa-lib,
+  buildGoModule,
+  darwin,
+  pkg-config,
+  rcodesign,
+  version ? "unknown",
+  withSound ? true,
+  withStatic ? false,
+  withSystray ? true,
 }:
 
 # Darwin builds always have sound since it doesn't depend in CGO, and darwin
@@ -25,20 +26,17 @@ buildGoModule {
 
   CGO_ENABLED = if withSound then "1" else "0";
 
-  nativeBuildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
-    pkg-config
-  ] ++ lib.optionals stdenv.hostPlatform.isDarwin [
-    rcodesign
-  ];
+  nativeBuildInputs =
+    lib.optionals (withSound && stdenv.hostPlatform.isLinux) [ pkg-config ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ rcodesign ];
 
-  buildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [
-    alsa-lib
-  ] ++
-  lib.optionals stdenv.hostPlatform.isDarwin [
-    darwin.apple_sdk_11_0.frameworks.Cocoa
-    darwin.apple_sdk_11_0.frameworks.MetalKit
-    darwin.apple_sdk_11_0.frameworks.UserNotifications
-  ];
+  buildInputs =
+    lib.optionals (withSound && stdenv.hostPlatform.isLinux) [ alsa-lib ]
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [
+      darwin.apple_sdk_11_0.frameworks.Cocoa
+      darwin.apple_sdk_11_0.frameworks.MetalKit
+      darwin.apple_sdk_11_0.frameworks.UserNotifications
+    ];
 
   preBuild = lib.optionalString stdenv.isDarwin ''
     export MACOSX_DEPLOYMENT_TARGET=11.0
@@ -57,8 +55,16 @@ buildGoModule {
     export CI=1
   '';
 
-  ldflags = [ "-X=main.version=${version}" "-s" "-w" ]
-    ++ lib.optionals withStatic [ "-linkmode external" ''-extldflags "-static"'' ]
+  ldflags =
+    [
+      "-X=main.version=${version}"
+      "-s"
+      "-w"
+    ]
+    ++ lib.optionals withStatic [
+      "-linkmode external"
+      ''-extldflags "-static"''
+    ]
     ++ lib.optionals (!withSystray) [ "-tags=nosystray" ];
 
   meta = with lib; {
