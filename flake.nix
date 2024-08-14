@@ -42,6 +42,10 @@
             inherit version;
             withStatic = true;
           };
+          twenty-twenty-twenty-aarch64-linux-static = pkgs.pkgsCross.aarch64-multiplatform.pkgsStatic.callPackage ./twenty-twenty-twenty.nix {
+            inherit version;
+            withStatic = true;
+          };
         });
 
       devShells = forAllSystems (system:
