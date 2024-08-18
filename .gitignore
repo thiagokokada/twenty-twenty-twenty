@@ -1,6 +1,7 @@
-.bin/
 .DS_Store/
+.bin/
 bin/
 cover.*
 result
+twenty-twenty-twenty
 vendor/
