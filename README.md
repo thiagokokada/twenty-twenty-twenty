@@ -9,30 +9,54 @@ screen usage sessions.
 
 ## How to use
 
-In macOS just run `TwentyTwentyTwenty_<arch>.app`.
+If you have Go installed, you can run:
+
+```console
+# doesn't work in macOS since it needs an signed app bundle
+go run github.com/thiagokokada/twenty-twenty-twenty@latest
+```
+If you have [`nix`](https://nixos.org/download) installed, you can run:
+
+```console
+# works in macOS too
+nix run github:thiagokokada/twenty-twenty-twenty
+```
+
+You can also download the pre-build binaries in
+[releases](https://github.com/thiagokokada/twenty-twenty-twenty/releases).
+
+Below are instructions on how to get the best experience in each OS.
+
+### macOS
 
 > [!WARNING]
 > The releases available for macOS are signed with the adhoc certificate. They
-> work in my build machine, but I am not sure if they work if downloaded from
-> internet to another macOS machine. Of course, you can always build the code
-> yourself and it should work.
+> will not work as-is unless re-signed. If you're using macOS, the easiest way
+> to get it working is compiling it yourself.
 
-> [!TIP]
-> Configure the notification type in "System Settings" -> "Notifications" ->
-> "TwentyTwentyTwenty" to use "Alerts". This will result in the notification to
-> stay until the end of the duration period instead of disappearing in a few
-> seconds.
+In macOS, just run `TwentyTwentyTwenty_<arch>.app`. I recommend moving
+`TwentyTwentyTwenty_<arch>.app` to `~/Applications`
 
-In Windows just run `twenty-twenty-twenty-windows-<arch>.exe`. You may want to
-disable the sounds either from the application (using the system tray) or from
-Windows itself (you can disable sounds for notifications from a specific
-application).
+For a better experience, configure the notification type in "System Settings"
+-> "Notifications" -> "TwentyTwentyTwenty" to use "Alerts". This will result in
+the notification to stay until the end of the duration period instead of
+disappearing in a few seconds.
+
+### Windows
+
+In Windows, just run `twenty-twenty-twenty-windows-<arch>.exe`.
+
+You may want to disable the sounds either from the application (using the
+system tray) or from Windows itself (you can disable sounds for notifications
+from a specific application).
 
 The second option is probably a better idea since the application play sounds
 when the notification starts and ends, to remind you that you can look at the
 screen again.
 
-In Linux/other OS:
+### Linux/*BSDs
+
+Run in terminal:
 
 ```console
 $ ./twenty-twenty-twenty -help
@@ -49,18 +73,6 @@ Usage of ./twenty-twenty-twenty:
         print program version and exit
 ```
 
-If you have Go installed, you can run (doesn't work in macOS though):
-
-```console
-go run github.com/thiagokokada/twenty-twenty-twenty@latest
-```
-
-If you have [`nix`](https://nixos.org/download) installed, you can run:
-
-```console
-nix run github:thiagokokada/twenty-twenty-twenty
-```
-
 ## How to build
 
 > [!IMPORTANT]
@@ -75,7 +87,10 @@ Needs Go 1.21+.
 ```console
 go generate tools.go # install necessary command-line tools
 make
+make run
 ```
+
+### With Nix
 
 If you have `nix` installed, you can also setup the development setup with it:
 
