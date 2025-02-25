@@ -82,10 +82,9 @@ Usage of ./twenty-twenty-twenty:
 > xcode-select --install
 > ```
 
-Needs Go 1.21+.
+Needs Go 1.24+.
 
 ```console
-go generate tools.go # install necessary command-line tools
 make
 make run
 ```

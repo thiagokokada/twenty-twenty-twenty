@@ -33,8 +33,8 @@ coverage:
 lint:
 	test -z $(shell gofmt -l .)
 	go vet -v ./...
-	go run github.com/kisielk/errcheck -verbose ./...
-	go run honnef.co/go/tools/cmd/staticcheck ./...
+	go tool github.com/kisielk/errcheck -verbose ./...
+	go tool honnef.co/go/tools/cmd/staticcheck ./...
 
 .PHONY: test
 test:
@@ -88,7 +88,7 @@ bin/twenty-twenty-twenty-linux-arm64-static:
 # macOS builds needs an .app bundle and (adhoc) signature to work, and only
 # work in macOS itself (since it needs CGO_ENABLED and codesign)
 bin/TwentyTwentyTwenty_%.app: PHONY_TARGET
-	go run gioui.org/cmd/gogio -x -arch=$* -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
+	go tool gioui.org/cmd/gogio -x -arch=$* -target=macos -ldflags="$(LDFLAGS)" -icon=./assets/eye.png -o=$@ .
 	cp $@/Contents/Resources/icon.icns assets/macos/TwentyTwentyTwenty.app/Contents/Resources/icon.icns
 	cp assets/macos/TwentyTwentyTwenty.app/Contents/Info.plist $@/Contents/Info.plist
 	mv $@/Contents/MacOS/TwentyTwentyTwenty_$* $@/Contents/MacOS/TwentyTwentyTwenty

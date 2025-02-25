@@ -2,7 +2,7 @@
   lib,
   stdenv,
   alsa-lib,
-  buildGoModule,
+  buildGo124Module,
   darwin,
   pkg-config,
   version ? "unknown",
@@ -17,11 +17,11 @@ assert stdenv.isDarwin -> withSound;
 # No sound builds are always static
 assert withStatic -> withSound;
 
-buildGoModule {
+buildGo124Module {
   pname = "twenty-twenty-twenty";
   inherit version;
   src = lib.cleanSource ./.;
-  vendorHash = "sha256-XNzfRxq0pObmeUaolaWkdMDHKlK0NZOz59nq9xLupy8=";
+  vendorHash = "sha256-rZoL4WQIqOwmEnopo05AksKuIKAcE3aCzlr9D5hmoz4=";
 
   env.CGO_ENABLED = if withSound then "1" else "0";
 
