@@ -5,7 +5,6 @@
   buildGoModule,
   darwin,
   pkg-config,
-  rcodesign,
   version ? "unknown",
   withSound ? true,
   withStatic ? false,
@@ -24,19 +23,13 @@ buildGoModule {
   src = lib.cleanSource ./.;
   vendorHash = "sha256-XNzfRxq0pObmeUaolaWkdMDHKlK0NZOz59nq9xLupy8=";
 
-  CGO_ENABLED = if withSound then "1" else "0";
+  env.CGO_ENABLED = if withSound then "1" else "0";
 
   nativeBuildInputs =
     lib.optionals (withSound && stdenv.hostPlatform.isLinux) [ pkg-config ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [ rcodesign ];
+    ++ lib.optionals stdenv.hostPlatform.isDarwin [ darwin.autoSignDarwinBinariesHook ];
 
-  buildInputs =
-    lib.optionals (withSound && stdenv.hostPlatform.isLinux) [ alsa-lib ]
-    ++ lib.optionals stdenv.hostPlatform.isDarwin [
-      darwin.apple_sdk_11_0.frameworks.Cocoa
-      darwin.apple_sdk_11_0.frameworks.MetalKit
-      darwin.apple_sdk_11_0.frameworks.UserNotifications
-    ];
+  buildInputs = lib.optionals (withSound && stdenv.hostPlatform.isLinux) [ alsa-lib ];
 
   preBuild = lib.optionalString stdenv.isDarwin ''
     export MACOSX_DEPLOYMENT_TARGET=11.0
@@ -47,7 +40,6 @@ buildGoModule {
     mkdir -p "$OUT_APP/Contents/MacOS"
     cp -r assets/macos/TwentyTwentyTwenty.app/* "$OUT_APP"
     cp $out/bin/twenty-twenty-twenty "$OUT_APP/Contents/MacOS/TwentyTwentyTwenty"
-    rcodesign sign "$OUT_APP"
   '';
 
   # Disable tests that can't run in CI, since they require desktop environment
