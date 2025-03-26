@@ -24,11 +24,12 @@ const Enabled bool = true
 const lag time.Duration = time.Second / 4
 
 var (
+	mu        sync.Mutex
+	suspended bool
+
 	initialised bool
-	mu          sync.Mutex
 	sound1      sound
 	sound2      sound
-	suspended   bool
 	wg          wgCount
 	//go:embed assets/*.ogg
 	notifications embed.FS
@@ -63,9 +64,6 @@ func Init(suspend bool) error {
 		slog.Debug("Sound already initialised")
 		return nil
 	}
-
-	mu.Lock()
-	defer mu.Unlock()
 
 	buffer, format, err := loadSound("assets/notification_1.ogg")
 	if err != nil {
@@ -106,9 +104,6 @@ func SuspendAfter(after time.Duration) {
 	slog.Debug("Suspending sound", "afterSeconds", after.Seconds())
 	time.Sleep(after)
 
-	mu.Lock()
-	defer mu.Unlock()
-
 	slog.Debug("Waiting sounds to finish playing before suspending", "wg", wg.count())
 	wg.Wait()
 	slog.Debug("Finished playing sound, calling speaker suspend", "wg", wg.count())
@@ -137,8 +132,6 @@ func loadSound(file string) (*beep.Buffer, beep.Format, error) {
 }
 
 func playSound(s sound, endCallback func()) error {
-	mu.Lock()
-	defer mu.Unlock()
 	wg.add(1)
 
 	err := speakerResume()
@@ -157,7 +150,6 @@ func playSound(s sound, endCallback func()) error {
 	return nil
 }
 
-// WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerResume() error {
 	if !initialised {
 		slog.Debug("Ignoring speaker resume call since it is not initialised yet")
@@ -165,6 +157,9 @@ func speakerResume() error {
 	}
 
 	if suspended {
+		mu.Lock()
+		defer mu.Unlock()
+
 		slog.Debug("Resuming speaker")
 		err := speaker.Resume()
 		if err != nil {
@@ -177,7 +172,6 @@ func speakerResume() error {
 	return nil
 }
 
-// WARN: this function is not thread safe, call it inside a mu.Lock()
 func speakerSuspend() error {
 	if !initialised {
 		slog.Debug("Ignoring speaker suspend call since it is not initialised yet")
@@ -185,6 +179,9 @@ func speakerSuspend() error {
 	}
 
 	if !suspended {
+		mu.Lock()
+		defer mu.Unlock()
+
 		slog.Debug("Suspending speaker to reduce CPU usage")
 		speaker.Clear()
 		err := speaker.Suspend()

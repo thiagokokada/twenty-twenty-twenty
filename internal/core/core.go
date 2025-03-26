@@ -12,8 +12,6 @@ import (
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/sound"
 )
 
-var loop int
-
 /*
 Create a new TwentyTwentyTwenty struct.
 */
@@ -54,9 +52,9 @@ func (t *TwentyTwentyTwenty) Start() {
 
 	t.mu.Lock()
 	defer t.mu.Unlock()
-	loop++
+	t.loopCount++
 	t.loopCtx, t.cancelLoopCtx = context.WithCancel(
-		ctxlog.AppendCtx(context.Background(), slog.Int("loop", loop)),
+		ctxlog.AppendCtx(context.Background(), slog.Int("loop", t.loopCount)),
 	)
 	go t.loop()
 }

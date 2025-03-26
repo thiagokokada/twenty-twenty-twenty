@@ -15,9 +15,10 @@ type TwentyTwentyTwenty struct {
 	Features
 	Settings
 
+	mu            sync.Mutex
 	cancelLoopCtx context.CancelFunc
 	loopCtx       context.Context
-	mu            sync.Mutex
+	loopCount     int
 }
 
 /*
