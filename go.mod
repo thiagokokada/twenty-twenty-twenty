@@ -7,7 +7,7 @@ toolchain go1.24.0
 require (
 	fyne.io/systray v1.11.0
 	gioui.org/x v0.8.1
-	github.com/gopxl/beep v1.4.1
+	github.com/gopxl/beep/v2 v2.1.1
 	github.com/jba/slog v0.2.0
 )
 
@@ -29,15 +29,15 @@ require (
 	github.com/jfreymuth/vorbis v1.0.2 // indirect
 	github.com/kisielk/errcheck v1.9.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/exp v0.0.0-20250218142911-aa4b98e5adaa // indirect
-	golang.org/x/exp/shiny v0.0.0-20250218142911-aa4b98e5adaa // indirect
+	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
+	golang.org/x/exp/shiny v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20240808152545-0cdaa3abc0fa // indirect
-	golang.org/x/image v0.24.0 // indirect
-	golang.org/x/mod v0.23.0 // indirect
-	golang.org/x/sync v0.11.0 // indirect
-	golang.org/x/sys v0.30.0 // indirect
-	golang.org/x/text v0.22.0 // indirect
-	golang.org/x/tools v0.30.0 // indirect
+	golang.org/x/image v0.25.0 // indirect
+	golang.org/x/mod v0.24.0 // indirect
+	golang.org/x/sync v0.12.0 // indirect
+	golang.org/x/sys v0.31.0 // indirect
+	golang.org/x/text v0.23.0 // indirect
+	golang.org/x/tools v0.31.0 // indirect
 	honnef.co/go/tools v0.6.0 // indirect
 )
 

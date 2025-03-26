@@ -1,6 +1,6 @@
 package sound
 
-import "github.com/gopxl/beep"
+import "github.com/gopxl/beep/v2"
 
 type sound struct {
 	name   string
