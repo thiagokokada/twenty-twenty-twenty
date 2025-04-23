@@ -6,7 +6,6 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/jba/slog/handlers/loghandler"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/core"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/ctxlog"
 	"github.com/thiagokokada/twenty-twenty-twenty/internal/notification"
@@ -22,13 +21,17 @@ func main() {
 	lvl := new(slog.LevelVar)
 	lvl.Set(slog.LevelInfo)
 	handler := &ctxlog.ContextHandler{
-		Handler: loghandler.New(
-			os.Stdout,
-			&slog.HandlerOptions{Level: lvl},
-		),
+		Handler: logHandler{
+			Handler:        slog.Default().Handler(),
+			HandlerOptions: &slog.HandlerOptions{Level: lvl},
+		},
 	}
 	logger := slog.New(handler)
 	slog.SetDefault(logger)
+	// https://github.com/golang/go/issues/61892#issuecomment-1675123776
+	// https://groups.google.com/g/golang-nuts/c/aJPXT2NF-Lc/m/rU0QayKwAQAJ
+	log.SetOutput(os.Stdout)
+	log.SetFlags(log.Ldate | log.Ltime)
 
 	features := core.Features{Sound: sound.Enabled, Systray: systrayEnabled}
 	settings := core.ParseFlags(os.Args[0], os.Args[1:], version, features)

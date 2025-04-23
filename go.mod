@@ -8,7 +8,6 @@ require (
 	fyne.io/systray v1.11.0
 	gioui.org/x v0.8.1
 	github.com/gopxl/beep/v2 v2.1.1
-	github.com/jba/slog v0.2.0
 )
 
 require (
