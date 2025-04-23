@@ -21,10 +21,8 @@ func main() {
 	lvl := new(slog.LevelVar)
 	lvl.Set(slog.LevelInfo)
 	handler := &ctxlog.ContextHandler{
-		Handler: logHandler{
-			Handler:        slog.Default().Handler(),
-			HandlerOptions: &slog.HandlerOptions{Level: lvl},
-		},
+		Handler:        slog.Default().Handler(),
+		HandlerOptions: &slog.HandlerOptions{Level: lvl},
 	}
 	logger := slog.New(handler)
 	slog.SetDefault(logger)

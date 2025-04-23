@@ -15,6 +15,11 @@ const (
 
 type ContextHandler struct {
 	slog.Handler
+	*slog.HandlerOptions
+}
+
+func (h ContextHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return level >= h.HandlerOptions.Level.Level()
 }
 
 // Handle adds contextual attributes to the Record before calling the underlying
@@ -27,6 +32,14 @@ func (h ContextHandler) Handle(ctx context.Context, r slog.Record) error {
 	}
 
 	return h.Handler.Handle(ctx, r)
+}
+
+func (h ContextHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return ContextHandler{Handler: h.Handler.WithAttrs(attrs)}
+}
+
+func (h ContextHandler) WithGroup(name string) slog.Handler {
+	return ContextHandler{Handler: h.Handler.WithGroup(name)}
 }
 
 // AppendCtx adds an slog attribute to the provided context so that it will be
