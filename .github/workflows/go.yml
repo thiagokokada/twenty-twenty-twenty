@@ -14,13 +14,13 @@ jobs:
   build-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Install dependencies
       run: sudo apt-get install -y libasound2-dev
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: '1.24'
 
@@ -52,10 +52,10 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Go
-      uses: actions/setup-go@v5
+      uses: actions/setup-go@v6
       with:
         go-version: '1.24'
 
@@ -68,11 +68,12 @@ jobs:
   build-macos-nix:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/install-nix-action@v31
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        nix_path: nixpkgs=channel:nixos-unstable
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build
       run: nix build
@@ -80,11 +81,12 @@ jobs:
   build-linux-nix:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
-    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: cachix/install-nix-action@v31
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        nix_path: nixpkgs=channel:nixos-unstable
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check Flake
       run: nix flake check
